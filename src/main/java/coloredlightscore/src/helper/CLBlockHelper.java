@@ -26,6 +26,15 @@ public class CLBlockHelper {
         return instance;
     }
 
+    public static int getMixedBrightnessForBlock(Block block, IBlockAccess blockAccess, int x, int y, int z) {
+        return getMixedBrightnessForBlockWithColor(blockAccess, x, y, z);
+    }
+
+    public static int makeBrightness(int lightlevel)
+    {
+        return lightlevel << 4 | lightlevel << 8 | lightlevel << 12 | lightlevel << 16;
+    }
+
     public static int getMixedBrightnessForBlockWithColor(IBlockAccess blockAccess, int x, int y, int z) {
         int l;
         Block block = blockAccess.getBlock(x, y, z);
@@ -45,6 +54,8 @@ public class CLBlockHelper {
                 return CLChunkCacheHelper.getLightBrightnessForSkyBlocks((ChunkCache) blockAccess, x, y, z, block.getLightValue(blockAccess, x, y, z));
             else
                 return 0;
+        } else if (block.getClass().getName().equals("thaumcraft.common.blocks.BlockCustomOre")) {
+            return makeBrightness(8);
         } else {
             return l;
         }

@@ -41,6 +41,7 @@ public class NameMapper {
 
         // Block
         registerSrgName("CL: net/minecraft/block/Block net/minecraft/block/Block");
+        registerSrgName("MD: net/minecraft/block/Block/getMixedBrightnessForBlock (Lnet/minecraft/world/IBlockAccess;III)I net/minecraft/block/Block/func_149677_c (Lnet/minecraft/world/IBlockAccess;III)I");
         registerSrgName("MD: net/minecraft/block/Block/setLightLevel (F)Lnet/minecraft/block/Block; net/minecraft/block/Block/func_149715_a (F)Lnet/minecraft/block/Block;");
 
         // Chunk
