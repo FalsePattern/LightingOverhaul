@@ -42,5 +42,5 @@ void main() {
                         texel1101 * fract(p_LightCoord.x) * fract(p_LightCoord.y) * (1 - fract(p_LightCoord.z)) * fract(p_LightCoord.w) +
                         texel1110 * fract(p_LightCoord.x) * fract(p_LightCoord.y) * fract(p_LightCoord.z) * (1 - fract(p_LightCoord.w)) +
                         texel1111 * fract(p_LightCoord.x) * fract(p_LightCoord.y) * fract(p_LightCoord.z) * fract(p_LightCoord.w);
-    gl_FragColor = texture2D(Texture, p_TexCoord) * p_Color * lightColor;
+    gl_FragColor = texture2D(Texture, p_TexCoord) * p_Color * (lightColor - 0.1) * 1.111;
 }
