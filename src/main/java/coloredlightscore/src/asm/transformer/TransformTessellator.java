@@ -26,7 +26,10 @@ public class TransformTessellator extends HelperMethodTransformer {
     boolean byteBufferIsStatic = false;
 
     // These methods will be replaced by statics in CLTessellatorHelper
-    String methodsToReplace[] = { "addVertex (DDD)V" };
+    String methodsToReplace[] = {
+        "addVertex (DDD)V",
+        "setBrightness (I)V"
+    };
     String constructorToReplace = "<clinit> ()V";
 
 

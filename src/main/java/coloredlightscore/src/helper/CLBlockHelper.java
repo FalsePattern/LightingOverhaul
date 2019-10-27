@@ -54,8 +54,6 @@ public class CLBlockHelper {
                 return CLChunkCacheHelper.getLightBrightnessForSkyBlocks((ChunkCache) blockAccess, x, y, z, block.getLightValue(blockAccess, x, y, z));
             else
                 return 0;
-        } else if (block.getClass().getName().equals("thaumcraft.common.blocks.BlockCustomOre")) {
-            return makeBrightness(8);
         } else {
             return l;
         }

@@ -40,6 +40,8 @@ public class CLTessellatorHelper {
     public static void setBrightness(Tessellator instance, int par1) {
         instance.hasBrightness = true;
         instance.brightness = par1;
+        if (par1 < 256)
+            instance.brightness = makeBrightness(par1);
     }
 
     public static void setupShaders() {
@@ -179,6 +181,11 @@ public class CLTessellatorHelper {
     public static void unsetLightCoord() {
         GL20.glDisableVertexAttribArray(lightCoordParam);
         GL20.glUniform4(lightCoordUniform, cachedLightCoord);
+    }
+
+    public static int makeBrightness(int lightlevel)
+    {
+        return lightlevel << 4 | lightlevel << 8 | lightlevel << 12 | lightlevel << 16;
     }
 
     public static void addVertex(Tessellator instance, double par1, double par3, double par5) {
