@@ -27,6 +27,7 @@ public class CLTessellatorHelper {
     private static boolean hasFlaggedOpenglError;
     private static int lastGLErrorCode = GL11.GL_NO_ERROR;
     private static String infoStr;
+    public static boolean lockedBrightness;
 
     static {
         cachedLightCoord = ByteBuffer.allocateDirect(16).asIntBuffer();
@@ -38,6 +39,8 @@ public class CLTessellatorHelper {
     }
 
     public static void setBrightness(Tessellator instance, int par1) {
+        if (lockedBrightness)
+            return;
         instance.hasBrightness = true;
         instance.brightness = par1;
         if (par1 < 256)
