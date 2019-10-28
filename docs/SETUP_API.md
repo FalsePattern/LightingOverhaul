@@ -1,11 +1,11 @@
 ####Add the Colored Light API to an existing Forge Environment####
-Forum: http://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/wip-mods/1446134-1-7-10-beta-colored-light-api-mod-writers-can
+Forum: https://www.minecraftforum.net/forums/mapping-and-modding-java-edition/minecraft-mods/wip-mods/2993392-colored-light-continuation
 
 ######Installing the Colored Lights API (for Devs)######
 
 1. Download codeChickenCore(CCC) from here: http://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/1279956-chickenbones-mods  Be sure to take a dev-version (it may work with src too, we Haven't tested that) AND make sure to take the right CCC-Version for your Minecraft-Version.
 
-2. Download coloredLightsCore(CLC) here: http://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/wip-mods/1445251-1-7-10-beta-wip-colored-light-progress-and  You **DON'T** need the coloredLightsAPI, you need the normal mod!
+2. Download coloredLightsCore(CLC) here: https://www.minecraftforum.net/forums/mapping-and-modding-java-edition/minecraft-mods/wip-mods/2993392-colored-light-continuation  You **DON'T** need the coloredLightsAPI, you need the normal mod!
 
 3. Drop both(CLC and CCC) into your "path_to_working_dir/mods/" folder
 
@@ -13,7 +13,3 @@ Forum: http://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/w
 
 
 The API methods **may** be inaccessible for now, but they can be implemented relativly easily.  If you are able to access the API, please let me know, then I can update this guide!
-
-Message on the forums, and ask questions on 
-IRC: irc.esper.net 
-Room: #ColoredLightCore

@@ -2,7 +2,7 @@
 You're going to need to pull the repository, and switch to the current development branch.  Then you can use the gradle wrapper (or gradle if you have it installed) to setup and build the workspace
 
 `cd the/place/you/want/to/put/this`  
-`git clone -b1.7.2 https://github.com/CptSpaceToaster/CptsModdingLight`  
+`git clone -b1.7.2 https://github.com/DarkShadow44/CptsModdingLight`
 `cd CptsModdingLight`  
 `gradlew setupDecompWorkspace`  
 `gradlew eclipse (or your preferred development environment)`  
@@ -27,6 +27,4 @@ _____________
 #####You're in!
 Have fun!  Don't go too crazy, and be sure to add an [issue](https://github.com/CptSpaceToaster/CptsModdingLight/issues) if you think you found a new one.
 
-Feel free to contact me on the [forums](http://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/wip-mods/1445251-1-7-2-beta-wip-colored-light-progress-and), here on github, and in the #MinecraftForge IRC on esper.net.
-
-Also... we registered #ColoredLightCore as well, so it would probably be good if you asked direct questions there instead.  Have a great day!
+Feel free to contact me on the [forums](https://www.minecraftforum.net/forums/mapping-and-modding-java-edition/minecraft-mods/wip-mods/2993392-colored-light-continuation), or here on github.
