@@ -2,6 +2,7 @@ package coloredlightscore.src.helper;
 
 import coloredlightscore.src.asm.ColoredLightsCoreDummyContainer;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockStainedGlass;
 import net.minecraft.util.Facing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.EnumSkyBlock;
@@ -68,6 +69,31 @@ public class CLWorldHelper {
         }
     }
 
+    private static int calculateOpacity(int light, int opacity, Block block)
+    {
+        int l = (light >> 0) & 0xF;
+        int r = (light >> 5) & 0xF;
+        int g = (light >> 10) & 0xF;
+        int b = (light >> 15) & 0xF;
+
+        int r_opacity = opacity;
+        int g_opacity = opacity;
+        int b_opacity = opacity;
+
+        if (block instanceof BlockStainedGlass)
+        {
+            r_opacity = 5;
+            g_opacity = 5;
+        }
+
+        l =  Math.max(0, l - opacity);
+        r =  Math.max(0, r - r_opacity);
+        g =  Math.max(0, g - g_opacity);
+        b =  Math.max(0, b - b_opacity);
+
+        return (l << 0) | (r << 5) | (g << 10) | (b << 15);
+    }
+
     //Use this one if you want color
     @SideOnly(Side.CLIENT)
     public static int getLightBrightnessForSkyBlocks(World world, int x, int y, int z, int lightValue) {
@@ -130,21 +156,12 @@ public class CLWorldHelper {
 
                     int neighborLight = world.pipe.getSavedLightValue(par1Enu, l1, i2, j2);
 
-                    int ll = neighborLight & 0x0000F;
-                    int rl = neighborLight & 0x001E0;
-                    int gl = neighborLight & 0x03C00;
-                    int bl = neighborLight & 0x78000;
+                    int light = calculateOpacity(neighborLight, opacity, block);
 
-                    ll -= opacity & 0x0000F;
-                    /* TODO: Colored Opacity
-                    rl -= opacity & 0x001E0;
-                    gl -= opacity & 0x03C00;
-                    bl -= opacity & 0x78000;
-                    */
-                    //Use vanilla light opacity for now
-                    rl =  Math.max(0, rl - (opacity << 5));
-                    gl =  Math.max(0, gl - (opacity << 10));
-                    bl =  Math.max(0, bl - (opacity << 15));
+                    int ll = light & 0x0000F;
+                    int rl = light & 0x001E0;
+                    int gl = light & 0x03C00;
+                    int bl = light & 0x78000;
 
                     // For each component, retain greater of currentLight, (neighborLight - opacity)
                     if (ll > (currentLight & 0x0000F)) {
@@ -268,7 +285,8 @@ public class CLWorldHelper {
                                     lightEntry = world.pipe.lightAdditionNeeded[neighbor_x - par_x + 14][neighbor_y - par_y + 14][neighbor_z - par_z + 14];
                                     if (lightEntry != world.pipe.updateFlag && (lightEntry != world.pipe.updateFlag + 1 || !shouldIncrement)) { // on recursive calls, ignore instances of world.pipe.updateFlag being flag + 1
 
-                                        opacity = Math.max(1, world.getBlock(neighbor_x, neighbor_y, neighbor_z).getLightOpacity(world, neighbor_x, neighbor_y, neighbor_z));
+                                        Block neighborBlock = world.getBlock(neighbor_x, neighbor_y, neighbor_z);
+                                        opacity = Math.max(1, neighborBlock.getLightOpacity(world, neighbor_x, neighbor_y, neighbor_z));
 
                                         //Proceed only if the block is non-solid
                                         if (opacity < 15) {
@@ -276,12 +294,14 @@ public class CLWorldHelper {
                                             //Get Saved light value from face
                                             neighborLightEntry = world.pipe.getSavedLightValue(par1Enu, neighbor_x, neighbor_y, neighbor_z);
 
+                                            int queueLightEntryFiltered = calculateOpacity(queueLightEntry, opacity, neighborBlock);
+
                                             //Subtract by 1, as channels diminish by one every block
                                             //TODO: Colored Opacity
-                                            ll = (queueLightEntry & 0x0000F) > (neighborLightEntry & 0x0000F) ? Math.max(0, (queueLightEntry & 0x0000F) - (opacity)) : (neighborLightEntry & 0x0000F);
-                                            rl = (queueLightEntry & 0x001E0) > (neighborLightEntry & 0x001E0) ? Math.max(0, (queueLightEntry & 0x001E0) - (opacity << 5)) : (neighborLightEntry & 0x001E0);
-                                            gl = (queueLightEntry & 0x03C00) > (neighborLightEntry & 0x03C00) ? Math.max(0, (queueLightEntry & 0x03C00) - (opacity << 10)) : (neighborLightEntry & 0x03C00);
-                                            bl = (queueLightEntry & 0x78000) > (neighborLightEntry & 0x78000) ? Math.max(0, (queueLightEntry & 0x78000) - (opacity << 15)) : (neighborLightEntry & 0x78000);
+                                            ll = (queueLightEntry & 0x0000F) > (neighborLightEntry & 0x0000F) ? Math.max(0, queueLightEntryFiltered & 0x0000F) : (neighborLightEntry & 0x0000F);
+                                            rl = (queueLightEntry & 0x001E0) > (neighborLightEntry & 0x001E0) ? Math.max(0, queueLightEntryFiltered & 0x001E0) : (neighborLightEntry & 0x001E0);
+                                            gl = (queueLightEntry & 0x03C00) > (neighborLightEntry & 0x03C00) ? Math.max(0, queueLightEntryFiltered & 0x03C00) : (neighborLightEntry & 0x03C00);
+                                            bl = (queueLightEntry & 0x78000) > (neighborLightEntry & 0x78000) ? Math.max(0, queueLightEntryFiltered & 0x78000) : (neighborLightEntry & 0x78000);
 
                                             if (((ll > (neighborLightEntry & 0x0000F)) ||
                                                     (rl > (neighborLightEntry & 0x001E0)) ||
