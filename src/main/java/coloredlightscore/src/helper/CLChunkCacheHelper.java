@@ -10,7 +10,7 @@ public class CLChunkCacheHelper {
 
     /**
      * Any Light rendered on a 1.8 Block goes through here
-     * Light value returned is SSSS RRRR GGGG BBBB LLLL 0000
+     * Light value returned is SSSS BBBB GGGG RRRR LLLL 0000
      * 
      * Modified by CptSpaceToaster
      */
@@ -22,20 +22,22 @@ public class CLChunkCacheHelper {
 
         blockBrightness = ((blockBrightness & 0xf) | ((blockBrightness & 0x1e0) >> 1) | ((blockBrightness & 0x3c00) >> 2) | ((blockBrightness & 0x78000) >> 3));
 
-        if ((blockBrightness & 0x000f) < (lightValue & 0x000f)) {
-            blockBrightness = blockBrightness & 0xfff0 | lightValue & 0x000f;
-        }
-        if ((blockBrightness & 0x00f0) < (lightValue & 0x00f0)) {
-            blockBrightness = blockBrightness & 0xff0f | lightValue & 0x00f0;
-        }
-        if ((blockBrightness & 0x0f00) < (lightValue & 0x0f00)) {
-            blockBrightness = blockBrightness & 0xf0ff | lightValue & 0x0f00;
-        }
-        if ((blockBrightness & 0xf000) < (lightValue & 0xf000)) {
-            blockBrightness = blockBrightness & 0x0fff | lightValue & 0xf000;
-        }
+        int block_l = (blockBrightness >> 0) & 0xF;
+        int block_r = (blockBrightness >> 4) & 0xF;
+        int block_g = (blockBrightness >> 8) & 0xF;
+        int block_b = (blockBrightness >> 12) & 0xF;
 
-        return skyBrightness << 20 | blockBrightness << 4;
+        int light_l = (lightValue >> 0) & 0xF;
+        int light_r = (lightValue >> 4) & 0xF;
+        int light_g = (lightValue >> 8) & 0xF;
+        int light_b = (lightValue >> 12) & 0xF;
+
+        block_l = Math.max(block_l, light_l);
+        block_r = Math.max(block_r, light_r);
+        block_g = Math.max(block_g, light_g);
+        block_b = Math.max(block_b, light_b);
+
+        return skyBrightness << 20 | block_l << 4 | block_r << 8 | block_g << 12 | block_b << 16;
     }
 
     /**
