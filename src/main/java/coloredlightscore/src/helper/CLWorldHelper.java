@@ -1,5 +1,6 @@
 package coloredlightscore.src.helper;
 
+import coloredlightscore.src.api.CLApi;
 import coloredlightscore.src.asm.ColoredLightsCoreDummyContainer;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockStainedGlass;
@@ -68,8 +69,10 @@ public class CLWorldHelper {
             return 15;
         }
     }
+    //                                               white  orange  magenta lightblue yellow lime pink gray lightgray cyan purple blue brown green red black
+    static int[] stainedglass_api_index = new int[] {   15,     14,      13,      12,     11,  10,   9,   7,        8,   6,     5,   4,    3,    2,  1,    0 };
 
-    private static int calculateOpacity(int light, int opacity, Block block)
+    private static int calculateOpacity(int light, int opacity, Block block, World world, int x, int y, int z)
     {
         int l = (light >> 0) & 0xF;
         int r = (light >> 5) & 0xF;
@@ -82,14 +85,25 @@ public class CLWorldHelper {
 
         if (block instanceof BlockStainedGlass)
         {
-            r_opacity = 5;
-            g_opacity = 5;
+            int meta = world.getBlockMetadata(x, y, z);
+            int index = stainedglass_api_index[meta];
+            r_opacity = (int)Math.round((15 - CLApi.r[index]) / 3.0f) + 1;
+            g_opacity = (int)Math.round((15 - CLApi.g[index]) / 3.0f) + 1;
+            b_opacity = (int)Math.round((15 - CLApi.b[index]) / 3.0f) + 1;
         }
 
         l =  Math.max(0, l - opacity);
         r =  Math.max(0, r - r_opacity);
         g =  Math.max(0, g - g_opacity);
         b =  Math.max(0, b - b_opacity);
+
+        // Every color as 0 would be interpreted as vanilla light, and be too bright, we we need to set it to 1.
+        if (l > 0)
+        {
+            r = Math.max(r, 1);
+            g = Math.max(g, 1);
+            b = Math.max(b, 1);
+        }
 
         return (l << 0) | (r << 5) | (g << 10) | (b << 15);
     }
@@ -156,7 +170,7 @@ public class CLWorldHelper {
 
                     int neighborLight = world.pipe.getSavedLightValue(par1Enu, l1, i2, j2);
 
-                    int light = calculateOpacity(neighborLight, opacity, block);
+                    int light = calculateOpacity(neighborLight, opacity, block, world, par_x, par_y, par_z);
 
                     int ll = light & 0x0000F;
                     int rl = light & 0x001E0;
@@ -294,7 +308,7 @@ public class CLWorldHelper {
                                             //Get Saved light value from face
                                             neighborLightEntry = world.pipe.getSavedLightValue(par1Enu, neighbor_x, neighbor_y, neighbor_z);
 
-                                            int queueLightEntryFiltered = calculateOpacity(queueLightEntry, opacity, neighborBlock);
+                                            int queueLightEntryFiltered = calculateOpacity(queueLightEntry, opacity, neighborBlock, world, neighbor_x, neighbor_y, neighbor_z);
 
                                             //Subtract by 1, as channels diminish by one every block
                                             //TODO: Colored Opacity
