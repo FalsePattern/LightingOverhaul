@@ -163,6 +163,11 @@ public class CLWorldHelper {
                 return currentLight;
             }
             else {
+                int l = currentLight & 0xF;
+                int r = (currentLight >> CLApi.bitshift_r) & CLApi.bitmask;
+                int g = (currentLight >> CLApi.bitshift_g) & CLApi.bitmask;
+                int b = (currentLight >> CLApi.bitshift_b) & CLApi.bitmask;
+
                 for (int faceIndex = 0; faceIndex < 6; ++faceIndex) {
                     int l1 = par_x + Facing.offsetsXForSide[faceIndex];
                     int i2 = par_y + Facing.offsetsYForSide[faceIndex];
@@ -172,26 +177,17 @@ public class CLWorldHelper {
 
                     int light = calculateOpacity(neighborLight, opacity, block, world, par_x, par_y, par_z);
 
-                    int ll = light & 0x0000F;
-                    int rl = light & 0x001E0;
-                    int gl = light & 0x03C00;
-                    int bl = light & 0x78000;
+                    int l2 = light & 0xF;
+                    int r2 = (light >> CLApi.bitshift_r) & CLApi.bitmask;
+                    int g2 = (light >> CLApi.bitshift_g) & CLApi.bitmask;
+                    int b2 = (light >> CLApi.bitshift_b) & CLApi.bitmask;
 
-                    // For each component, retain greater of currentLight, (neighborLight - opacity)
-                    if (ll > (currentLight & 0x0000F)) {
-                        currentLight = (currentLight & 0x7BDE0) | ll; // 0x1E0 | 0x3C00 | 0x78000
-                    }
-                    if (rl > (currentLight & 0x001E0)) {
-                        currentLight = (currentLight & 0x7BC0F) | rl; // 0x00F | 0x3C00 | 0x78000
-                    }   
-                    if (gl > (currentLight & 0x03C00)) {
-                        currentLight = (currentLight & 0x781EF) | gl; // 0x00F | 0x01E0 | 0x78000
-                    }
-                    if (bl > (currentLight & 0x78000)) {
-                        currentLight = (currentLight & 0x03DEF) | bl; // 0x00F | 0x01E0 | 0x03C00
-                    }
+                    l = Math.max(l, l2);
+                    r = Math.max(r, r2);
+                    g = Math.max(g, g2);
+                    b = Math.max(b, b2);
                 }
-                return currentLight;
+                return l | (r << CLApi.bitshift_r) | (g << CLApi.bitshift_g) | (b << CLApi.bitshift_b);
             }
         }
     }
