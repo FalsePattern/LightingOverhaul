@@ -17,11 +17,11 @@ public class CLOpenGlHelper {
                 0000 0000 SSSS BBBB GGGG RRRR LLLL 0000
                 and needs to be decomposed.
              */
-            int s = brightness >> CLApi.bitshift_s & 0xF;
-            int b = brightness >> 16 & 0xF;
-            int g = brightness >> 12 & 0xF;
-            int r = brightness >> 8 & 0xF;
-            int l = brightness >> 4 & 0xF;
+            int s = (brightness >> CLApi.bitshift_s2) & 0xF;
+            int b = (brightness >> CLApi.bitshift_b2) & CLApi.bitmask;
+            int g = (brightness >> CLApi.bitshift_g2) & CLApi.bitmask;
+            int r = (brightness >> CLApi.bitshift_r2) & CLApi.bitmask;
+            int l = (brightness >> CLApi.bitshift_l2) & 0xF;
             if (l > r && l > g && l > b) {
                 r = g = b = l;
             }

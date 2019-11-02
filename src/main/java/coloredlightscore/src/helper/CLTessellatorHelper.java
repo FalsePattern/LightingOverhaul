@@ -219,11 +219,11 @@ public class CLTessellatorHelper {
             /* << and >> take precedence over &
              * Incoming:
              * 0000 0000 SSSS BBBB GGGG RRRR LLLL 0000 */
-            int l = (instance.brightness >> 4 ) & 0xF;
-            int r = (instance.brightness >> 8 ) & 0xF;
-            int g = (instance.brightness >> 12 ) & 0xF;
-            int b = (instance.brightness >> 16 ) & 0xF;
-            int s = (instance.brightness >> CLApi.bitshift_s ) & 0xF;
+            int l = (instance.brightness >> CLApi.bitshift_l2 ) & 0xF;
+            int r = (instance.brightness >> CLApi.bitshift_r2 ) & CLApi.bitmask;
+            int g = (instance.brightness >> CLApi.bitshift_g2 ) & CLApi.bitmask;
+            int b = (instance.brightness >> CLApi.bitshift_b2 ) & CLApi.bitmask;
+            int s = (instance.brightness >> CLApi.bitshift_s2 ) & 0xF;
             
             /* 0000 SSSS 0000 BBBB 0000 GGGG 0000 RRRR */
             instance.rawBuffer[instance.rawBufferIndex + 7] = (r << 0)

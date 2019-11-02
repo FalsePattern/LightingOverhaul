@@ -855,11 +855,11 @@ public class CLRenderBlocksHelper {
         //return (p_147778_1_ & 15728880) + (p_147778_2_ & 15728880) + (p_147778_3_ & 15728880) + (p_147778_4_ & 15728880) >> 2 & 15728880;
 
         // Must mix all 5 channels now
-        return mixColorChannel(CLApi.bitshift_s, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // SSSS
-                mixColorChannel(16, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // BBBB
-                mixColorChannel(12, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // GGGG this is the problem child
-                mixColorChannel(8, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // RRRR
-                mixColorChannel(4, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_); // LLLL
+        return mixColorChannel(CLApi.bitshift_s2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // SSSS
+                mixColorChannel(CLApi.bitshift_b2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // BBBB
+                mixColorChannel(CLApi.bitshift_g2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // GGGG this is the problem child
+                mixColorChannel(CLApi.bitshift_r2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // RRRR
+                mixColorChannel(CLApi.bitshift_l2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_); // LLLL
     }
 
     public static int mixColorChannel(int startBit, int p1, int p2, int p3, int p4) {

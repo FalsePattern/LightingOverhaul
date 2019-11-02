@@ -74,7 +74,7 @@ public class CLWorldHelper {
 
     private static int calculateOpacity(int light, int opacity, Block block, World world, int x, int y, int z)
     {
-        int l = (light >> 0) & 0xF;
+        int l = (light >> CLApi.bitshift_l) & 0xF;
         int r = (light >> CLApi.bitshift_r) & CLApi.bitmask;
         int g = (light >> CLApi.bitshift_g) & CLApi.bitmask;
         int b = (light >> CLApi.bitshift_b) & CLApi.bitmask;
@@ -102,7 +102,7 @@ public class CLWorldHelper {
         if (hasColor && r + g + b == 0)
             l = 0;
 
-        return (l << 0) | (r << CLApi.bitshift_r) | (g << CLApi.bitshift_g) | (b << CLApi.bitshift_b);
+        return (l << CLApi.bitshift_l) | (r << CLApi.bitshift_r) | (g << CLApi.bitshift_g) | (b << CLApi.bitshift_b);
     }
 
     //Use this one if you want color
@@ -111,23 +111,23 @@ public class CLWorldHelper {
         int skyBrightness = world.pipe.getSkyBlockTypeBrightness(EnumSkyBlock.Sky, x, y, z);
         int blockBrightness = world.pipe.getSkyBlockTypeBrightness(EnumSkyBlock.Block, x, y, z);
 
-        lightValue = ((lightValue & 0xf) | ((lightValue & 0x1e0) >> 1) | ((lightValue & 0x3c00) >> 2) | ((lightValue & 0x78000) >> 3));
+        int light_l = (lightValue >> CLApi.bitshift_l) & 0xF;
+        int light_r = (lightValue >> CLApi.bitshift_r) & CLApi.bitmask;
+        int light_g = (lightValue >> CLApi.bitshift_g) & CLApi.bitmask;
+        int light_b = (lightValue >> CLApi.bitshift_b) & CLApi.bitmask;
 
-        blockBrightness = ((blockBrightness & 0xf) | ((blockBrightness & 0x1e0) >> 1) | ((blockBrightness & 0x3c00) >> 2) | ((blockBrightness & 0x78000) >> 3));
+        int block_l = (blockBrightness >> CLApi.bitshift_l) & 0xF;
+        int block_r = (blockBrightness >> CLApi.bitshift_r) & CLApi.bitmask;
+        int block_g = (blockBrightness >> CLApi.bitshift_g) & CLApi.bitmask;
+        int block_b = (blockBrightness >> CLApi.bitshift_b) & CLApi.bitmask;
 
-        if ((blockBrightness & 0x000f) < (lightValue & 0x000f)) {
-            blockBrightness = blockBrightness & 0xfff0 | lightValue & 0x000f;
-        }
-        if ((blockBrightness & 0x00f0) < (lightValue & 0x00f0)) {
-            blockBrightness = blockBrightness & 0xff0f | lightValue & 0x00f0;
-        }
-        if ((blockBrightness & 0x0f00) < (lightValue & 0x0f00)) {
-            blockBrightness = blockBrightness & 0xf0ff | lightValue & 0x0f00;
-        }
-        if ((blockBrightness & 0xf000) < (lightValue & 0xf000)) {
-            blockBrightness = blockBrightness & 0x0fff | lightValue & 0xf000;
-        }
-        return skyBrightness << CLApi.bitshift_s | blockBrightness << 4;
+        block_l = Math.max(block_l,  light_l);
+        block_r = Math.max(block_r,  light_r);
+        block_g = Math.max(block_g,  light_g);
+        block_b = Math.max(block_b,  light_b);
+
+        return (skyBrightness << CLApi.bitshift_s2)
+                | (block_l << CLApi.bitshift_l2) | (block_r << CLApi.bitshift_r2) | (block_g << CLApi.bitshift_g2) | (block_b << CLApi.bitshift_b2);
     }
 
     public static int computeLightValue(World world, int par_x, int par_y, int par_z, EnumSkyBlock par1Enu) {
@@ -140,7 +140,7 @@ public class CLWorldHelper {
             if (par1Enu != EnumSkyBlock.Sky) {
                 currentLight = (block == null ? 0 : getLightValueSomehow(block, world, par_x, par_y, par_z));
                 if ((currentLight > 0) && (currentLight <= 0xF)) {
-                    currentLight = (currentLight << CLApi.bitshift_r) | (currentLight << CLApi.bitshift_g) | (currentLight << CLApi.bitshift_b) | currentLight; //copy vanilla brightness into each color component to make it white/grey if it is uncolored.
+                    currentLight = (currentLight << CLApi.bitshift_r) | (currentLight << CLApi.bitshift_g) | (currentLight << CLApi.bitshift_b) | (currentLight << CLApi.bitshift_l); //copy vanilla brightness into each color component to make it white/grey if it is uncolored.
                 }
             }
             int opacity = (block == null ? 0 : block.getLightOpacity(world, par_x, par_y, par_z));
@@ -160,7 +160,7 @@ public class CLWorldHelper {
                 return currentLight;
             }
             else {
-                int l = currentLight & 0xF;
+                int l = (currentLight >> CLApi.bitshift_l) & 0xF;
                 int r = (currentLight >> CLApi.bitshift_r) & CLApi.bitmask;
                 int g = (currentLight >> CLApi.bitshift_g) & CLApi.bitmask;
                 int b = (currentLight >> CLApi.bitshift_b) & CLApi.bitmask;
@@ -174,7 +174,7 @@ public class CLWorldHelper {
 
                     int light = calculateOpacity(neighborLight, opacity, block, world, par_x, par_y, par_z);
 
-                    int l2 = light & 0xF;
+                    int l2 = (light >> CLApi.bitshift_l) & 0xF;
                     int r2 = (light >> CLApi.bitshift_r) & CLApi.bitmask;
                     int g2 = (light >> CLApi.bitshift_g) & CLApi.bitmask;
                     int b2 = (light >> CLApi.bitshift_b) & CLApi.bitmask;
@@ -184,7 +184,7 @@ public class CLWorldHelper {
                     g = Math.max(g, g2);
                     b = Math.max(b, b2);
                 }
-                return l | (r << CLApi.bitshift_r) | (g << CLApi.bitshift_g) | (b << CLApi.bitshift_b);
+                return (l << CLApi.bitshift_l) | (r << CLApi.bitshift_r) | (g << CLApi.bitshift_g) | (b << CLApi.bitshift_b);
             }
         }
     }
@@ -303,17 +303,17 @@ public class CLWorldHelper {
 
                                             int queueLightEntryFiltered = calculateOpacity(queueLightEntry, opacity, neighborBlock, world, neighbor_x, neighbor_y, neighbor_z);
 
-                                            int queue_l = (queueLightEntry >> 0) & 0xF;
+                                            int queue_l = (queueLightEntry >> CLApi.bitshift_l) & 0xF;
                                             int queue_r = (queueLightEntry >> CLApi.bitshift_r) & CLApi.bitmask;
                                             int queue_g = (queueLightEntry >> CLApi.bitshift_g) & CLApi.bitmask;
                                             int queue_b = (queueLightEntry >> CLApi.bitshift_b) & CLApi.bitmask;
 
-                                            int queue_filtered_l = (queueLightEntryFiltered >> 0) & 0xF;
+                                            int queue_filtered_l = (queueLightEntryFiltered >> CLApi.bitshift_l) & 0xF;
                                             int queue_filtered_r = (queueLightEntryFiltered >> CLApi.bitshift_r) & CLApi.bitmask;
                                             int queue_filtered_g = (queueLightEntryFiltered >> CLApi.bitshift_g) & CLApi.bitmask;
                                             int queue_filtered_b = (queueLightEntryFiltered >> CLApi.bitshift_b) & CLApi.bitmask;
 
-                                            int neighbor_l = (neighborLightEntry >> 0) & 0xF;
+                                            int neighbor_l = (neighborLightEntry >> CLApi.bitshift_l) & 0xF;
                                             int neighbor_r = (neighborLightEntry >> CLApi.bitshift_r) & CLApi.bitmask;
                                             int neighbor_g = (neighborLightEntry >> CLApi.bitshift_g) & CLApi.bitmask;
                                             int neighbor_b = (neighborLightEntry >> CLApi.bitshift_b) & CLApi.bitmask;
@@ -323,7 +323,7 @@ public class CLWorldHelper {
                                             gl = queue_g > neighbor_g ? Math.max(0, queue_filtered_g) : neighbor_g;
                                             bl = queue_b > neighbor_b ? Math.max(0, queue_filtered_b) : neighbor_b;
 
-                                            long light_combine = ll | (rl << CLApi.bitshift_r) | (gl << CLApi.bitshift_g) | (bl << CLApi.bitshift_b);
+                                            long light_combine = (ll << CLApi.bitshift_l) | (rl << CLApi.bitshift_r) | (gl << CLApi.bitshift_g) | (bl << CLApi.bitshift_b);
 
                                             if (((ll > neighbor_l) ||
                                                     (rl > neighbor_r) ||
@@ -393,12 +393,12 @@ public class CLWorldHelper {
                                 opacity = Math.max(1, world.getBlock(neighbor_x, neighbor_y, neighbor_z).getLightOpacity(world, neighbor_x, neighbor_y, neighbor_z));
                                 neighborLightEntry = world.pipe.getSavedLightValue(par1Enu, neighbor_x, neighbor_y, neighbor_z);
 
-                                int queue_l = (queueLightEntry >> 0) & 0xF;
+                                int queue_l = (queueLightEntry >> CLApi.bitshift_l) & 0xF;
                                 int queue_r = (queueLightEntry >> CLApi.bitshift_r) & CLApi.bitmask;
                                 int queue_g = (queueLightEntry >> CLApi.bitshift_g) & CLApi.bitmask;
                                 int queue_b = (queueLightEntry >> CLApi.bitshift_b) & CLApi.bitmask;
 
-                                int neighbor_l = (neighborLightEntry >> 0) & 0xF;
+                                int neighbor_l = (neighborLightEntry >> CLApi.bitshift_l) & 0xF;
                                 int neighbor_r = (neighborLightEntry >> CLApi.bitshift_r) & CLApi.bitmask;
                                 int neighbor_g = (neighborLightEntry >> CLApi.bitshift_g) & CLApi.bitmask;
                                 int neighbor_b = (neighborLightEntry >> CLApi.bitshift_b) & CLApi.bitmask;
@@ -426,7 +426,7 @@ public class CLWorldHelper {
                                         sortValue = (int)bl;
                                     }
 
-                                    long light_combine = ll | (rl << CLApi.bitshift_r) | (gl << CLApi.bitshift_g) | (bl << CLApi.bitshift_b);
+                                    long light_combine = (ll << CLApi.bitshift_l) | (rl << CLApi.bitshift_r) | (gl << CLApi.bitshift_g) | (bl << CLApi.bitshift_b);
                                     //If the light we are looking at on the edge is brighter or equal to the current light in any way, then there must be a light over there that's doing it, so we'll stop eating colors and lights in that direction
                                     if (neighborLightEntry != light_combine) {
 
