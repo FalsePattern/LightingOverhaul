@@ -24,7 +24,7 @@ public class CLChunkCacheHelper {
         int light_g = (lightValue >> CLApi.bitshift_g) & CLApi.bitmask;
         int light_b = (lightValue >> CLApi.bitshift_b) & CLApi.bitmask;
 
-        int block_l = (blockBrightness >> CLApi.bitshift_l) & CLApi.bitmask;
+        int block_l = (blockBrightness >> CLApi.bitshift_l) & 0xF;
         int block_r = (blockBrightness >> CLApi.bitshift_r) & CLApi.bitmask;
         int block_g = (blockBrightness >> CLApi.bitshift_g) & CLApi.bitmask;
         int block_b = (blockBrightness >> CLApi.bitshift_b) & CLApi.bitmask;

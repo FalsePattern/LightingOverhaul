@@ -23,11 +23,11 @@ public class CLWorldPipe {
     public CLWorldPipe(World par_world) {
         world = par_world;
 
-        this.lightAdditionBlockList = new long[32768];
-        this.lightAdditionNeeded = new int[29][29][29];
-        this.lightBackfillIndexes = new int[15];
-        this.lightBackfillBlockList = new int[15][4991];
-        this.lightBackfillNeeded = new int[29][29][29];
+        this.lightAdditionBlockList = new long[32768*4];
+        this.lightAdditionNeeded = new int[64][64][64];
+        this.lightBackfillIndexes = new int[32];
+        this.lightBackfillBlockList = new int[32][5000*4];
+        this.lightBackfillNeeded = new int[64][64][64];
         this.updateFlag = 1;
         this.flagEntry = EnumSkyBlock.Block;
     }

@@ -190,7 +190,7 @@ public class CLTessellatorHelper {
 
     public static int makeBrightness(int lightlevel)
     {
-        return lightlevel << 4 | lightlevel << 8 | lightlevel << 12 | lightlevel << 16;
+        return lightlevel << CLApi.bitshift_l2 | lightlevel << CLApi.bitshift_r2 | lightlevel << CLApi.bitshift_g2 | lightlevel << CLApi.bitshift_b2;
     }
 
     public static void addVertex(Tessellator instance, double par1, double par3, double par5) {
@@ -224,6 +224,10 @@ public class CLTessellatorHelper {
             int g = (instance.brightness >> CLApi.bitshift_g2 ) & CLApi.bitmask;
             int b = (instance.brightness >> CLApi.bitshift_b2 ) & CLApi.bitmask;
             int s = (instance.brightness >> CLApi.bitshift_s2 ) & 0xF;
+
+            r = Math.min(15, r);
+            g = Math.min(15, g);
+            b = Math.min(15, b);
             
             /* 0000 SSSS 0000 BBBB 0000 GGGG 0000 RRRR */
             instance.rawBuffer[instance.rawBufferIndex + 7] = (r << 0)

@@ -8,6 +8,7 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
@@ -15,6 +16,7 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
+import coloredlightscore.src.api.CLApi;
 import coloredlightscore.src.asm.transformer.core.ASMUtils;
 import coloredlightscore.src.asm.transformer.core.MethodTransformer;
 import coloredlightscore.src.asm.transformer.core.NameMapper;
@@ -24,6 +26,9 @@ import coloredlightscore.src.asm.transformer.core.NameMapper;
  *   NibbleArray rColorArray
  *   NibbleArray gColorArray
  *   NibbleArray bColorArray
+ *   NibbleArray rColorArray2
+ *   NibbleArray gColorArray2
+ *   NibbleArray bColorArray2
  *   
  * Methods added to net.minecraft.world.chunk.storage.ExtendedBlockStorage:
  *   setRedColorArray
@@ -32,6 +37,12 @@ import coloredlightscore.src.asm.transformer.core.NameMapper;
  *   getRedColorArray
  *   getGreenColorArray
  *   getBlueColorArray
+ *   setRedColorArray2
+ *   setGreenColorArray2
+ *   setBlueColorArray2
+ *   getRedColorArray2
+ *   getGreenColorArray2
+ *   getBlueColorArray2
  * 
  * Methods modified on net.minecraft.world.chunk.storage.ExtendedBlockStorage:
  *   setExtBlocklightValue
@@ -46,6 +57,9 @@ public class TransformExtendedBlockStorage extends MethodTransformer {
     private FieldNode rColorArray;
     private FieldNode gColorArray;
     private FieldNode bColorArray;
+    private FieldNode rColorArray2;
+    private FieldNode gColorArray2;
+    private FieldNode bColorArray2;
     private FieldNode blockLSBArray;
 
     private final String NIBBLE_ARRAY = "Lnet.minecraft.world.chunk.NibbleArray;";
@@ -119,10 +133,16 @@ public class TransformExtendedBlockStorage extends MethodTransformer {
         rColorArray = new FieldNode(Opcodes.ACC_PUBLIC, "rColorArray", typeNibbleArray.getDescriptor(), null, null);
         gColorArray = new FieldNode(Opcodes.ACC_PUBLIC, "gColorArray", typeNibbleArray.getDescriptor(), null, null);
         bColorArray = new FieldNode(Opcodes.ACC_PUBLIC, "bColorArray", typeNibbleArray.getDescriptor(), null, null);
+        rColorArray2 = new FieldNode(Opcodes.ACC_PUBLIC, "rColorArray2", typeNibbleArray.getDescriptor(), null, null);
+        gColorArray2 = new FieldNode(Opcodes.ACC_PUBLIC, "gColorArray2", typeNibbleArray.getDescriptor(), null, null);
+        bColorArray2 = new FieldNode(Opcodes.ACC_PUBLIC, "bColorArray2", typeNibbleArray.getDescriptor(), null, null);
 
         clazz.fields.add(rColorArray);
         clazz.fields.add(gColorArray);
         clazz.fields.add(bColorArray);
+        clazz.fields.add(rColorArray2);
+        clazz.fields.add(gColorArray2);
+        clazz.fields.add(bColorArray2);
 
         CLLog.info("Added RGB color arrays to ExtendedBlockStorage, type " + typeNibbleArray.getDescriptor());
 
@@ -136,10 +156,16 @@ public class TransformExtendedBlockStorage extends MethodTransformer {
             clazz.methods.add(ASMUtils.generateSetterMethod(clazz.name, "setRedColorArray", rColorArray.name, rColorArray.desc));
             clazz.methods.add(ASMUtils.generateSetterMethod(clazz.name, "setGreenColorArray", gColorArray.name, gColorArray.desc));
             clazz.methods.add(ASMUtils.generateSetterMethod(clazz.name, "setBlueColorArray", bColorArray.name, bColorArray.desc));
+            clazz.methods.add(ASMUtils.generateSetterMethod(clazz.name, "setRedColorArray2", rColorArray2.name, rColorArray2.desc));
+            clazz.methods.add(ASMUtils.generateSetterMethod(clazz.name, "setGreenColorArray2", gColorArray2.name, gColorArray2.desc));
+            clazz.methods.add(ASMUtils.generateSetterMethod(clazz.name, "setBlueColorArray2", bColorArray2.name, bColorArray2.desc));
 
             clazz.methods.add(ASMUtils.generateGetterMethod(clazz.name, "getRedColorArray", rColorArray.name, rColorArray.desc));
             clazz.methods.add(ASMUtils.generateGetterMethod(clazz.name, "getGreenColorArray", gColorArray.name, gColorArray.desc));
             clazz.methods.add(ASMUtils.generateGetterMethod(clazz.name, "getBlueColorArray", bColorArray.name, bColorArray.desc));
+            clazz.methods.add(ASMUtils.generateGetterMethod(clazz.name, "getRedColorArray2", rColorArray2.name, rColorArray2.desc));
+            clazz.methods.add(ASMUtils.generateGetterMethod(clazz.name, "getGreenColorArray2", gColorArray2.name, gColorArray2.desc));
+            clazz.methods.add(ASMUtils.generateGetterMethod(clazz.name, "getBlueColorArray2", bColorArray2.name, bColorArray2.desc));
 
             addedMethods = true;
         }
@@ -147,11 +173,23 @@ public class TransformExtendedBlockStorage extends MethodTransformer {
         return addedMethods;
     }
 
-    private void transformConstructor(ClassNode clazz, MethodNode m) {
+    private void transformConstructor_add_color_array(ClassNode clazz, InsnList instructions, FieldNode array)
+    {
         String ebsInternalName = clazz.name;
         Type typeNibbleArray = NameMapper.getInstance().getType(NIBBLE_ARRAY);
-        //Type typeNibbleArray = Type.getType(net.minecraft.world.chunk.NibbleArray.class);
 
+        instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        instructions.add(new TypeInsnNode(Opcodes.NEW, typeNibbleArray.getInternalName()));
+        instructions.add(new InsnNode(Opcodes.DUP));
+        instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        instructions.add(new FieldInsnNode(Opcodes.GETFIELD, ebsInternalName, blockLSBArray.name, blockLSBArray.desc));
+        instructions.add(new InsnNode(Opcodes.ARRAYLENGTH));
+        instructions.add(new InsnNode(Opcodes.ICONST_4));
+        instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, typeNibbleArray.getInternalName(), "<init>", "(II)V"));
+        instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, ebsInternalName, array.name, array.desc));
+    }
+
+    private void transformConstructor(ClassNode clazz, MethodNode m) {
         // Initializes array the same length as blockLSBArray:
         //	    18  aload_0 [this]
         // 	    19  new net.minecraft.world.chunk.NibbleArray [4]
@@ -173,46 +211,55 @@ public class TransformExtendedBlockStorage extends MethodTransformer {
             m.instructions.remove(returnNode);
 
         // Initialize rColorArray
-        m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        m.instructions.add(new TypeInsnNode(Opcodes.NEW, typeNibbleArray.getInternalName()));
-        m.instructions.add(new InsnNode(Opcodes.DUP));
-        m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        m.instructions.add(new FieldInsnNode(Opcodes.GETFIELD, ebsInternalName, blockLSBArray.name, blockLSBArray.desc));
-        m.instructions.add(new InsnNode(Opcodes.ARRAYLENGTH));
-        m.instructions.add(new InsnNode(Opcodes.ICONST_4));
-        m.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, typeNibbleArray.getInternalName(), "<init>", "(II)V"));
-        m.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, ebsInternalName, rColorArray.name, rColorArray.desc));
-
-        // Initialize gColorArray
-        m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        m.instructions.add(new TypeInsnNode(Opcodes.NEW, typeNibbleArray.getInternalName()));
-        m.instructions.add(new InsnNode(Opcodes.DUP));
-        m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        m.instructions.add(new FieldInsnNode(Opcodes.GETFIELD, ebsInternalName, blockLSBArray.name, blockLSBArray.desc));
-        m.instructions.add(new InsnNode(Opcodes.ARRAYLENGTH));
-        m.instructions.add(new InsnNode(Opcodes.ICONST_4));
-        m.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, typeNibbleArray.getInternalName(), "<init>", "(II)V"));
-        m.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, ebsInternalName, gColorArray.name, gColorArray.desc));
-
-        // Initialize bColorArray
-        m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        m.instructions.add(new TypeInsnNode(Opcodes.NEW, typeNibbleArray.getInternalName()));
-        m.instructions.add(new InsnNode(Opcodes.DUP));
-        m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        m.instructions.add(new FieldInsnNode(Opcodes.GETFIELD, ebsInternalName, blockLSBArray.name, blockLSBArray.desc));
-        m.instructions.add(new InsnNode(Opcodes.ARRAYLENGTH));
-        m.instructions.add(new InsnNode(Opcodes.ICONST_4));
-        m.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, typeNibbleArray.getInternalName(), "<init>", "(II)V"));
-        m.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, ebsInternalName, bColorArray.name, bColorArray.desc));
+        transformConstructor_add_color_array(clazz, m.instructions, rColorArray);
+        transformConstructor_add_color_array(clazz, m.instructions, rColorArray2);
+        transformConstructor_add_color_array(clazz, m.instructions, gColorArray);
+        transformConstructor_add_color_array(clazz, m.instructions, gColorArray2);
+        transformConstructor_add_color_array(clazz, m.instructions, bColorArray);
+        transformConstructor_add_color_array(clazz, m.instructions, bColorArray2);
 
         m.instructions.add(returnNode);
     }
 
-    private void transformSetExtBlocklightValue(ClassNode clazz, MethodNode m) {
+    private void transformSetExtBlocklightValue_store_array(ClassNode clazz, InsnList instructions, FieldNode array, int shift, boolean extended)
+    {
         String ebsInternalName = clazz.name;
         Type typeNibbleArray = NameMapper.getInstance().getType(NIBBLE_ARRAY);
         String nibbleArraySet = NameMapper.getInstance().getMethodName("net/minecraft/world/chunk/NibbleArray", "set (IIII)V");
 
+        // Colored light mod: Store color value
+        //      12  aload_0 [this]
+        instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        //      13  getfield net.minecraft.world.chunk.storage.ExtendedBlockStorage.rColorArray : net.minecraft.world.chunk.NibbleArray [98]
+        instructions.add(new FieldInsnNode(Opcodes.GETFIELD, ebsInternalName, array.name, array.desc));
+        //      16  iload_1 [x]
+        instructions.add(new VarInsnNode(Opcodes.ILOAD, 1));
+        //      17  iload_2 [y]
+        instructions.add(new VarInsnNode(Opcodes.ILOAD, 2));
+        //      18  iload_3 [z]
+        instructions.add(new VarInsnNode(Opcodes.ILOAD, 3));
+        //      19  iload 4 [lightValue]
+        instructions.add(new VarInsnNode(Opcodes.ILOAD, 4));
+        //      21  bipush
+        instructions.add(new IntInsnNode(Opcodes.BIPUSH, shift));
+        //      22  ishr
+        instructions.add(new InsnNode(Opcodes.ISHR));
+        //      23  bipush
+        instructions.add(new IntInsnNode(Opcodes.BIPUSH, CLApi.bitmask));
+        //      25  iand
+        instructions.add(new InsnNode(Opcodes.IAND));
+        if (extended)
+        {
+            instructions.add(new InsnNode(Opcodes.ICONST_4));
+            instructions.add(new InsnNode(Opcodes.ISHR));
+            instructions.add(new IntInsnNode(Opcodes.BIPUSH, CLApi.bitmask >> 4));
+            instructions.add(new InsnNode(Opcodes.IAND));
+        }
+        //      26  invokevirtual net.minecraft.world.chunk.NibbleArray.set(int, int, int, int) : void [93]
+        instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, typeNibbleArray.getInternalName(), nibbleArraySet, "(IIII)V"));
+    }
+
+    private void transformSetExtBlocklightValue(ClassNode clazz, MethodNode m) {
         // Already in stock method:
         //		 0  aload_0 [this]
         //		 1  getfield net.minecraft.world.chunk.storage.ExtendedBlockStorage.blocklightArray : net.minecraft.world.chunk.NibbleArray [91]
@@ -228,88 +275,51 @@ public class TransformExtendedBlockStorage extends MethodTransformer {
         if (oldReturn != null)
             m.instructions.remove(oldReturn);
 
-        // Colored light mod: Store red value		
-        //		12  aload_0 [this]
-        m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        //		13  getfield net.minecraft.world.chunk.storage.ExtendedBlockStorage.rColorArray : net.minecraft.world.chunk.NibbleArray [98]
-        m.instructions.add(new FieldInsnNode(Opcodes.GETFIELD, ebsInternalName, rColorArray.name, rColorArray.desc));
-        //		16  iload_1 [x]
-        m.instructions.add(new VarInsnNode(Opcodes.ILOAD, 1));
-        //		17  iload_2 [y]
-        m.instructions.add(new VarInsnNode(Opcodes.ILOAD, 2));
-        //		18  iload_3 [z]
-        m.instructions.add(new VarInsnNode(Opcodes.ILOAD, 3));
-        //		19  iload 4 [lightValue]
-        m.instructions.add(new VarInsnNode(Opcodes.ILOAD, 4));
-        //		21  iconst_5
-        m.instructions.add(new InsnNode(Opcodes.ICONST_5));
-        //		22  ishr
-        m.instructions.add(new InsnNode(Opcodes.ISHR));
-        //		23  bipush 15
-        m.instructions.add(new IntInsnNode(Opcodes.BIPUSH, 15));
-        //		25  iand
-        m.instructions.add(new InsnNode(Opcodes.IAND));
-        //		26  invokevirtual net.minecraft.world.chunk.NibbleArray.set(int, int, int, int) : void [93]
-        m.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, typeNibbleArray.getInternalName(), nibbleArraySet, "(IIII)V"));
-
-        // Colored light mod: Store green value
-        //		29  aload_0 [this]
-        m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        //		30  getfield net.minecraft.world.chunk.storage.ExtendedBlockStorage.gColorArray : net.minecraft.world.chunk.NibbleArray [100]
-        m.instructions.add(new FieldInsnNode(Opcodes.GETFIELD, ebsInternalName, gColorArray.name, gColorArray.desc));
-        //		33  iload_1 [x]
-        m.instructions.add(new VarInsnNode(Opcodes.ILOAD, 1));
-        //		34  iload_2 [y]
-        m.instructions.add(new VarInsnNode(Opcodes.ILOAD, 2));
-        //		35  iload_3 [z]
-        m.instructions.add(new VarInsnNode(Opcodes.ILOAD, 3));
-        //		36  iload 4 [lightValue]
-        m.instructions.add(new VarInsnNode(Opcodes.ILOAD, 4));
-        //		38  bipush 10
-        m.instructions.add(new IntInsnNode(Opcodes.BIPUSH, 10));
-        //		40  ishr
-        m.instructions.add(new InsnNode(Opcodes.ISHR));
-        //		41  bipush 15
-        m.instructions.add(new IntInsnNode(Opcodes.BIPUSH, 15));
-        //		43  iand
-        m.instructions.add(new InsnNode(Opcodes.IAND));
-        //		44  invokevirtual net.minecraft.world.chunk.NibbleArray.set(int, int, int, int) : void [93]
-        m.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, typeNibbleArray.getInternalName(), nibbleArraySet, "(IIII)V"));
-
-        // Colored light mod: Store blue value
-        //		47  aload_0 [this]
-        m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        //		48  getfield net.minecraft.world.chunk.storage.ExtendedBlockStorage.bColorArray : net.minecraft.world.chunk.NibbleArray [102]
-        m.instructions.add(new FieldInsnNode(Opcodes.GETFIELD, ebsInternalName, bColorArray.name, bColorArray.desc));
-        //		51  iload_1 [x]
-        m.instructions.add(new VarInsnNode(Opcodes.ILOAD, 1));
-        //		52  iload_2 [y]
-        m.instructions.add(new VarInsnNode(Opcodes.ILOAD, 2));
-        //		53  iload_3 [z]
-        m.instructions.add(new VarInsnNode(Opcodes.ILOAD, 3));
-        //		54  iload 4 [lightValue]
-        m.instructions.add(new VarInsnNode(Opcodes.ILOAD, 4));
-        //		56  bipush 15
-        m.instructions.add(new IntInsnNode(Opcodes.BIPUSH, 15));
-        //		58  ishr
-        m.instructions.add(new InsnNode(Opcodes.ISHR));
-        //		59  bipush 15
-        m.instructions.add(new IntInsnNode(Opcodes.BIPUSH, 15));
-        //		61  iand
-        m.instructions.add(new InsnNode(Opcodes.IAND));
-        //		62  invokevirtual net.minecraft.world.chunk.NibbleArray.set(int, int, int, int) : void [93]
-        m.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, typeNibbleArray.getInternalName(), nibbleArraySet, "(IIII)V"));
+        transformSetExtBlocklightValue_store_array(clazz, m.instructions, rColorArray, CLApi.bitshift_r, false);
+        transformSetExtBlocklightValue_store_array(clazz, m.instructions, rColorArray2, CLApi.bitshift_r, true);
+        transformSetExtBlocklightValue_store_array(clazz, m.instructions, gColorArray, CLApi.bitshift_g, false);
+        transformSetExtBlocklightValue_store_array(clazz, m.instructions, gColorArray2, CLApi.bitshift_g, true);
+        transformSetExtBlocklightValue_store_array(clazz, m.instructions, bColorArray, CLApi.bitshift_b, false);
+        transformSetExtBlocklightValue_store_array(clazz, m.instructions, bColorArray2, CLApi.bitshift_b, true);
 
         //		65  return
         m.instructions.add(new InsnNode(Opcodes.RETURN));
 
     }
 
-    private void transformGetExtBlocklightValue(ClassNode clazz, MethodNode m) {
+    private void transformGetExtBlocklightValue_load_array(ClassNode clazz, InsnList instructions, FieldNode array, int shift, boolean extended)
+    {
         String ebsInternalName = clazz.name;
         Type typeNibbleArray = NameMapper.getInstance().getType(NIBBLE_ARRAY);
         String nibbleArrayGet = NameMapper.getInstance().getMethodName("net/minecraft/world/chunk/NibbleArray", "get (III)I");
 
+        //      10  aload_0 [this]
+        instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        //      11  getfield net.minecraft.world.chunk.storage.ExtendedBlockStorage.rColorArray : net.minecraft.world.chunk.NibbleArray [98]
+        instructions.add(new FieldInsnNode(Opcodes.GETFIELD, ebsInternalName, array.name, array.desc));
+        //      14  iload_1 [par1]
+        instructions.add(new VarInsnNode(Opcodes.ILOAD, 1));
+        //      15  iload_2 [par2]
+        instructions.add(new VarInsnNode(Opcodes.ILOAD, 2));
+        //      16  iload_3 [par3]
+        instructions.add(new VarInsnNode(Opcodes.ILOAD, 3));
+        //      17  invokevirtual net.minecraft.world.chunk.NibbleArray.get(int, int, int) : int [110]
+        instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, typeNibbleArray.getInternalName(), nibbleArrayGet, "(III)I"));
+        //      20  bipush
+        instructions.add(new IntInsnNode(Opcodes.BIPUSH, shift));
+        //      21  ishl
+        instructions.add(new InsnNode(Opcodes.ISHL));
+        if (extended)
+        {
+            instructions.add(new InsnNode(Opcodes.ICONST_4));
+            instructions.add(new InsnNode(Opcodes.ISHL));
+        }
+
+        //      22  ior
+        instructions.add(new InsnNode(Opcodes.IOR));
+    }
+
+    private void transformGetExtBlocklightValue(ClassNode clazz, MethodNode m) {
         // Already in stock method:
         //       0  aload_0 [this]
         //       1  getfield net.minecraft.world.chunk.storage.ExtendedBlockStorage.blocklightArray : net.minecraft.world.chunk.NibbleArray [91]
@@ -323,62 +333,12 @@ public class TransformExtendedBlockStorage extends MethodTransformer {
         if (returnNode != null)
             m.instructions.remove(returnNode);
 
-        //      10  aload_0 [this]
-        m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        //      11  getfield net.minecraft.world.chunk.storage.ExtendedBlockStorage.rColorArray : net.minecraft.world.chunk.NibbleArray [98]
-        m.instructions.add(new FieldInsnNode(Opcodes.GETFIELD, ebsInternalName, rColorArray.name, rColorArray.desc));
-        //      14  iload_1 [par1]
-        m.instructions.add(new VarInsnNode(Opcodes.ILOAD, 1));
-        //      15  iload_2 [par2]
-        m.instructions.add(new VarInsnNode(Opcodes.ILOAD, 2));
-        //      16  iload_3 [par3]
-        m.instructions.add(new VarInsnNode(Opcodes.ILOAD, 3));
-        //      17  invokevirtual net.minecraft.world.chunk.NibbleArray.get(int, int, int) : int [110]
-        m.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, typeNibbleArray.getInternalName(), nibbleArrayGet, "(III)I"));
-        //      20  iconst_5
-        m.instructions.add(new InsnNode(Opcodes.ICONST_5));
-        //      21  ishl
-        m.instructions.add(new InsnNode(Opcodes.ISHL));
-        //      22  ior
-        m.instructions.add(new InsnNode(Opcodes.IOR));
-
-        //      23  aload_0 [this]
-        m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        //      24  getfield net.minecraft.world.chunk.storage.ExtendedBlockStorage.gColorArray : net.minecraft.world.chunk.NibbleArray [100]
-        m.instructions.add(new FieldInsnNode(Opcodes.GETFIELD, ebsInternalName, gColorArray.name, gColorArray.desc));
-        //      27  iload_1 [par1]
-        m.instructions.add(new VarInsnNode(Opcodes.ILOAD, 1));
-        //      28  iload_2 [par2]
-        m.instructions.add(new VarInsnNode(Opcodes.ILOAD, 2));
-        //      29  iload_3 [par3]
-        m.instructions.add(new VarInsnNode(Opcodes.ILOAD, 3));
-        //      30  invokevirtual net.minecraft.world.chunk.NibbleArray.get(int, int, int) : int [110]
-        m.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, typeNibbleArray.getInternalName(), nibbleArrayGet, "(III)I"));
-        //      33  bipush 10
-        m.instructions.add(new IntInsnNode(Opcodes.BIPUSH, 10));
-        //      35  ishl
-        m.instructions.add(new InsnNode(Opcodes.ISHL));
-        //      36  ior
-        m.instructions.add(new InsnNode(Opcodes.IOR));
-
-        //      37  aload_0 [this]
-        m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        //      38  getfield net.minecraft.world.chunk.storage.ExtendedBlockStorage.bColorArray : net.minecraft.world.chunk.NibbleArray [102]
-        m.instructions.add(new FieldInsnNode(Opcodes.GETFIELD, ebsInternalName, bColorArray.name, bColorArray.desc));
-        //      41  iload_1 [par1]
-        m.instructions.add(new VarInsnNode(Opcodes.ILOAD, 1));
-        //      42  iload_2 [par2]
-        m.instructions.add(new VarInsnNode(Opcodes.ILOAD, 2));
-        //      43  iload_3 [par3]
-        m.instructions.add(new VarInsnNode(Opcodes.ILOAD, 3));
-        //      44  invokevirtual net.minecraft.world.chunk.NibbleArray.get(int, int, int) : int [110]
-        m.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, typeNibbleArray.getInternalName(), nibbleArrayGet, "(III)I"));
-        //      47  bipush 15
-        m.instructions.add(new IntInsnNode(Opcodes.BIPUSH, 15));
-        //      49  ishl
-        m.instructions.add(new InsnNode(Opcodes.ISHL));
-        //      50  ior
-        m.instructions.add(new InsnNode(Opcodes.IOR));
+        transformGetExtBlocklightValue_load_array(clazz, m.instructions, rColorArray, CLApi.bitshift_r, false);
+        transformGetExtBlocklightValue_load_array(clazz, m.instructions, rColorArray2, CLApi.bitshift_r, true);
+        transformGetExtBlocklightValue_load_array(clazz, m.instructions, gColorArray, CLApi.bitshift_g, false);
+        transformGetExtBlocklightValue_load_array(clazz, m.instructions, gColorArray2, CLApi.bitshift_g, true);
+        transformGetExtBlocklightValue_load_array(clazz, m.instructions, bColorArray, CLApi.bitshift_b, false);
+        transformGetExtBlocklightValue_load_array(clazz, m.instructions, bColorArray2, CLApi.bitshift_b, true);
 
         if (returnNode != null)
             //      51  ireturn

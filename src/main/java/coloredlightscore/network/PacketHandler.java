@@ -25,6 +25,9 @@ public class PacketHandler {
             NibbleArray[] redColorArray = ChunkStorageRGB.getRedColorArrays(chunk);
             NibbleArray[] greenColorArray = ChunkStorageRGB.getGreenColorArrays(chunk);
             NibbleArray[] blueColorArray = ChunkStorageRGB.getBlueColorArrays(chunk);
+            NibbleArray[] redColorArray2 = ChunkStorageRGB.getRedColorArrays2(chunk);
+            NibbleArray[] greenColorArray2 = ChunkStorageRGB.getGreenColorArrays2(chunk);
+            NibbleArray[] blueColorArray2 = ChunkStorageRGB.getBlueColorArrays2(chunk);
 
             if (redColorArray == null || greenColorArray == null || blueColorArray == null) {
                 return;
@@ -37,6 +40,9 @@ public class PacketHandler {
             packet.RedColorArray = redColorArray;
             packet.GreenColorArray = greenColorArray;
             packet.BlueColorArray = blueColorArray;
+            packet.RedColorArray2 = redColorArray2;
+            packet.GreenColorArray2 = greenColorArray2;
+            packet.BlueColorArray2 = blueColorArray2;
 
             //this.channels.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.PLAYER);
             //this.channels.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(player);

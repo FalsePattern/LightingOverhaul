@@ -856,9 +856,9 @@ public class CLRenderBlocksHelper {
 
         // Must mix all 5 channels now
         return mixColorChannel(CLApi.bitshift_s2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // SSSS
-                mixColorChannel(CLApi.bitshift_b2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // BBBB
-                mixColorChannel(CLApi.bitshift_g2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // GGGG this is the problem child
-                mixColorChannel(CLApi.bitshift_r2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // RRRR
+                mixColorChannel2(CLApi.bitshift_b2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // BBBB
+                mixColorChannel2(CLApi.bitshift_g2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // GGGG this is the problem child
+                mixColorChannel2(CLApi.bitshift_r2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // RRRR
                 mixColorChannel(CLApi.bitshift_l2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_); // LLLL
     }
 
@@ -869,6 +869,27 @@ public class CLRenderBlocksHelper {
         int q2 = (p2 >> startBit) & 0xf;
         int q3 = (p3 >> startBit) & 0xf;
         int q4 = (p4 >> startBit) & 0xf;
+
+        avg = (q1 + q2 + q3 + q4) / 4;
+
+        if (avg > 15)
+            avg = 15; // Cap to 4 bits again
+
+        return avg << startBit;
+    }
+
+    public static int mixColorChannel2(int startBit, int p1, int p2, int p3, int p4) {
+        int avg;
+
+        int q1 = (p1 >> startBit) & CLApi.bitmask;
+        int q2 = (p2 >> startBit) & CLApi.bitmask;
+        int q3 = (p3 >> startBit) & CLApi.bitmask;
+        int q4 = (p4 >> startBit) & CLApi.bitmask;
+
+        q1 = Math.min(15, q1);
+        q2 = Math.min(15, q2);
+        q3 = Math.min(15, q3);
+        q4 = Math.min(15, q4);
 
         avg = (q1 + q2 + q3 + q4) / 4;
 

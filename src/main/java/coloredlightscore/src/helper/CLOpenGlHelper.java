@@ -26,6 +26,10 @@ public class CLOpenGlHelper {
                 r = g = b = l;
             }
 
+            r = Math.min(15, r);
+            g = Math.min(15, g);
+            b = Math.min(15, b);
+
             GL20.glUniform4i(CLTessellatorHelper.lightCoordUniform, r, g, b, s);
         } // else noop; why is this ever called if enableLightmap hasn't been called?
 
