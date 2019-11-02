@@ -15,6 +15,8 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import org.lwjgl.opengl.*;
 
+import coloredlightscore.src.api.CLApi;
+
 public class CLTessellatorHelper {
     //private static int nativeBufferSize = 0x200000;
     public static int texCoordParam;
@@ -221,7 +223,7 @@ public class CLTessellatorHelper {
             int r = (instance.brightness >> 8 ) & 0xF;
             int g = (instance.brightness >> 12 ) & 0xF;
             int b = (instance.brightness >> 16 ) & 0xF;
-            int s = (instance.brightness >> 20 ) & 0xF;
+            int s = (instance.brightness >> CLApi.bitshift_s ) & 0xF;
             
             /* 0000 SSSS 0000 BBBB 0000 GGGG 0000 RRRR */
             instance.rawBuffer[instance.rawBufferIndex + 7] = (r << 0)

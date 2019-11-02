@@ -1,5 +1,6 @@
 package coloredlightscore.src.helper;
 
+import coloredlightscore.src.api.CLApi;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockGrass;
 import net.minecraft.client.renderer.RenderBlocks;
@@ -854,7 +855,7 @@ public class CLRenderBlocksHelper {
         //return (p_147778_1_ & 15728880) + (p_147778_2_ & 15728880) + (p_147778_3_ & 15728880) + (p_147778_4_ & 15728880) >> 2 & 15728880;
 
         // Must mix all 5 channels now
-        return mixColorChannel(20, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // SSSS
+        return mixColorChannel(CLApi.bitshift_s, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // SSSS
                 mixColorChannel(16, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // BBBB
                 mixColorChannel(12, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // GGGG this is the problem child
                 mixColorChannel(8, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // RRRR

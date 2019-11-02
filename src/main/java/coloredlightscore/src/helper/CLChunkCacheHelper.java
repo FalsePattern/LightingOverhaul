@@ -34,7 +34,7 @@ public class CLChunkCacheHelper {
         block_g = Math.max(block_g, light_g);
         block_b = Math.max(block_b, light_b);
 
-        return skyBrightness << 20 | block_l << 4 | block_r << 8 | block_g << 12 | block_b << 16;
+        return skyBrightness << CLApi.bitshift_s | block_l << 4 | block_r << 8 | block_g << 12 | block_b << 16;
     }
 
 }
