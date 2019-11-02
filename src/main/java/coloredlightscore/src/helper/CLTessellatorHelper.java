@@ -217,12 +217,17 @@ public class CLTessellatorHelper {
             /* << and >> take precedence over &
              * Incoming:
              * 0000 0000 SSSS BBBB GGGG RRRR LLLL 0000 */
+            int l = (instance.brightness >> 4 ) & 0xF;
+            int r = (instance.brightness >> 8 ) & 0xF;
+            int g = (instance.brightness >> 12 ) & 0xF;
+            int b = (instance.brightness >> 16 ) & 0xF;
+            int s = (instance.brightness >> 20 ) & 0xF;
             
             /* 0000 SSSS 0000 BBBB 0000 GGGG 0000 RRRR */
-            instance.rawBuffer[instance.rawBufferIndex + 7] = (instance.brightness << 4 & 0x0F000000)
-                                                            | (instance.brightness << 0 & 0x000F0000)
-                                                            | (instance.brightness >> 4 & 0x00000F00)
-                                                            | (instance.brightness >> 8 & 0x0000000F);
+            instance.rawBuffer[instance.rawBufferIndex + 7] = (r << 0)
+                                                            | (g << 8)
+                                                            | (b << 16)
+                                                            | (s << 24);
         }
 
         if (instance.hasColor) {

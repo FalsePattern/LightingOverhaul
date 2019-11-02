@@ -130,7 +130,7 @@ public class CLWorldHelper {
         if ((blockBrightness & 0xf000) < (lightValue & 0xf000)) {
             blockBrightness = blockBrightness & 0x0fff | lightValue & 0xf000;
         }
-        return skyBrightness << 20 | blockBrightness << 4;
+        return skyBrightness << CLApi.bitshift_s | blockBrightness << 4;
     }
 
     public static int computeLightValue(World world, int par_x, int par_y, int par_z, EnumSkyBlock par1Enu) {

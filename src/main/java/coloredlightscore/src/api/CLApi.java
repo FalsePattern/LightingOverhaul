@@ -21,6 +21,7 @@ public class CLApi {
     public static int bitshift_r = 5;
     public static int bitshift_g = 10;
     public static int bitshift_b = 15;
+    public static int bitshift_s = 20;
 
     public static int bitmask = 0xF;
 

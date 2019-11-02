@@ -40,17 +40,4 @@ public class CLChunkCacheHelper {
         return skyBrightness << 20 | block_l << 4 | block_r << 8 | block_g << 12 | block_b << 16;
     }
 
-    /**
-     * Returns how bright the block is shown as which is the block's light value looked up in a lookup table (light
-     * values aren't linear for brightness). Args: x, y, z
-     * 
-     * Modified by CptSpaceToaster
-     * 
-     * Not present in 1.7.2... where it go?    - heaton84
-    public float getLightBrightness(ChunkCache instance, int par1, int par2, int par3)
-    {
-        return instance.worldObj.provider.lightBrightnessTable[instance.getLightValue(par1, par2, par3)%15];
-    }    
-     */
-
 }
