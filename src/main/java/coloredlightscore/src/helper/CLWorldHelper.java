@@ -143,7 +143,7 @@ public class CLWorldHelper {
             if (par1Enu != EnumSkyBlock.Sky) {
                 currentLight = (block == null ? 0 : getLightValueSomehow(block, world, par_x, par_y, par_z));
                 if ((currentLight > 0) && (currentLight <= 0xF)) {
-                    currentLight = (currentLight<<15) | (currentLight<<10) | (currentLight<<5) | currentLight; //copy vanilla brightness into each color component to make it white/grey if it is uncolored.
+                    currentLight = (currentLight << CLApi.bitshift_r) | (currentLight << CLApi.bitshift_g) | (currentLight << CLApi.bitshift_b) | currentLight; //copy vanilla brightness into each color component to make it white/grey if it is uncolored.
                 }
             }
             int opacity = (block == null ? 0 : block.getLightOpacity(world, par_x, par_y, par_z));
@@ -159,7 +159,7 @@ public class CLWorldHelper {
             if (opacity >= 15) {
                 return 0;
             }
-            else if ((currentLight&15) >= 14) {
+            else if ((currentLight & 15) >= 14) {
                 return currentLight;
             }
             else {
@@ -248,7 +248,7 @@ public class CLWorldHelper {
             world.theProfiler.endStartSection("lightAddition");
 
             // Format of lightAdditionBlockList word:
-            // rrrr.gggg.bbbb.LLLLzzzzzzyyyyyyxxxxxx
+            // bbbb.gggg.rrrr.LLLLzzzzzzyyyyyyxxxxxx
             // x/y/z are relative offsets
             if ((((0x100000 | savedLightValue) - compLightValue) & 0x84210) > 0) { //compLightValue has components that are larger than savedLightValue, the block at the current position is brighter than the saved value at the current positon... it must have been made brighter somehow
                 //Light Splat/Spread
@@ -306,24 +306,39 @@ public class CLWorldHelper {
 
                                             int queueLightEntryFiltered = calculateOpacity(queueLightEntry, opacity, neighborBlock, world, neighbor_x, neighbor_y, neighbor_z);
 
-                                            //Subtract by 1, as channels diminish by one every block
-                                            //TODO: Colored Opacity
-                                            ll = (queueLightEntry & 0x0000F) > (neighborLightEntry & 0x0000F) ? Math.max(0, queueLightEntryFiltered & 0x0000F) : (neighborLightEntry & 0x0000F);
-                                            rl = (queueLightEntry & 0x001E0) > (neighborLightEntry & 0x001E0) ? Math.max(0, queueLightEntryFiltered & 0x001E0) : (neighborLightEntry & 0x001E0);
-                                            gl = (queueLightEntry & 0x03C00) > (neighborLightEntry & 0x03C00) ? Math.max(0, queueLightEntryFiltered & 0x03C00) : (neighborLightEntry & 0x03C00);
-                                            bl = (queueLightEntry & 0x78000) > (neighborLightEntry & 0x78000) ? Math.max(0, queueLightEntryFiltered & 0x78000) : (neighborLightEntry & 0x78000);
+                                            int queue_l = (queueLightEntry >> 0) & 0xF;
+                                            int queue_r = (queueLightEntry >> CLApi.bitshift_r) & CLApi.bitmask;
+                                            int queue_g = (queueLightEntry >> CLApi.bitshift_g) & CLApi.bitmask;
+                                            int queue_b = (queueLightEntry >> CLApi.bitshift_b) & CLApi.bitmask;
 
-                                            if (((ll > (neighborLightEntry & 0x0000F)) ||
-                                                    (rl > (neighborLightEntry & 0x001E0)) ||
-                                                    (gl > (neighborLightEntry & 0x03C00)) ||
-                                                    (bl > (neighborLightEntry & 0x78000))) && (getter < world.pipe.lightAdditionBlockList.length)) {
+                                            int queue_filtered_l = (queueLightEntryFiltered >> 0) & 0xF;
+                                            int queue_filtered_r = (queueLightEntryFiltered >> CLApi.bitshift_r) & CLApi.bitmask;
+                                            int queue_filtered_g = (queueLightEntryFiltered >> CLApi.bitshift_g) & CLApi.bitmask;
+                                            int queue_filtered_b = (queueLightEntryFiltered >> CLApi.bitshift_b) & CLApi.bitmask;
+
+                                            int neighbor_l = (neighborLightEntry >> 0) & 0xF;
+                                            int neighbor_r = (neighborLightEntry >> CLApi.bitshift_r) & CLApi.bitmask;
+                                            int neighbor_g = (neighborLightEntry >> CLApi.bitshift_g) & CLApi.bitmask;
+                                            int neighbor_b = (neighborLightEntry >> CLApi.bitshift_b) & CLApi.bitmask;
+
+                                            ll = queue_l > neighbor_l ? Math.max(0, queue_filtered_l) : neighbor_l;
+                                            rl = queue_r > neighbor_r ? Math.max(0, queue_filtered_r) : neighbor_r;
+                                            gl = queue_g > neighbor_g ? Math.max(0, queue_filtered_g) : neighbor_g;
+                                            bl = queue_b > neighbor_b ? Math.max(0, queue_filtered_b) : neighbor_b;
+
+                                            long light_combine = ll | (rl << CLApi.bitshift_r) | (gl << CLApi.bitshift_g) | (bl << CLApi.bitshift_b);
+
+                                            if (((ll > neighbor_l) ||
+                                                    (rl > neighbor_r) ||
+                                                    (gl > neighbor_g) ||
+                                                    (bl > neighbor_b)) && (getter < world.pipe.lightAdditionBlockList.length)) {
                                                 world.pipe.lightAdditionNeeded[neighbor_x - par_x + 14][neighbor_y - par_y + 14][neighbor_z - par_z + 14] = world.pipe.updateFlag; // Mark neighbor to be processed
-                                                world.pipe.lightAdditionBlockList[getter++] = ((long) neighbor_x - (long) par_x + 32L) | (((long) neighbor_y - (long) par_y + 32L) << 6L) | (((long) neighbor_z - (long) par_z + 32L) << 12L) | ((ll | rl | gl | bl) << 18L);
+                                                world.pipe.lightAdditionBlockList[getter++] = ((long) neighbor_x - (long) par_x + 32L) | (((long) neighbor_y - (long) par_y + 32L) << 6L) | (((long) neighbor_z - (long) par_z + 32L) << 12L) | (light_combine << 18L);
                                                 lightAdditionsCalled++;
-                                            } else if (((queueLightEntry & 0x0000F) + (opacity) < (neighborLightEntry & 0x0000F)) ||
-                                                    ((queueLightEntry & 0x001E0) + (opacity << 5) < (neighborLightEntry & 0x001E0)) ||
-                                                    ((queueLightEntry & 0x03C00) + (opacity << 10) < (neighborLightEntry & 0x03C00)) ||
-                                                    ((queueLightEntry & 0x78000) + (opacity << 15) < (neighborLightEntry & 0x78000))) {
+                                            } else if ((queue_l + opacity < neighbor_l) ||
+                                                    (queue_r + opacity < neighbor_r) ||
+                                                    (queue_g + opacity < neighbor_g) ||
+                                                    (queue_b + opacity < neighbor_b)) {
                                                 if (Math.abs(queue_x - rel_x) < 14 && Math.abs(queue_y - rel_y) < 14 && Math.abs(queue_z - rel_z) < 14) {
                                                     world.pipe.lightBackfillNeeded[queue_x - rel_x + 14][queue_y - rel_y + 14][queue_z - rel_z + 14] = world.pipe.updateFlag; // Mark queue location to be re-processed
                                                 }
@@ -381,43 +396,54 @@ public class CLWorldHelper {
                                 opacity = Math.max(1, world.getBlock(neighbor_x, neighbor_y, neighbor_z).getLightOpacity(world, neighbor_x, neighbor_y, neighbor_z));
                                 neighborLightEntry = world.pipe.getSavedLightValue(par1Enu, neighbor_x, neighbor_y, neighbor_z);
 
+                                int queue_l = (queueLightEntry >> 0) & 0xF;
+                                int queue_r = (queueLightEntry >> CLApi.bitshift_r) & CLApi.bitmask;
+                                int queue_g = (queueLightEntry >> CLApi.bitshift_g) & CLApi.bitmask;
+                                int queue_b = (queueLightEntry >> CLApi.bitshift_b) & CLApi.bitmask;
+
+                                int neighbor_l = (neighborLightEntry >> 0) & 0xF;
+                                int neighbor_r = (neighborLightEntry >> CLApi.bitshift_r) & CLApi.bitmask;
+                                int neighbor_g = (neighborLightEntry >> CLApi.bitshift_g) & CLApi.bitmask;
+                                int neighbor_b = (neighborLightEntry >> CLApi.bitshift_b) & CLApi.bitmask;
+
                                 if (opacity < 15 || neighborLightEntry > 0) {
                                     //Get Saved light value from face
 
                                     //   |------------------maximum theoretical light value------------------|    |------saved light value------|
-                                    ll = (Math.max((queueLightEntry & 0x0000F) - ((man_x + man_y + man_z)), 0) >= (neighborLightEntry & 0x0000F)) ? 0 : (neighborLightEntry & 0x0000F);
-                                    rl = (Math.max((queueLightEntry & 0x001E0) - ((man_x + man_y + man_z) << 5), 0) >= (neighborLightEntry & 0x001E0)) ? 0 : (neighborLightEntry & 0x001E0);
-                                    gl = (Math.max((queueLightEntry & 0x03C00) - ((man_x + man_y + man_z) << 10), 0) >= (neighborLightEntry & 0x03C00)) ? 0 : (neighborLightEntry & 0x03C00);
-                                    bl = (Math.max((queueLightEntry & 0x78000) - ((man_x + man_y + man_z) << 15), 0) >= (neighborLightEntry & 0x78000)) ? 0 : (neighborLightEntry & 0x78000);
+                                    ll = (Math.max(queue_l - (man_x + man_y + man_z), 0) >= neighbor_l) ? 0 : neighbor_l;
+                                    rl = (Math.max(queue_r - (man_x + man_y + man_z), 0) >= neighbor_r) ? 0 : neighbor_r;
+                                    gl = (Math.max(queue_g - (man_x + man_y + man_z), 0) >= neighbor_g) ? 0 : neighbor_g;
+                                    bl = (Math.max(queue_b - (man_x + man_y + man_z), 0) >= neighbor_b) ? 0 : neighbor_b;
 
                                     sortValue = 0;
-                                    if (((queueLightEntry & 0x0000F) > 0) && (ll != 0)) {
+                                    if ((queue_l > 0) && (ll != 0)) {
                                         sortValue = (int) ll;
                                     }
-                                    if (((queueLightEntry & 0x001E0) > 0) && ((rl >> 5) > sortValue)) {
-                                        sortValue = (int) (rl >> 5);
+                                    if ((queue_r > 0) && (rl > sortValue)) {
+                                        sortValue = (int)rl;
                                     }
-                                    if (((queueLightEntry & 0x03C00) > 0) && ((gl >> 10) > sortValue)) {
-                                        sortValue = (int) (gl >> 10);
+                                    if ((queue_g > 0) && (gl > sortValue)) {
+                                        sortValue = (int)gl;
                                     }
-                                    if (((queueLightEntry & 0x78000) > 0) && ((bl >> 15) > sortValue)) {
-                                        sortValue = (int) (bl >> 15);
+                                    if ((queue_b > 0) && (bl > sortValue)) {
+                                        sortValue = (int)bl;
                                     }
 
+                                    long light_combine = ll | (rl << CLApi.bitshift_r) | (gl << CLApi.bitshift_g) | (bl << CLApi.bitshift_b);
                                     //If the light we are looking at on the edge is brighter or equal to the current light in any way, then there must be a light over there that's doing it, so we'll stop eating colors and lights in that direction
-                                    if (neighborLightEntry != (ll | rl | gl | bl)) {
+                                    if (neighborLightEntry != light_combine) {
 
                                         if (sortValue != 0) {
                                             if (ll == sortValue) {
                                                 queueLightEntry &= ~(0x0000F);
                                             }
-                                            if ((rl >> 5) == sortValue) {
+                                            if (rl == sortValue) {
                                                 queueLightEntry &= ~(0x001E0);
                                             }
-                                            if ((gl >> 10) == sortValue) {
+                                            if (gl == sortValue) {
                                                 queueLightEntry &= ~(0x03C00);
                                             }
-                                            if ((bl >> 15) == sortValue) {
+                                            if (bl == sortValue) {
                                                 queueLightEntry &= ~(0x78000);
                                             }
 
@@ -425,7 +451,7 @@ public class CLWorldHelper {
                                             world.pipe.lightBackfillBlockList[sortValue - 1][world.pipe.lightBackfillIndexes[sortValue - 1]++] = (neighbor_x - par_x + 32) | ((neighbor_y - par_y + 32) << 6) | ((neighbor_z - par_z + 32) << 12); //record coordinates for backfill
                                         }
 
-                                        world.pipe.setLightValue(par1Enu, neighbor_x, neighbor_y, neighbor_z, (int) (ll | rl | gl | bl)); // This kills the light
+                                        world.pipe.setLightValue(par1Enu, neighbor_x, neighbor_y, neighbor_z, (int)light_combine); // This kills the light
                                         world.pipe.lightAdditionBlockList[getter++] = ((long) neighbor_x - (long) par_x + 32L) | (((long) neighbor_y - (long) par_y + 32L) << 6L) | (((long) neighbor_z - (long) par_z + 32L) << 12L) | ((long) queueLightEntry << 18L); //this array keeps the algorithm going, don't touch
                                     } else {
                                         if (sortValue != 0) {
