@@ -79,6 +79,8 @@ public class CLWorldHelper {
         int g = (light >> CLApi.bitshift_g) & CLApi.bitmask;
         int b = (light >> CLApi.bitshift_b) & CLApi.bitmask;
 
+        boolean hasColor = r > 0 || g > 0 || b > 0;
+
         int r_opacity = opacity;
         int g_opacity = opacity;
         int b_opacity = opacity;
@@ -97,13 +99,8 @@ public class CLWorldHelper {
         g =  Math.max(0, g - g_opacity);
         b =  Math.max(0, b - b_opacity);
 
-        // Every color as 0 would be interpreted as vanilla light, and be too bright, we we need to set it to 1.
-        if (l > 0)
-        {
-            r = Math.max(r, 1);
-            g = Math.max(g, 1);
-            b = Math.max(b, 1);
-        }
+        if (hasColor && r + g + b == 0)
+            l = 0;
 
         return (l << 0) | (r << CLApi.bitshift_r) | (g << CLApi.bitshift_g) | (b << CLApi.bitshift_b);
     }
