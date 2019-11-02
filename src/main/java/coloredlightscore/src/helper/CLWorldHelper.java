@@ -75,9 +75,9 @@ public class CLWorldHelper {
     private static int calculateOpacity(int light, int opacity, Block block, World world, int x, int y, int z)
     {
         int l = (light >> 0) & 0xF;
-        int r = (light >> 5) & 0xF;
-        int g = (light >> 10) & 0xF;
-        int b = (light >> 15) & 0xF;
+        int r = (light >> CLApi.bitshift_r) & CLApi.bitmask;
+        int g = (light >> CLApi.bitshift_g) & CLApi.bitmask;
+        int b = (light >> CLApi.bitshift_b) & CLApi.bitmask;
 
         int r_opacity = opacity;
         int g_opacity = opacity;
@@ -105,7 +105,7 @@ public class CLWorldHelper {
             b = Math.max(b, 1);
         }
 
-        return (l << 0) | (r << 5) | (g << 10) | (b << 15);
+        return (l << 0) | (r << CLApi.bitshift_r) | (g << CLApi.bitshift_g) | (b << CLApi.bitshift_b);
     }
 
     //Use this one if you want color

@@ -16,12 +16,20 @@ public class CLApi {
     public static int g[] = new int[] {     0,  0,   15,    3,   0,     0,  15,  10,        5,  10,  15,    15,        8,      0,    12,   15 };
     public static int b[] = new int[] {     0,  0,    0,    0,  15,    15,  15,  10,        5,  13,   0,     0,       15,     15,    10,   15 };
 
+    public static int bitsize = 4;
+
+    public static int bitshift_r = 5;
+    public static int bitshift_g = 10;
+    public static int bitshift_b = 15;
+
+    public static int bitmask = 0xF;
+
     /**
      * Computes a 20-bit lighting word, containing red, green, blue settings, and brightness settings.
      * Automatically computes the Minecraft brightness value using the brightest of the r, g and b channels.
      * This value can be used directly for Block.lightValue 
      * 
-     * Word format: 0RRRR 0GGGG 0BBBB 0LLLL
+     * Word format: 0BBBB 0GGGG 0RRRR 0LLLL
      * 
      * @param r Red intensity, 0.0f to 1.0f. Resolution is 4 bits.
      * @param g Green intensity, 0.0f to 1.0f. Resolution is 4 bits.

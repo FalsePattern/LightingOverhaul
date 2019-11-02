@@ -30,11 +30,6 @@ public class CLBlockHelper {
         return getMixedBrightnessForBlockWithColor(blockAccess, x, y, z);
     }
 
-    public static int makeBrightness(int lightlevel)
-    {
-        return lightlevel << 4 | lightlevel << 8 | lightlevel << 12 | lightlevel << 16;
-    }
-
     public static int getMixedBrightnessForBlockWithColor(IBlockAccess blockAccess, int x, int y, int z) {
         int l;
         Block block = blockAccess.getBlock(x, y, z);

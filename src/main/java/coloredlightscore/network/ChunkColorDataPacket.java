@@ -13,6 +13,7 @@ import net.minecraft.world.chunk.Chunk;
 import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.world.chunk.NibbleArray;
 import coloredlightscore.server.ChunkStorageRGB;
+import coloredlightscore.src.api.CLApi;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
@@ -104,26 +105,26 @@ public class ChunkColorDataPacket implements IMessage, IMessageHandler<ChunkColo
                 if ((arraysPresent & (1 << i)) != 0) {
                     nibbleData = new byte[2048];
                     System.arraycopy(rawColorData, p, nibbleData, 0, 2048);
-                    RedColorArray[i] = new NibbleArray(nibbleData, 4);
+                    RedColorArray[i] = new NibbleArray(nibbleData, CLApi.bitsize);
 
                     p += 2048;
 
                     nibbleData = new byte[2048];
                     System.arraycopy(rawColorData, p, nibbleData, 0, 2048);
-                    GreenColorArray[i] = new NibbleArray(nibbleData, 4);
+                    GreenColorArray[i] = new NibbleArray(nibbleData, CLApi.bitsize);
 
                     p += 2048;
 
                     nibbleData = new byte[2048];
                     System.arraycopy(rawColorData, p, nibbleData, 0, 2048);
-                    BlueColorArray[i] = new NibbleArray(nibbleData, 4); // 4,59,10 y:3[11]  cx:-16  cz:10
+                    BlueColorArray[i] = new NibbleArray(nibbleData, CLApi.bitsize); // 4,59,10 y:3[11]  cx:-16  cz:10
 
                     p += 2048;
 
                 } else {
-                    RedColorArray[i] = new NibbleArray(4096, 4);
-                    GreenColorArray[i] = new NibbleArray(4096, 4);
-                    BlueColorArray[i] = new NibbleArray(4096, 4);
+                    RedColorArray[i] = new NibbleArray(4096, CLApi.bitsize);
+                    GreenColorArray[i] = new NibbleArray(4096, CLApi.bitsize);
+                    BlueColorArray[i] = new NibbleArray(4096, CLApi.bitsize);
                 }
             }
 

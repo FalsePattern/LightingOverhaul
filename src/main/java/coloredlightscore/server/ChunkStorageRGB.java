@@ -2,6 +2,7 @@ package coloredlightscore.server;
 
 import static coloredlightscore.src.asm.ColoredLightsCoreLoadingPlugin.CLLog;
 
+import coloredlightscore.src.api.CLApi;
 import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -27,12 +28,12 @@ public class ChunkStorageRGB {
      */
     private static NibbleArray checkedGetNibbleArray(byte[] rawdata) {
         if (rawdata.length == 0) {
-            return new NibbleArray(4096, 4);
+            return new NibbleArray(4096, CLApi.bitsize);
         } else if (rawdata.length < 2048) {
             CLLog.warn("checkedGetNibbleArray: rawdata is too short: {}, expected 2048", rawdata.length);
-            return new NibbleArray(4096, 4);
+            return new NibbleArray(4096, CLApi.bitsize);
         } else
-            return new NibbleArray(rawdata, 4);
+            return new NibbleArray(rawdata, CLApi.bitsize);
     }
 
     /**
