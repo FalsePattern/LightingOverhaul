@@ -1,5 +1,6 @@
 package coloredlightscore.src.helper;
 
+import coloredlightscore.src.api.CLApi;
 import net.minecraft.world.ChunkCache;
 import net.minecraft.world.EnumSkyBlock;
 
@@ -18,19 +19,15 @@ public class CLChunkCacheHelper {
         int skyBrightness = instance.getSkyBlockTypeBrightness(EnumSkyBlock.Sky, x, y, z);
         int blockBrightness = instance.getSkyBlockTypeBrightness(EnumSkyBlock.Block, x, y, z);
 
-        lightValue = ((lightValue & 0xf) | ((lightValue & 0x1e0) >> 1) | ((lightValue & 0x3c00) >> 2) | ((lightValue & 0x78000) >> 3));
-
-        blockBrightness = ((blockBrightness & 0xf) | ((blockBrightness & 0x1e0) >> 1) | ((blockBrightness & 0x3c00) >> 2) | ((blockBrightness & 0x78000) >> 3));
+        int light_l = (lightValue >> 0) & 0xF;
+        int light_r = (lightValue >> CLApi.bitshift_r) & 0xF;
+        int light_g = (lightValue >> CLApi.bitshift_g) & 0xF;
+        int light_b = (lightValue >> CLApi.bitshift_b) & 0xF;
 
         int block_l = (blockBrightness >> 0) & 0xF;
-        int block_r = (blockBrightness >> 4) & 0xF;
-        int block_g = (blockBrightness >> 8) & 0xF;
-        int block_b = (blockBrightness >> 12) & 0xF;
-
-        int light_l = (lightValue >> 0) & 0xF;
-        int light_r = (lightValue >> 4) & 0xF;
-        int light_g = (lightValue >> 8) & 0xF;
-        int light_b = (lightValue >> 12) & 0xF;
+        int block_r = (blockBrightness >> CLApi.bitshift_r) & 0xF;
+        int block_g = (blockBrightness >> CLApi.bitshift_g) & 0xF;
+        int block_b = (blockBrightness >> CLApi.bitshift_b) & 0xF;
 
         block_l = Math.max(block_l, light_l);
         block_r = Math.max(block_r, light_r);
