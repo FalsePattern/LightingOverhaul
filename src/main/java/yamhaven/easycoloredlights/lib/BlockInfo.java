@@ -8,5 +8,6 @@ public class BlockInfo {
     };
     public static String CLLamp = "CLBlock";
     public static String CLStone = "CLStone";
+    public static String CLStoneBright = "CLStoneBright";
     public static String CLDust = "CLDust";
 } 

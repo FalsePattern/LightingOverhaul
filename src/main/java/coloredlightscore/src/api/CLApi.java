@@ -10,13 +10,9 @@ public class CLApi {
     public static float l[] = new float[] { 0F, 1F / 15, 2F / 15, 3F / 15, 4F / 15, 5F / 15, 6F / 15, 7F / 15, 8F / 15, 9F / 15, 10F / 15, 11F / 15, 12F / 15, 13F / 15, 14F / 15, 1F };
 
     //                                  black red green brown blue purple cyan gray lightgray pink lime yellow lightblue magenta orange white
-    public static int r[] = new int[] {     0, 22,    0,    8,   0,    10,   0,  10,        5,  15,   8,    15,        0,     15,    15,   20 };
-    public static int g[] = new int[] {     0,  0,   22,    3,   0,     0,  15,  10,        5,  10,  15,    15,        8,      0,    12,   20 };
-    public static int b[] = new int[] {     0,  0,    0,    0,  22,    15,  15,  10,        5,  13,   0,     0,       15,     15,    10,   20 };
-
-    //public static int r[] = new int[] {     0, 15,    0,    8,   0,    10,   0,  10,        5,  15,   8,    15,        0,     15,    15,   15 };
-    //public static int g[] = new int[] {     0,  0,   15,    3,   0,     0,  15,  10,        5,  10,  15,    15,        8,      0,    12,   15 };
-    //public static int b[] = new int[] {     0,  0,    0,    0,  15,    15,  15,  10,        5,  13,   0,     0,       15,     15,    10,   15 };
+    public static int r[] = new int[] {     0, 15,    0,    8,   0,    10,   0,  10,        5,  15,   8,    15,        0,     15,    15,   15 };
+    public static int g[] = new int[] {     0,  0,   15,    3,   0,     0,  15,  10,        5,  10,  15,    15,        8,      0,    12,   15 };
+    public static int b[] = new int[] {     0,  0,    0,    0,  15,    15,  15,  10,        5,  13,   0,     0,       15,     15,    10,   15 };
 
     public static int bitshift_l = 0;
     public static int bitshift_r = 5;

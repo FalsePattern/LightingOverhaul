@@ -6,6 +6,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import yamhaven.easycoloredlights.blocks.CLLamp;
 import yamhaven.easycoloredlights.blocks.CLStone;
+import yamhaven.easycoloredlights.blocks.CLStoneBright;
 import yamhaven.easycoloredlights.items.CLDust;
 import yamhaven.easycoloredlights.items.ItemCLBlock;
 import yamhaven.easycoloredlights.lib.BlockInfo;
@@ -16,12 +17,14 @@ public class CLMaterialsController {
     public static CLLamp CLBlockIdle;
     public static CLLamp CLBlockOn;
     public static Block CLStone;
+    public static Block CLStoneBright;
     public static Item CLDust;
     
     public static void init() {
         CLBlockIdle = (CLLamp) new CLLamp(false).setBlockName(BlockInfo.CLLamp);
         CLBlockOn = (CLLamp) new CLLamp(true).setBlockName(BlockInfo.CLLamp + "On");
         CLStone = new CLStone().setBlockName(BlockInfo.CLStone);
+        CLStoneBright = new CLStoneBright().setBlockName(BlockInfo.CLStoneBright);
         CLDust = new CLDust().setUnlocalizedName(BlockInfo.CLDust);
         
         CLBlockIdle.setSwitchBlock(CLBlockOn);
@@ -32,6 +35,7 @@ public class CLMaterialsController {
         GameRegistry.registerBlock(CLBlockIdle, ItemCLBlock.class, ModInfo.ID + BlockInfo.CLLamp);
         GameRegistry.registerBlock(CLBlockOn, ItemCLBlock.class, ModInfo.ID + BlockInfo.CLLamp + "On");
         GameRegistry.registerBlock(CLStone, ItemCLBlock.class, ModInfo.ID + BlockInfo.CLStone);
+        GameRegistry.registerBlock(CLStoneBright, ItemCLBlock.class, ModInfo.ID + BlockInfo.CLStoneBright);
         GameRegistry.registerItem(CLDust, ModInfo.ID + BlockInfo.CLDust);
     }
 

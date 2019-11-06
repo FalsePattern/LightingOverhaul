@@ -32,6 +32,23 @@ tile.CLStone13.name=Magenta Glowstone
 tile.CLStone14.name=Orange Glowstone
 tile.CLStone15.name=White Glowstone
 
+tile.CLStoneBright0.name=Bright Mysterious Glowstone
+tile.CLStoneBright1.name=Bright Red Glowstone
+tile.CLStoneBright2.name=Bright Green Glowstone
+tile.CLStoneBright3.name=Bright Brown Glowstone
+tile.CLStoneBright4.name=Bright Blue Glowstone
+tile.CLStoneBright5.name=Bright Purple Glowstone
+tile.CLStoneBright6.name=Bright Cyan Glowstone
+tile.CLStoneBright8.name=Bright Light Gray Glowstone
+tile.CLStoneBright7.name=Bright Gray Glowstone
+tile.CLStoneBright9.name=Bright Pink Glowstone
+tile.CLStoneBright10.name=Bright Lime Glowstone
+tile.CLStoneBright11.name=Bright Yellow Glowstone
+tile.CLStoneBright12.name=Bright Light Blue Glowstone
+tile.CLStoneBright13.name=Bright Magenta Glowstone
+tile.CLStoneBright14.name=Bright Orange Glowstone
+tile.CLStoneBright15.name=Bright White Glowstone
+
 item.CLDust0.name=Mysterious Glowstone Dust
 item.CLDust1.name=Red Glowstone Dust
 item.CLDust2.name=Green Glowstone Dust
