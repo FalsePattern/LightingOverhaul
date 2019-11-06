@@ -265,10 +265,12 @@ public class CLWorldHelper {
             int comp_g = (int)(compLightValue >> CLApi.bitshift_g) & CLApi.bitmask;
             int comp_b = (int)(compLightValue >> CLApi.bitshift_b) & CLApi.bitmask;
 
-            final int offset = 30;
-            final int size = 64;
-            final int coord_size = 7;
-            final int coord_mask = (1 << coord_size) - 1;
+            final int offset = 31; // Offset for the start block
+            final int size = 64; // Number or blocks in one directon
+            final int coord_size = 7; // Number of bits for one axis
+            final int coord_mask = (1 << coord_size) - 1; // Mask for getting one axis
+            final int startCoordOne = (1 << coord_size) / 2;
+            final long startCoord = (startCoordOne) | (startCoordOne << coord_size) | (startCoordOne << (coord_size * 2));
 
             // Format of lightAdditionBlockList word:
             // bbbbb.ggggg.rrrrr.LLLLzzzzzzzyyyyyyyxxxxxxx
@@ -278,8 +280,6 @@ public class CLWorldHelper {
 
                 world.pipe.lightAdditionNeeded[offset][offset][offset] = world.pipe.updateFlag; // Light needs processing processed
                 lightAdditionsCalled++;
-                final int startCoordOne = (1 << coord_size) / 2;
-                long startCoord = (startCoordOne) | (startCoordOne << coord_size) | (startCoordOne << (coord_size * 2));
                 world.pipe.lightAdditionBlockList[getter++] = startCoord | (compLightValue << (coord_size * 3));
 
                 while (filler < getter) {
@@ -384,7 +384,7 @@ public class CLWorldHelper {
                 }
             }
 
-         /*   if ((filler > 24389) || (lightAdditionsCalled != lightAdditionsSatisfied)) {
+            if ((filler > 24389 * 2) || (lightAdditionsCalled != lightAdditionsSatisfied)) {
                 CLLog.warn("Error in Light Addition:" + filler + (par1Enu==EnumSkyBlock.Block?" (isBlock)": " (isSky)") + " Saved:" + Integer.toBinaryString((int) savedLightValue) + " Comp:" + Integer.toBinaryString((int)compLightValue) + " isBackfill:" + " updateFlag:" + world.pipe.updateFlag + " Called:" + lightAdditionsCalled + " Satisfied:" + lightAdditionsSatisfied);
             }
 
@@ -395,25 +395,26 @@ public class CLWorldHelper {
                 filler = 0;
                 getter = 0;
 
-                if ((((0x100000 | compLightValue) - savedLightValue) & 0x84210) > 0) { //savedLightValue has components that are larger than compLightValue
+                if (saved_l > comp_l || saved_r > comp_r || saved_g > comp_g || saved_b > comp_b) { //savedLightValue has components that are larger than compLightValue
                     //Light Destruction
 
                     world.pipe.setLightValue(par1Enu, par_x, par_y, par_z, (int) compLightValue); // This kills the light
-                    world.pipe.lightAdditionBlockList[getter++] = (0x20820L | (savedLightValue << 18L));
+                    world.pipe.lightAdditionBlockList[getter++] = (startCoord | (savedLightValue << (coord_size * 3)));
 
                     while (filler <= getter) {
                         queueEntry = world.pipe.lightAdditionBlockList[filler++]; //Get Entry at l, which starts at 0
-                        queue_x = ((int) (queueEntry & 0x3f) - 32 + par_x); //Get Entry X coord
-                        queue_y = ((int) (queueEntry >> 6 & 0x3f) - 32 + par_y); //Get Entry Y coord
-                        queue_z = ((int) (queueEntry >> 12 & 0x3f) - 32 + par_z); //Get Entry Z coord
-                        queueLightEntry = (int) (queueEntry >>> 18); //Get Entry's saved Light
+                        queue_x = ((int) (queueEntry & coord_mask) - size + par_x); //Get Entry X coord
+                        queue_y = ((int) ((queueEntry >> coord_size) & coord_mask) - size + par_y); //Get Entry Y coord
+                        queue_z = ((int) ((queueEntry >> (coord_size * 2)) & coord_mask) - size + par_z); //Get Entry Z coord
+                        queueLightEntry = (int) (queueEntry >>> (coord_size * 3)); //Get Entry's saved Light
 
                         man_x = MathHelper.abs_int(queue_x - par_x);
                         man_y = MathHelper.abs_int(queue_y - par_y);
                         man_z = MathHelper.abs_int(queue_z - par_z);
                         manhattan_distance = man_x + man_y + man_z;
 
-                        if (manhattan_distance < ((savedLightValue & 0x0000F))) { //Limits the splat size to the initial brightness value
+                        int limit_test = Math.max(Math.max(Math.max(saved_l, saved_r), saved_g), saved_b);
+                        if (manhattan_distance < limit_test) { //Limits the splat size to the initial brightness value
                             for (neighborIndex = 0; neighborIndex < 6; ++neighborIndex) {
                                 neighbor_x = queue_x + Facing.offsetsXForSide[neighborIndex];
                                 neighbor_y = queue_y + Facing.offsetsYForSide[neighborIndex];
@@ -467,28 +468,29 @@ public class CLWorldHelper {
 
                                         if (sortValue != 0) {
                                             if (ll == sortValue) {
-                                                queueLightEntry &= ~(0x0000F);
+                                                ll = 0;
                                             }
                                             if (rl == sortValue) {
-                                                queueLightEntry &= ~(0x001E0);
+                                                rl = 0;
                                             }
                                             if (gl == sortValue) {
-                                                queueLightEntry &= ~(0x03C00);
+                                                gl = 0;
                                             }
                                             if (bl == sortValue) {
-                                                queueLightEntry &= ~(0x78000);
+                                                bl = 0;
                                             }
+                                            light_combine = (ll << CLApi.bitshift_l) | (rl << CLApi.bitshift_r) | (gl << CLApi.bitshift_g) | (bl << CLApi.bitshift_b);
 
-                                            world.pipe.lightBackfillNeeded[queue_x - par_x + 14][queue_y - par_y + 14][queue_z - par_z + 14] = world.pipe.updateFlag;
-                                            world.pipe.lightBackfillBlockList[sortValue - 1][world.pipe.lightBackfillIndexes[sortValue - 1]++] = (neighbor_x - par_x + 32) | ((neighbor_y - par_y + 32) << 6) | ((neighbor_z - par_z + 32) << 12); //record coordinates for backfill
+                                            world.pipe.lightBackfillNeeded[queue_x - par_x + offset][queue_y - par_y + offset][queue_z - par_z + offset] = world.pipe.updateFlag;
+                                            world.pipe.lightBackfillBlockList[sortValue - 1][world.pipe.lightBackfillIndexes[sortValue - 1]++] = (neighbor_x - par_x + size) | ((neighbor_y - par_y + size) << (coord_size * 1)) | ((neighbor_z - par_z + size) << (coord_size * 2)); //record coordinates for backfill
                                         }
 
                                         world.pipe.setLightValue(par1Enu, neighbor_x, neighbor_y, neighbor_z, (int)light_combine); // This kills the light
-                                        world.pipe.lightAdditionBlockList[getter++] = ((long) neighbor_x - (long) par_x + 32L) | (((long) neighbor_y - (long) par_y + 32L) << 6L) | (((long) neighbor_z - (long) par_z + 32L) << 12L) | ((long) queueLightEntry << 18L); //this array keeps the algorithm going, don't touch
+                                        world.pipe.lightAdditionBlockList[getter++] = ((long) neighbor_x - (long) par_x + size) | (((long) neighbor_y - (long) par_y + size) << coord_size) | (((long) neighbor_z - (long) par_z + size) << (coord_size * 2)) | ((long) queueLightEntry << (coord_size * 3)); //this array keeps the algorithm going, don't touch
                                     } else {
                                         if (sortValue != 0) {
-                                            world.pipe.lightBackfillNeeded[queue_x - par_x + 14][queue_y - par_y + 14][queue_z - par_z + 14] = world.pipe.updateFlag;
-                                            world.pipe.lightBackfillBlockList[sortValue - 1][world.pipe.lightBackfillIndexes[sortValue - 1]++] = (queue_x - par_x + 32) | ((queue_y - par_y + 32) << 6) | ((queue_z - par_z + 32) << 12); //record coordinates for backfill
+                                            world.pipe.lightBackfillNeeded[queue_x - par_x + offset][queue_y - par_y + offset][queue_z - par_z + offset] = world.pipe.updateFlag;
+                                            world.pipe.lightBackfillBlockList[sortValue - 1][world.pipe.lightBackfillIndexes[sortValue - 1]++] = (queue_x - par_x + size) | ((queue_y - par_y + size) << coord_size) | ((queue_z - par_z + size) << (coord_size * 2)); //record coordinates for backfill
                                         }
                                     }
                                 }
@@ -496,7 +498,7 @@ public class CLWorldHelper {
                         }
                     }
 
-                    if (filler > 4097) {
+                    if (filler > 4097 * 2) {
                         CLLog.warn("Light Subtraction Overfilled:" + filler + (par1Enu == EnumSkyBlock.Block ? " (isBlock)" : " (isSky)") + " Saved:" + Integer.toBinaryString((int) savedLightValue) + " Comp:" + Integer.toBinaryString((int) compLightValue) + " isBackfill:" + " updateFlag:" + world.pipe.updateFlag + " Called:" + lightAdditionsCalled + " Satisfied:" + lightAdditionsSatisfied);
                     }
 
@@ -506,17 +508,17 @@ public class CLWorldHelper {
                     for (filler = world.pipe.lightBackfillIndexes.length - 1; filler >= 0; filler--) {
                         while (world.pipe.lightBackfillIndexes[filler] > 0) {
                             getter = world.pipe.lightBackfillBlockList[filler][--world.pipe.lightBackfillIndexes[filler]];
-                            queue_x = (getter & 0x3f) - 32 + par_x; //Get Entry X coord
-                            queue_y = (getter >> 6 & 0x3f) - 32 + par_y; //Get Entry Y coord
-                            queue_z = (getter >> 12 & 0x3f) - 32 + par_z; //Get Entry Z coord
+                            queue_x = (getter & coord_mask) - size + par_x; //Get Entry X coord
+                            queue_y = (getter >> (coord_size * 1) & coord_mask) - size + par_y; //Get Entry Y coord
+                            queue_z = (getter >> (coord_size * 2) & coord_mask) - size + par_z; //Get Entry Z coord
 
-                            if (world.pipe.lightBackfillNeeded[queue_x - par_x + 14][queue_y - par_y + 14][queue_z - par_z + 14] == world.pipe.updateFlag) {
+                            if (world.pipe.lightBackfillNeeded[queue_x - par_x + offset][queue_y - par_y + offset][queue_z - par_z + offset] == world.pipe.updateFlag) {
                                 CLWorldHelper.updateLightByType_withIncrement(world, par1Enu, queue_x, queue_y, queue_z, false, rel_x, rel_y, rel_z); ///oooooOOOOoooo spoooky!
                             }
                         }
                     }
                 }
-            }*/
+            }
 
             world.theProfiler.endSection();
             return true;
