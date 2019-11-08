@@ -5,6 +5,7 @@ uniform sampler2D LightMap;
 varying vec2 p_TexCoord;
 varying vec4 p_Color;
 varying vec4 p_LightCoord;
+varying vec4 p_LightCoordSun;
 uniform float gamma;
 uniform float sunlevel;
 uniform float nightVisionWeight;
@@ -46,7 +47,7 @@ void main() {
     float lightlevel_r = p_LightCoord.x;
     float lightlevel_g = p_LightCoord.y;
     float lightlevel_b = p_LightCoord.z;
-    float lightlevel_s = p_LightCoord.w;
+    float lightlevel_s = p_LightCoordSun.x;
 
     float brightness_r = doColor(lightlevel_r, lightlevel_s);
     float brightness_g = doColor(lightlevel_g, lightlevel_s);

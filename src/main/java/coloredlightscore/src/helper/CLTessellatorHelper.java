@@ -24,10 +24,12 @@ public class CLTessellatorHelper {
     public static int clProgram;
     private static boolean programInUse;
     public static int lightCoordUniform;
+    public static int lightCoordSunUniform;
     public static int gammaUniform;
     public static int sunlevelUniform;
     public static int nightVisionWeightUniform;
     private static IntBuffer cachedLightCoord;
+    private static IntBuffer cachedLightCoordSun;
     private static int cachedShader;
     private static boolean hasFlaggedOpenglError;
     private static int lastGLErrorCode = GL11.GL_NO_ERROR;
@@ -39,6 +41,7 @@ public class CLTessellatorHelper {
 
     static {
         cachedLightCoord = ByteBuffer.allocateDirect(16).asIntBuffer();
+        cachedLightCoordSun = ByteBuffer.allocateDirect(16).asIntBuffer();
         cachedShader = 0;
         hasFlaggedOpenglError = false;
     }
@@ -123,6 +126,7 @@ public class CLTessellatorHelper {
         texCoordParam = GL20.glGetAttribLocation(clProgram, "TexCoord");
         lightCoordParam = GL20.glGetAttribLocation(clProgram, "LightCoord");
         lightCoordUniform = GL20.glGetUniformLocation(clProgram, "u_LightCoord");
+        lightCoordSunUniform = GL20.glGetUniformLocation(clProgram, "u_LightCoordSun");
         gammaUniform = GL20.glGetUniformLocation(clProgram, "gamma");
         sunlevelUniform = GL20.glGetUniformLocation(clProgram, "sunlevel");
         nightVisionWeightUniform = GL20.glGetUniformLocation(clProgram, "nightVisionWeight");
@@ -136,14 +140,17 @@ public class CLTessellatorHelper {
         if (lightCoordUniform <= 0) {
             CLLog.error("lightCoordUniform attribute location returned: " + lightCoordUniform);
         }
+        if (lightCoordSunUniform <= 0) {
+            CLLog.error("lightCoordSunUniform attribute location returned: " + lightCoordSunUniform);
+        }
         if (gammaUniform <= 0) {
             CLLog.error("gammaUniform attribute location returned: " + gammaUniform);
         }
         if (sunlevelUniform <= 0) {
-            CLLog.error("gammaUniform attribute location returned: " + sunlevelUniform);
+            CLLog.error("sunlevelUniform attribute location returned: " + sunlevelUniform);
         }
         if (nightVisionWeight <= 0) {
-            CLLog.error("gammaUniform attribute location returned: " + nightVisionWeight);
+            CLLog.error("nightVisionWeight attribute location returned: " + nightVisionWeight);
         }
     }
 
@@ -207,6 +214,8 @@ public class CLTessellatorHelper {
     public static void setLightCoord(ByteBuffer buffer) {
         GL20.glGetUniform(clProgram, lightCoordUniform, cachedLightCoord);
         GL20.glUniform4i(lightCoordUniform, 0, 0, 0, 0);
+        GL20.glGetUniform(clProgram, lightCoordSunUniform, cachedLightCoordSun);
+        GL20.glUniform4i(lightCoordSunUniform, 0, 0, 0, 0);
         GL20.glVertexAttribPointer(lightCoordParam, 4, true, false, 32, buffer);
         GL20.glEnableVertexAttribArray(lightCoordParam);
     }
@@ -214,6 +223,7 @@ public class CLTessellatorHelper {
     public static void unsetLightCoord() {
         GL20.glDisableVertexAttribArray(lightCoordParam);
         GL20.glUniform4(lightCoordUniform, cachedLightCoord);
+        GL20.glUniform4(lightCoordSunUniform, cachedLightCoordSun);
     }
 
     public static int makeBrightness(int lightlevel)
@@ -259,9 +269,9 @@ public class CLTessellatorHelper {
             
             /* 0000 SSSS 0000 BBBB 0000 GGGG 0000 RRRR */
             instance.rawBuffer[instance.rawBufferIndex + 7] = (r << 0)
-                                                            | (g << 8)
-                                                            | (b << 16)
-                                                            | (s << 24);
+                                                            | (g << 4)
+                                                            | (b << 8)
+                                                            | (s << 16);
         }
 
         if (instance.hasColor) {
