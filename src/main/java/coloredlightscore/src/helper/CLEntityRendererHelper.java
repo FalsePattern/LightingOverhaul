@@ -34,6 +34,7 @@ public class CLEntityRendererHelper {
             float sunlight, bSunlight, gSunlight, rSunlight, bLight, gLight, rLight, gamma;
 
             gamma = instance.mc.gameSettings.gammaSetting;
+            CLTessellatorHelper.updateShaders(gamma, sunlightBase);
             for (int s = 0; s < 16; s++) {
                 sunlight = sunlightBase * worldclient.provider.lightBrightnessTable[s];
                 if (worldclient.lastLightningBolt > 0) {

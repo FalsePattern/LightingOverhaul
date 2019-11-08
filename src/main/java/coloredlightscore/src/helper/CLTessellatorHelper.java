@@ -24,12 +24,16 @@ public class CLTessellatorHelper {
     public static int clProgram;
     private static boolean programInUse;
     public static int lightCoordUniform;
+    public static int gammaUniform;
+    public static int sunlevelUniform;
     private static IntBuffer cachedLightCoord;
     private static int cachedShader;
     private static boolean hasFlaggedOpenglError;
     private static int lastGLErrorCode = GL11.GL_NO_ERROR;
     private static String infoStr;
     public static boolean lockedBrightness;
+    public static float gamma;
+    public static float sunlevel;
 
     static {
         cachedLightCoord = ByteBuffer.allocateDirect(16).asIntBuffer();
@@ -117,6 +121,8 @@ public class CLTessellatorHelper {
         texCoordParam = GL20.glGetAttribLocation(clProgram, "TexCoord");
         lightCoordParam = GL20.glGetAttribLocation(clProgram, "LightCoord");
         lightCoordUniform = GL20.glGetUniformLocation(clProgram, "u_LightCoord");
+        gammaUniform = GL20.glGetUniformLocation(clProgram, "gamma");
+        sunlevelUniform = GL20.glGetUniformLocation(clProgram, "sunlevel");
 
         if (texCoordParam <= 0) {
             CLLog.error("texCoordParam attribute location returned: " + texCoordParam);
@@ -126,6 +132,12 @@ public class CLTessellatorHelper {
         }
         if (lightCoordUniform <= 0) {
             CLLog.error("lightCoordUniform attribute location returned: " + lightCoordUniform);
+        }
+        if (gammaUniform <= 0) {
+            CLLog.error("gammaUniform attribute location returned: " + gammaUniform);
+        }
+        if (sunlevelUniform <= 0) {
+            CLLog.error("gammaUniform attribute location returned: " + sunlevelUniform);
         }
     }
 
@@ -153,6 +165,8 @@ public class CLTessellatorHelper {
         GL20.glUniform1i(textureUniform, OpenGlHelper.defaultTexUnit - GL13.GL_TEXTURE0);
         int lightmapUniform = GL20.glGetUniformLocation(clProgram, "LightMap");
         GL20.glUniform1i(lightmapUniform, OpenGlHelper.lightmapTexUnit - GL13.GL_TEXTURE0);
+        GL20.glUniform1f(gammaUniform, gamma);
+        GL20.glUniform1f(sunlevelUniform, sunlevel);
     }
 
     public static void disableShader() {
@@ -174,6 +188,12 @@ public class CLTessellatorHelper {
 
     public static void unsetTextureCoord() {
         GL20.glDisableVertexAttribArray(texCoordParam);
+    }
+
+    public static void updateShaders(float newGamma, float newSunlevel)
+    {
+        gamma = newGamma;
+        sunlevel = newSunlevel;
     }
 
     public static void setLightCoord(ByteBuffer buffer) {
