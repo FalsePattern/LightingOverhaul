@@ -32,6 +32,9 @@ public class CLEntityRendererHelper {
         if (worldclient != null) {
             int[] map = new int[16*16*16*16];
             float sunlightBase = worldclient.getSunBrightness(partialTickTime);
+            if (worldclient.lastLightningBolt > 0) {
+                sunlightBase = 1.0f;
+            }
             float sunlight, bSunlight, gSunlight, rSunlight, bLight, gLight, rLight, gamma;
 
             gamma = instance.mc.gameSettings.gammaSetting;
