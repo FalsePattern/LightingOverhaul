@@ -7,6 +7,7 @@ varying vec4 p_Color;
 varying vec4 p_LightCoord;
 uniform float gamma;
 uniform float sunlevel;
+uniform float nightVisionWeight;
 
 float getBrightness(float lightlevel)
 {
@@ -33,8 +34,10 @@ float normalize(float f)
 
 float doColor(float light, float sunpart)
 {
-    float min = 0.0;
+    float min = 0.05;
     float max = 1.0;
+    float nightVisionMinBrightness = 0.7;
+    min = min * (1.0 - nightVisionWeight) + nightVisionMinBrightness * nightVisionWeight;
     float brightness = getBrightness(light) + normalize(sunlevel) * getBrightness(sunpart);
     return applyGamma(brightness) * (max - min) + min;
 }

@@ -23,8 +23,9 @@ public class CLEntityRendererHelper {
         
         float min = 0.05F;
         float max = 1.0F;
+        float nightVisionWeight = 0;
         if (instance.mc.thePlayer.isPotionActive(Potion.nightVision)) {
-            float nightVisionWeight = instance.getNightVisionBrightness(instance.mc.thePlayer, partialTickTime);
+            nightVisionWeight = instance.getNightVisionBrightness(instance.mc.thePlayer, partialTickTime);
             min = min * (1.0f - nightVisionWeight) + nightVisionMinBrightness * nightVisionWeight;
         }
         
@@ -34,7 +35,7 @@ public class CLEntityRendererHelper {
             float sunlight, bSunlight, gSunlight, rSunlight, bLight, gLight, rLight, gamma;
 
             gamma = instance.mc.gameSettings.gammaSetting;
-            CLTessellatorHelper.updateShaders(gamma, sunlightBase);
+            CLTessellatorHelper.updateShaders(gamma, sunlightBase, nightVisionWeight);
             for (int s = 0; s < 16; s++) {
                 sunlight = sunlightBase * worldclient.provider.lightBrightnessTable[s];
                 if (worldclient.lastLightningBolt > 0) {

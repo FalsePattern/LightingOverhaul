@@ -26,6 +26,7 @@ public class CLTessellatorHelper {
     public static int lightCoordUniform;
     public static int gammaUniform;
     public static int sunlevelUniform;
+    public static int nightVisionWeightUniform;
     private static IntBuffer cachedLightCoord;
     private static int cachedShader;
     private static boolean hasFlaggedOpenglError;
@@ -34,6 +35,7 @@ public class CLTessellatorHelper {
     public static boolean lockedBrightness;
     public static float gamma;
     public static float sunlevel;
+    public static float nightVisionWeight;
 
     static {
         cachedLightCoord = ByteBuffer.allocateDirect(16).asIntBuffer();
@@ -123,6 +125,7 @@ public class CLTessellatorHelper {
         lightCoordUniform = GL20.glGetUniformLocation(clProgram, "u_LightCoord");
         gammaUniform = GL20.glGetUniformLocation(clProgram, "gamma");
         sunlevelUniform = GL20.glGetUniformLocation(clProgram, "sunlevel");
+        nightVisionWeightUniform = GL20.glGetUniformLocation(clProgram, "nightVisionWeight");
 
         if (texCoordParam <= 0) {
             CLLog.error("texCoordParam attribute location returned: " + texCoordParam);
@@ -138,6 +141,9 @@ public class CLTessellatorHelper {
         }
         if (sunlevelUniform <= 0) {
             CLLog.error("gammaUniform attribute location returned: " + sunlevelUniform);
+        }
+        if (nightVisionWeight <= 0) {
+            CLLog.error("gammaUniform attribute location returned: " + nightVisionWeight);
         }
     }
 
@@ -167,6 +173,7 @@ public class CLTessellatorHelper {
         GL20.glUniform1i(lightmapUniform, OpenGlHelper.lightmapTexUnit - GL13.GL_TEXTURE0);
         GL20.glUniform1f(gammaUniform, gamma);
         GL20.glUniform1f(sunlevelUniform, sunlevel);
+        GL20.glUniform1f(nightVisionWeightUniform, nightVisionWeight);
     }
 
     public static void disableShader() {
@@ -190,10 +197,11 @@ public class CLTessellatorHelper {
         GL20.glDisableVertexAttribArray(texCoordParam);
     }
 
-    public static void updateShaders(float newGamma, float newSunlevel)
+    public static void updateShaders(float newGamma, float newSunlevel, float newNightVisionWeight)
     {
         gamma = newGamma;
         sunlevel = newSunlevel;
+        nightVisionWeight = newNightVisionWeight;
     }
 
     public static void setLightCoord(ByteBuffer buffer) {
