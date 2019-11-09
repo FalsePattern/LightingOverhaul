@@ -18,20 +18,24 @@ public class CLOpenGlHelper {
                 and needs to be decomposed.
              */
             int s = (brightness >> CLApi.bitshift_s2) & 0xF;
-            int b = (brightness >> CLApi.bitshift_b2) & CLApi.bitmask;
-            int g = (brightness >> CLApi.bitshift_g2) & CLApi.bitmask;
-            int r = (brightness >> CLApi.bitshift_r2) & CLApi.bitmask;
+            int block_b = (brightness >> CLApi.bitshift_b2) & CLApi.bitmask;
+            int block_g = (brightness >> CLApi.bitshift_g2) & CLApi.bitmask;
+            int block_r = (brightness >> CLApi.bitshift_r2) & CLApi.bitmask;
             int l = (brightness >> CLApi.bitshift_l2) & 0xF;
-            if (l > r && l > g && l > b) {
-                r = g = b = l;
+            if (l > block_r && l > block_g && l > block_b) {
+                block_r = block_g = block_b = l;
             }
 
-            r = Math.min(15, r);
-            g = Math.min(15, g);
-            b = Math.min(15, b);
+            block_r = Math.min(15, block_r);
+            block_g = Math.min(15, block_g);
+            block_b = Math.min(15, block_b);
 
-            GL20.glUniform4i(CLTessellatorHelper.lightCoordUniform, r, g, b, 0);
-            GL20.glUniform4i(CLTessellatorHelper.lightCoordSunUniform, s, 0, 0, 0);
+            int sun_r = s;
+            int sun_g = s;
+            int sun_b = s;
+
+            GL20.glUniform4i(CLTessellatorHelper.lightCoordUniform, block_r, block_g, block_b, 0);
+            GL20.glUniform4i(CLTessellatorHelper.lightCoordSunUniform, sun_r, sun_g, sun_b, 0);
         } // else noop; why is this ever called if enableLightmap hasn't been called?
 
         OpenGlHelper.lastBrightnessX = x;

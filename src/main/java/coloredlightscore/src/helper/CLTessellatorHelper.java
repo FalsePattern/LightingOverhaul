@@ -258,20 +258,26 @@ public class CLTessellatorHelper {
              * Incoming:
              * 0000 0000 SSSS BBBB GGGG RRRR LLLL 0000 */
             int l = (instance.brightness >> CLApi.bitshift_l2 ) & 0xF;
-            int r = (instance.brightness >> CLApi.bitshift_r2 ) & CLApi.bitmask;
-            int g = (instance.brightness >> CLApi.bitshift_g2 ) & CLApi.bitmask;
-            int b = (instance.brightness >> CLApi.bitshift_b2 ) & CLApi.bitmask;
+            int block_r = (instance.brightness >> CLApi.bitshift_r2 ) & CLApi.bitmask;
+            int block_g = (instance.brightness >> CLApi.bitshift_g2 ) & CLApi.bitmask;
+            int block_b = (instance.brightness >> CLApi.bitshift_b2 ) & CLApi.bitmask;
             int s = (instance.brightness >> CLApi.bitshift_s2 ) & 0xF;
 
-            r = Math.min(15, r);
-            g = Math.min(15, g);
-            b = Math.min(15, b);
+            block_r = Math.min(15, block_r);
+            block_g = Math.min(15, block_g);
+            block_b = Math.min(15, block_b);
+
+            int sun_r = s;
+            int sun_g = s;
+            int sun_b = s;
             
             /* 0000 SSSS 0000 BBBB 0000 GGGG 0000 RRRR */
-            instance.rawBuffer[instance.rawBufferIndex + 7] = (r << 0)
-                                                            | (g << 4)
-                                                            | (b << 8)
-                                                            | (s << 16);
+            instance.rawBuffer[instance.rawBufferIndex + 7] = (block_r << 0)
+                                                            | (block_g << 4)
+                                                            | (block_b << 8)
+                                                            | (sun_r << 16)
+                                                            | (sun_g << 20)
+                                                            | (sun_b << 24);
         }
 
         if (instance.hasColor) {
