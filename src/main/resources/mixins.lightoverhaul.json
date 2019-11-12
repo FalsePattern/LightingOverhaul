@@ -5,6 +5,7 @@
   "minVersion": "0.4",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-	  "ChunkMixin"
+	  "ChunkMixin",
+	  "ExtendedBlockStorageMixin"
   ]
 }

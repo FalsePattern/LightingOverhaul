@@ -202,7 +202,7 @@ public class ChunkColorDataPacket implements IMessage, IMessageHandler<ChunkColo
                 if (RedColorArray[i] != null || GreenColorArray[i] != null || BlueColorArray[i] != null) {
                     arraysPresent |= (1 << i);
                     if (FMLCommonHandler.instance().getModName().contains("cauldron")) {
-                        byte[] localRed = RedColorArray[i].getValueArray();
+                       /* byte[] localRed = RedColorArray[i].getValueArray();
                         byte[] localGreen = GreenColorArray[i].getValueArray();
                         byte[] localBlue = BlueColorArray[i].getValueArray();
                         byte[] localRed2 = RedColorArray2[i].getValueArray();
@@ -228,7 +228,7 @@ public class ChunkColorDataPacket implements IMessage, IMessageHandler<ChunkColo
                         System.arraycopy(localGreenSun, 0, rawColorData, p, localGreenSun.length);
                         p += localGreenSun.length;
                         System.arraycopy(localBlueSun, 0, rawColorData, p, localBlueSun.length);
-                        p += localBlueSun.length;
+                        p += localBlueSun.length;*/
                     } else {
                         System.arraycopy(RedColorArray[i].data, 0, rawColorData, p, RedColorArray[i].data.length);
                         p += RedColorArray[i].data.length;

@@ -2,6 +2,8 @@ package coloredlightscore.server;
 
 import static coloredlightscore.src.asm.ColoredLightsCoreLoadingPlugin.CLLog;
 
+import com.darkshadow44.lightoverhaul.interfaces.IExtendedBlockStorageMixin;
+
 import coloredlightscore.src.api.CLApi;
 import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.nbt.NBTTagCompound;
@@ -76,15 +78,17 @@ public class ChunkStorageRGB {
 
                     // Set color arrays on chunk.storageArrays
 
-                    chunkStorageArrays[k].setRedColorArray(rColorArray);
-                    chunkStorageArrays[k].setGreenColorArray(gColorArray);
-                    chunkStorageArrays[k].setBlueColorArray(bColorArray);
-                    chunkStorageArrays[k].setRedColorArray2(rColorArray2);
-                    chunkStorageArrays[k].setGreenColorArray2(gColorArray2);
-                    chunkStorageArrays[k].setBlueColorArray2(bColorArray2);
-                    chunkStorageArrays[k].setRedColorArraySun(rColorArraySun);
-                    chunkStorageArrays[k].setGreenColorArraySun(gColorArraySun);
-                    chunkStorageArrays[k].setBlueColorArraySun(bColorArraySun);
+                    IExtendedBlockStorageMixin blockStorageMixin = (IExtendedBlockStorageMixin)chunkStorageArrays[k];
+
+                    blockStorageMixin.setRedColorArray(rColorArray);
+                    blockStorageMixin.setGreenColorArray(gColorArray);
+                    blockStorageMixin.setBlueColorArray(bColorArray);
+                    blockStorageMixin.setRedColorArray2(rColorArray2);
+                    blockStorageMixin.setGreenColorArray2(gColorArray2);
+                    blockStorageMixin.setBlueColorArray2(bColorArray2);
+                    blockStorageMixin.setRedColorArraySun(rColorArraySun);
+                    blockStorageMixin.setGreenColorArraySun(gColorArraySun);
+                    blockStorageMixin.setBlueColorArraySun(bColorArraySun);
 
                     foundColorData = true;
 
@@ -136,16 +140,17 @@ public class ChunkStorageRGB {
                 bColorArraySun = blueColorDataSun[k];
 
                 // Set color arrays on chunk.storageArrays
+                IExtendedBlockStorageMixin blockStorageMixin = (IExtendedBlockStorageMixin)chunkStorageArrays[k];
 
-                chunkStorageArrays[k].setRedColorArray(rColorArray);
-                chunkStorageArrays[k].setGreenColorArray(gColorArray);
-                chunkStorageArrays[k].setBlueColorArray(bColorArray);
-                chunkStorageArrays[k].setRedColorArray2(rColorArray2);
-                chunkStorageArrays[k].setGreenColorArray2(gColorArray2);
-                chunkStorageArrays[k].setBlueColorArray2(bColorArray2);
-                chunkStorageArrays[k].setRedColorArraySun(rColorArraySun);
-                chunkStorageArrays[k].setGreenColorArraySun(gColorArraySun);
-                chunkStorageArrays[k].setBlueColorArraySun(bColorArraySun);
+                blockStorageMixin.setRedColorArray(rColorArray);
+                blockStorageMixin.setGreenColorArray(gColorArray);
+                blockStorageMixin.setBlueColorArray(bColorArray);
+                blockStorageMixin.setRedColorArray2(rColorArray2);
+                blockStorageMixin.setGreenColorArray2(gColorArray2);
+                blockStorageMixin.setBlueColorArray2(bColorArray2);
+                blockStorageMixin.setRedColorArraySun(rColorArraySun);
+                blockStorageMixin.setGreenColorArraySun(gColorArraySun);
+                blockStorageMixin.setBlueColorArraySun(bColorArraySun);
 
                 foundColorData = true;
 
@@ -182,22 +187,23 @@ public class ChunkStorageRGB {
         for (int k = 0; k < chunkStorageArrays.length; k++) {
             if (chunkStorageArrays[k] != null) {
                 NBTTagCompound nbtYCompound = nbttaglist.getCompoundTagAt(k);
+                IExtendedBlockStorageMixin blockStorageMixin = (IExtendedBlockStorageMixin)chunkStorageArrays[k];
 
                 // Add our RGB arrays to it
-                rColorArray = chunkStorageArrays[k].getRedColorArray();
-                gColorArray = chunkStorageArrays[k].getGreenColorArray();
-                bColorArray = chunkStorageArrays[k].getBlueColorArray();
-                rColorArray2 = chunkStorageArrays[k].getRedColorArray2();
-                gColorArray2 = chunkStorageArrays[k].getGreenColorArray2();
-                bColorArray2 = chunkStorageArrays[k].getBlueColorArray2();
-                rColorArraySun = chunkStorageArrays[k].getRedColorArraySun();
-                gColorArraySun = chunkStorageArrays[k].getGreenColorArraySun();
-                bColorArraySun = chunkStorageArrays[k].getBlueColorArraySun();
+                rColorArray = blockStorageMixin.getRedColorArray();
+                gColorArray = blockStorageMixin.getGreenColorArray();
+                bColorArray = blockStorageMixin.getBlueColorArray();
+                rColorArray2 = blockStorageMixin.getRedColorArray2();
+                gColorArray2 = blockStorageMixin.getGreenColorArray2();
+                bColorArray2 = blockStorageMixin.getBlueColorArray2();
+                rColorArraySun = blockStorageMixin.getRedColorArraySun();
+                gColorArraySun = blockStorageMixin.getGreenColorArraySun();
+                bColorArraySun = blockStorageMixin.getBlueColorArraySun();
 
 
                 //Cauldron adds .getValueArray() instead of .data
                 if (FMLCommonHandler.instance().getModName().contains("cauldron")) {
-                    nbtYCompound.setByteArray("RedColorArray", rColorArray.getValueArray());
+                    /*nbtYCompound.setByteArray("RedColorArray", rColorArray.getValueArray());
                     nbtYCompound.setByteArray("GreenColorArray", gColorArray.getValueArray());
                     nbtYCompound.setByteArray("BlueColorArray", bColorArray.getValueArray());
                     nbtYCompound.setByteArray("RedColorArray2", rColorArray2.getValueArray());
@@ -205,7 +211,7 @@ public class ChunkStorageRGB {
                     nbtYCompound.setByteArray("BlueColorArray2", bColorArray2.getValueArray());
                     nbtYCompound.setByteArray("RedColorArraySun", rColorArraySun.getValueArray());
                     nbtYCompound.setByteArray("GreenColorArraySun", gColorArraySun.getValueArray());
-                    nbtYCompound.setByteArray("BlueColorArraySun", bColorArraySun.getValueArray());
+                    nbtYCompound.setByteArray("BlueColorArraySun", bColorArraySun.getValueArray());*/
                 } else {
                     nbtYCompound.setByteArray("RedColorArray", rColorArray.data);
                     nbtYCompound.setByteArray("GreenColorArray", gColorArray.data);
@@ -237,7 +243,7 @@ public class ChunkStorageRGB {
 
         for (int i = 0; i < chunkStorageArrays.length; i++) {
             if (chunkStorageArrays[i] != null)
-                redColorArrays[i] = chunkStorageArrays[i].getRedColorArray();
+                redColorArrays[i] = ((IExtendedBlockStorageMixin)chunkStorageArrays[i]).getRedColorArray();
             else
                 redColorArrays[i] = null;
         }
@@ -253,7 +259,7 @@ public class ChunkStorageRGB {
 
         for (int i = 0; i < chunkStorageArrays.length; i++) {
             if (chunkStorageArrays[i] != null)
-                redColorArrays2[i] = chunkStorageArrays[i].getRedColorArray2();
+                redColorArrays2[i] = ((IExtendedBlockStorageMixin)chunkStorageArrays[i]).getRedColorArray2();
             else
                 redColorArrays2[i] = null;
         }
@@ -269,7 +275,7 @@ public class ChunkStorageRGB {
 
         for (int i = 0; i < chunkStorageArrays.length; i++) {
             if (chunkStorageArrays[i] != null)
-                redColorArraysSun[i] = chunkStorageArrays[i].getRedColorArraySun();
+                redColorArraysSun[i] =((IExtendedBlockStorageMixin)chunkStorageArrays[i]).getRedColorArraySun();
             else
                 redColorArraysSun[i] = null;
         }
@@ -292,7 +298,7 @@ public class ChunkStorageRGB {
 
         for (int i = 0; i < chunkStorageArrays.length; i++) {
             if (chunkStorageArrays[i] != null)
-                greenColorArrays[i] = chunkStorageArrays[i].getGreenColorArray();
+                greenColorArrays[i] = ((IExtendedBlockStorageMixin)chunkStorageArrays[i]).getGreenColorArray();
             else
                 greenColorArrays[i] = null;
         }
@@ -308,7 +314,7 @@ public class ChunkStorageRGB {
 
         for (int i = 0; i < chunkStorageArrays.length; i++) {
             if (chunkStorageArrays[i] != null)
-                greenColorArrays2[i] = chunkStorageArrays[i].getGreenColorArray2();
+                greenColorArrays2[i] = ((IExtendedBlockStorageMixin)chunkStorageArrays[i]).getGreenColorArray2();
             else
                 greenColorArrays2[i] = null;
         }
@@ -324,7 +330,7 @@ public class ChunkStorageRGB {
 
         for (int i = 0; i < chunkStorageArrays.length; i++) {
             if (chunkStorageArrays[i] != null)
-                greenColorArraysSun[i] = chunkStorageArrays[i].getGreenColorArraySun();
+                greenColorArraysSun[i] = ((IExtendedBlockStorageMixin)chunkStorageArrays[i]).getGreenColorArraySun();
             else
                 greenColorArraysSun[i] = null;
         }
@@ -347,7 +353,7 @@ public class ChunkStorageRGB {
 
         for (int i = 0; i < chunkStorageArrays.length; i++) {
             if (chunkStorageArrays[i] != null)
-                blueColorArrays[i] = chunkStorageArrays[i].getBlueColorArray();
+                blueColorArrays[i] = ((IExtendedBlockStorageMixin)chunkStorageArrays[i]).getBlueColorArray();
             else
                 blueColorArrays[i] = null;
         }
@@ -363,7 +369,7 @@ public class ChunkStorageRGB {
 
         for (int i = 0; i < chunkStorageArrays.length; i++) {
             if (chunkStorageArrays[i] != null)
-                blueColorArrays2[i] = chunkStorageArrays[i].getBlueColorArray2();
+                blueColorArrays2[i] = ((IExtendedBlockStorageMixin)chunkStorageArrays[i]).getBlueColorArray2();
             else
                 blueColorArrays2[i] = null;
         }
@@ -379,7 +385,7 @@ public class ChunkStorageRGB {
 
         for (int i = 0; i < chunkStorageArrays.length; i++) {
             if (chunkStorageArrays[i] != null)
-                blueColorArraysSun[i] = chunkStorageArrays[i].getBlueColorArraySun();
+                blueColorArraysSun[i] = ((IExtendedBlockStorageMixin)chunkStorageArrays[i]).getBlueColorArraySun();
             else
                 blueColorArraysSun[i] = null;
         }
