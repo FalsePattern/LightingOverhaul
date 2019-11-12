@@ -1,132 +1,73 @@
 buildscript {
-    repositories {
-        mavenCentral()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
-        maven {
-            name = "sonatype"
-            url = "https://oss.sonatype.org/content/repositories/snapshots/"
-        }
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
-        classpath 'org.ajoberstar:gradle-git:0.10.1'
-    }
-}
-
-apply plugin: 'forge'
-apply plugin: 'maven-publish'
-
-
-import org.ajoberstar.grgit.Grgit
-
-def repo = Grgit.open(project.file('.'))
-project.ext.gitHash = repo.log().find().abbreviatedId
-
-boolean dev = project.hasProperty('clc_dev') && project.clc_dev.equalsIgnoreCase('true')
-
-ext.buildnumber = 0
-project.buildnumber = !dev && System.getenv('BUILD_NUMBER') != null ? System.getenv('BUILD_NUMBER') : project.ext.gitHash
-
-version = "${mod_version}.${buildnumber}"
-
-group= "coloredlightscore"
-archivesBaseName = "ColoredLightsCore"
-
-minecraft {
-    version = "${minecraft_version}-${forge_version}"
-    runDir = "run"
-
-    replaceIn "ColoredLightsCoreDummyContainer.java"
-    replace "@VERSION@", project.version
+	repositories {
+		mavenCentral()
+		maven {
+			name = "forge"
+			url = "http://files.minecraftforge.net/maven"
+		}
+	}
+	dependencies {
+		classpath "net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT"
+	}
 }
 
 repositories {
-    maven {
-        name 'Chicken Bones Repo'
-        url "http://chickenbones.net/maven/"
-    }
+	maven {
+		url = "http://repo.spongepowered.org/maven/"
+	}
+}
+
+apply plugin: "forge"
+
+ext.baseVersion = "2.0.0"
+version = baseVersion
+group = "com.darkshadow44"
+archivesBaseName = "lightoverhaul"
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+minecraft {
+	version = "1.7.10-10.13.4.1558-1.7.10"
+	runDir = "rundir"
+}
+
+configurations {
+	shade
+	shadeClient
+	buildDep
+	compile.extendsFrom buildDep, shade, shadeClient
 }
 
 dependencies {
-    compile "codechicken:CodeChickenLib:${minecraft_version}-${ccl_version}:dev"
-    compile "codechicken:CodeChickenCore:${minecraft_version}-${ccc_version}:dev"
-    //compile "codechicken:NotEnoughItems:${minecraft_version}-${nei_version}:dev"
-    //compile "codechicken:ForgeMultipart:${minecraft_version}-${fmp_version}:dev"
+	shade group: "org.spongepowered", name: "mixin", version: "0.7-SNAPSHOT", changing: true
+	shadeClient group: "org.spongepowered", name: "mixin", version: "0.7-SNAPSHOT", changing: true
 }
+
+def refMap = "${tasks.compileJava.temporaryDir}" + File.separator + "mixins.lightoverhaul.refmap.json"
 
 jar {
-  manifest {
-    attributes('FMLCorePlugin': 'coloredlightscore.src.asm.ColoredLightsCoreLoadingPlugin')
-    attributes('FMLCorePluginContainsFMLMod': 'true')
-  }
+	appendix = minecraft.version
+
+	from refMap
+
+	configurations.shade.copyRecursive().setTransitive(false).each { artifact ->
+		from (zipTree(artifact))
+	}
+
+	manifest {
+		attributes (
+			"FMLCorePluginContainsFMLMod": "true",
+			"FMLCorePlugin": "coloredlightscore.src.asm.ColoredLightsCoreLoadingPlugin",
+			"ForceLoadAsMod": "true",
+			"TweakOrder": "0",
+			"MixinConfigs": "mixins.lightoverhaul.json",
+			"TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
+		)
+	}
 }
 
-processResources {
-    // this will ensure that this task is redone when the versions change.
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+def mixinSrg = "${tasks.reobf.temporaryDir}" + File.separator + "mixins.srg"
 
-    // replace stuff in mcmod.info, nothing else
-    from (sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-
-        // replace version and mcversion
-        expand 'version':project.version, 'mcversion':project.minecraft.version
-    }
-
-    // copy everything else, thats not the mcmod.info
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
+afterEvaluate {
+	tasks.compileJava.options.compilerArgs += ["-AreobfSrgFile=${tasks.reobf.srg}", "-AoutSrgFile=${mixinSrg}", "-AoutRefMapFile=${refMap}"]
 }
-
-tasks.build.dependsOn('sourceJar', 'deobfJar')
-
-// Create deobf dev jars
-task deobfJar(type: Jar) {
-    from sourceSets.main.output
-    classifier = 'deobf'
-}
-
-// Create API jar with sources and compiled files
-task apiJar(type: Jar) {
-    from sourceSets.main.allSource
-    from sourceSets.main.output
-    include 'coloredlightscore/src/api/**/*'
-    classifier = 'api'
-}
-
-// Create source attachment for dev jar
-task sourceJar(type: Jar) {
-    from sourceSets.main.allJava
-    classifier = 'source'
-}
-
-artifacts {
-    archives deobfJar
-    archives sourceJar
-    archives apiJar
-}
-
-publishing {
-    tasks.publish.dependsOn 'build'
-    publications {
-        mavenJava(MavenPublication) {
-            artifact jar
-            artifact deobfJar
-            artifact sourceJar
-            artifact apiJar
-        }
-    }
-
-    repositories {
-        String prop = dev ? "clc_dev_mavendir" : "clc_mavendir"
-        if (project.hasProperty(prop)) {
-            maven { url project.getProperty(prop) }
-        }
-    }
-}
-

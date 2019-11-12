@@ -1,0 +1,10 @@
+{
+  "package": "com.darkshadow44.lightoverhaul.mixins",
+  "refmap": "mixins.lightoverhaul.refmap.json",
+  "target": "@env(DEFAULT)",
+  "minVersion": "0.4",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+	  "TestMixin"
+  ]
+}
