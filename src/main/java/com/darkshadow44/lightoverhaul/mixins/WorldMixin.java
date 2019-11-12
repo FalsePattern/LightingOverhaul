@@ -90,10 +90,8 @@ public abstract class WorldMixin {
     // blue brown green red black
     int[] stainedglass_api_index;
 
-    public void construct() {
-        if (lightAdditionBlockList != null)
-            return;
-
+    @Inject(at = @At("RETURN"), method = { "<init>*" })
+    public void init(CallbackInfo callbackInfo) {
         lightAdditionBlockList = new long[32768 * 4];
         lightAdditionNeeded = new int[64][64][64];
         lightBackfillIndexes = new int[32];
@@ -336,7 +334,6 @@ public abstract class WorldMixin {
         if (!this.doChunksNearChunkExist(par_x, par_y, par_z, 17)) {
             return false;
         } else {
-            construct();
             if (shouldIncrement) {
                 // Increment the updateFlag ONLY on a fresh call... This keeps the updateFlag
                 // consistent when the algorithm recurses
