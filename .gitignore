@@ -7,3 +7,4 @@
 !settings.gradle
 !/gradle/
 !gradlew*
+!SETUP
