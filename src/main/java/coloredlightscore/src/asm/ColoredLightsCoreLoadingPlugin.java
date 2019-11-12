@@ -22,7 +22,6 @@ public class ColoredLightsCoreLoadingPlugin implements IFMLLoadingPlugin {
     @Override
     public String[] getASMTransformerClass() {
         return new String[] { TransformBlock.class.getName(),
-                              TransformWorld.class.getName(), 
                               TransformRenderBlocks.class.getName(),
                               TransformTessellator.class.getName(),
                               TransformChunkCache.class.getName(),

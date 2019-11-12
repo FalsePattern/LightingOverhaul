@@ -34,7 +34,7 @@ public class CLBlockHelper {
         int l;
         Block block = blockAccess.getBlock(x, y, z);
         if (blockAccess instanceof World)
-            l = CLWorldHelper.getLightBrightnessForSkyBlocks((World) blockAccess, x, y, z, block.getLightValue(blockAccess, x, y, z));
+            l = ((World)blockAccess).getLightBrightnessForSkyBlocks(x, y, z, block.getLightValue(blockAccess, x, y, z));
         else if(blockAccess instanceof ChunkCache)
             l = CLChunkCacheHelper.getLightBrightnessForSkyBlocks((ChunkCache) blockAccess, x, y, z, block.getLightValue(blockAccess, x, y, z));
         else
@@ -44,7 +44,7 @@ public class CLBlockHelper {
             --y;
             block = blockAccess.getBlock(x, y, z);
             if (blockAccess instanceof World)
-                return CLWorldHelper.getLightBrightnessForSkyBlocks((World) blockAccess, x, y, z, block.getLightValue(blockAccess, x, y, z));
+                return ((World)blockAccess).getLightBrightnessForSkyBlocks(x, y, z, block.getLightValue(blockAccess, x, y, z));
             else if(blockAccess instanceof ChunkCache)
                 return CLChunkCacheHelper.getLightBrightnessForSkyBlocks((ChunkCache) blockAccess, x, y, z, block.getLightValue(blockAccess, x, y, z));
             else
