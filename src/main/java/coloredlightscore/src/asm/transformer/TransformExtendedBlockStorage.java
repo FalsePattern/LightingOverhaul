@@ -52,8 +52,6 @@ import coloredlightscore.src.asm.transformer.core.NameMapper;
  *
  */
 public class TransformExtendedBlockStorage extends MethodTransformer {
-
-    private boolean addedFields = false;
     private FieldNode rColorArray;
     private FieldNode gColorArray;
     private FieldNode bColorArray;
@@ -72,8 +70,6 @@ public class TransformExtendedBlockStorage extends MethodTransformer {
     private final String SET_BLOCK_LIGHT_VALUE_SUN = "setExtSkylightValue (IIII)V";
     private final String GET_BLOCK_LIGHT_VALUE_SUN = "getExtSkylightValue (III)I";
 
-    private boolean addedMethods = false;
-
     @Override
     protected boolean transforms(ClassNode clazz, MethodNode method) {
 
@@ -88,11 +84,6 @@ public class TransformExtendedBlockStorage extends MethodTransformer {
     protected boolean transform(ClassNode clazz, MethodNode method) {
 
         boolean changed = false;
-
-        if (!addedFields) {
-            addRGBNibbleArrays(clazz);
-            changed = true;
-        }
 
         if (NameMapper.getInstance().isMethod(method, EBS_CLASSNAME, SET_BLOCK_LIGHT_VALUE)) {
             transformSetExtBlocklightValue(clazz, method);
@@ -115,6 +106,7 @@ public class TransformExtendedBlockStorage extends MethodTransformer {
         }
 
         if (method.name.equals("<init>")) {
+            addRGBNibbleArrays(clazz);
             transformConstructor(clazz, method);
             changed = true;
         }
@@ -124,11 +116,11 @@ public class TransformExtendedBlockStorage extends MethodTransformer {
 
     @Override
     protected boolean postTransformClass(ClassNode clazz) {
-        if (!addedMethods) {
+       // if (!addedMethods) {
             addRGBNibbleArrayMethods(clazz);
             return true;
-        } else
-            return false;
+       // } else
+       //     return false;
     }
 
     @Override
@@ -169,12 +161,9 @@ public class TransformExtendedBlockStorage extends MethodTransformer {
         clazz.fields.add(bColorArraySun);
 
         CLLog.info("Added RGB color arrays to ExtendedBlockStorage, type " + typeNibbleArray.getDescriptor());
-
-        addedFields = true;
     }
 
     private boolean addRGBNibbleArrayMethods(ClassNode clazz) {
-        if (addedFields && !addedMethods) {
             // These new methods are required for storing/loading the new nibble arrays to disk
 
             clazz.methods.add(ASMUtils.generateSetterMethod(clazz.name, "setRedColorArray", rColorArray.name, rColorArray.desc));
@@ -196,11 +185,7 @@ public class TransformExtendedBlockStorage extends MethodTransformer {
             clazz.methods.add(ASMUtils.generateGetterMethod(clazz.name, "getRedColorArraySun", rColorArraySun.name, rColorArraySun.desc));
             clazz.methods.add(ASMUtils.generateGetterMethod(clazz.name, "getGreenColorArraySun", gColorArraySun.name, gColorArraySun.desc));
             clazz.methods.add(ASMUtils.generateGetterMethod(clazz.name, "getBlueColorArraySun", bColorArraySun.name, bColorArraySun.desc));
-
-            addedMethods = true;
-        }
-
-        return addedMethods;
+        return true;
     }
 
     private void transformConstructor_add_color_array(ClassNode clazz, InsnList instructions, FieldNode array)
