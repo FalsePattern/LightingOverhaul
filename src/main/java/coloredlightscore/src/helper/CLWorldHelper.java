@@ -78,6 +78,9 @@ public class CLWorldHelper {
         int r = (light >> CLApi.bitshift_r) & CLApi.bitmask;
         int g = (light >> CLApi.bitshift_g) & CLApi.bitmask;
         int b = (light >> CLApi.bitshift_b) & CLApi.bitmask;
+        int sun_r = (light >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
+        int sun_g = (light >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
+        int sun_b = (light >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
 
         boolean hasColor = r > 0 || g > 0 || b > 0;
 
@@ -99,13 +102,30 @@ public class CLWorldHelper {
         g =  Math.max(0, g - g_opacity);
         b =  Math.max(0, b - b_opacity);
 
+        sun_r = Math.max(0, sun_r - r_opacity);
+        sun_g = Math.max(0, sun_g - g_opacity);
+        sun_b = Math.max(0, sun_b - b_opacity);
+
         if (hasColor && r + g + b == 0)
             l = 0;
 
         if (r > 15 || g > 15 || b > 15)
             l = 15;
 
-        return (l << CLApi.bitshift_l) | (r << CLApi.bitshift_r) | (g << CLApi.bitshift_g) | (b << CLApi.bitshift_b);
+        return (sun_r << CLApi.bitshift_sun_r) | (sun_g << CLApi.bitshift_sun_g) | (sun_b << CLApi.bitshift_sun_b)
+                | (l << CLApi.bitshift_l) | (r << CLApi.bitshift_r) | (g << CLApi.bitshift_g) | (b << CLApi.bitshift_b);
+    }
+
+    private static float getBrightness(float lightlevel)
+    {
+        float f1 = 1.0f - lightlevel / 15.0f;
+        return (1.0f - f1) / (f1 * 3.0f + 1.0f);
+    }
+
+    public static float getLightBrightness(World instance, int x, int y, int z)
+    {
+        int lightlevel = instance.getBlockLightValue(x, y, z);
+        return getBrightness(lightlevel);
     }
 
     //Use this one if you want color
@@ -129,13 +149,17 @@ public class CLWorldHelper {
         block_g = Math.max(block_g,  light_g);
         block_b = Math.max(block_b,  light_b);
 
-        return (skyBrightness << CLApi.bitshift_s2)
+        int sun_r = (skyBrightness >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
+        int sun_g = (skyBrightness >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
+        int sun_b = (skyBrightness >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
+
+        return (sun_r << CLApi.bitshift_sun_r2) | (sun_g << CLApi.bitshift_sun_g2) | (sun_b << CLApi.bitshift_sun_b2)
                 | (block_l << CLApi.bitshift_l2) | (block_r << CLApi.bitshift_r2) | (block_g << CLApi.bitshift_g2) | (block_b << CLApi.bitshift_b2);
     }
 
     public static int computeLightValue(World world, int par_x, int par_y, int par_z, EnumSkyBlock par1Enu) {
         if (par1Enu == EnumSkyBlock.Sky && world.pipe.canBlockSeeTheSky(par_x, par_y, par_z)) {
-            return 15;
+            return (15 << CLApi.bitshift_sun_r) | (15 << CLApi.bitshift_sun_g) | (15 << CLApi.bitshift_sun_b);
         } else {
             Block block = world.getBlock(par_x, par_y, par_z);
 
@@ -147,15 +171,19 @@ public class CLWorldHelper {
                 }
             }
 
-            int l = (currentLight >> CLApi.bitshift_l) & 0xF;
-            int r = (currentLight >> CLApi.bitshift_r) & CLApi.bitmask;
-            int g = (currentLight >> CLApi.bitshift_g) & CLApi.bitmask;
-            int b = (currentLight >> CLApi.bitshift_b) & CLApi.bitmask;
+            int block_l = (currentLight >> CLApi.bitshift_l) & 0xF;
+            int block_r = (currentLight >> CLApi.bitshift_r) & CLApi.bitmask;
+            int block_g = (currentLight >> CLApi.bitshift_g) & CLApi.bitmask;
+            int block_b = (currentLight >> CLApi.bitshift_b) & CLApi.bitmask;
 
-            if (r > 15 || g > 15 || b > 15)
-                l = 15;
+            int sun_r = (currentLight >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
+            int sun_g = (currentLight >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
+            int sun_b = (currentLight >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
 
-            currentLight |= (l << CLApi.bitshift_l);
+            if (block_r > 15 || block_g > 15 || block_b > 15)
+                block_l = 15;
+
+            currentLight |= (block_l << CLApi.bitshift_l);
 
             int opacity = (block == null ? 0 : block.getLightOpacity(world, par_x, par_y, par_z));
 
@@ -170,9 +198,6 @@ public class CLWorldHelper {
             if (opacity >= 15) {
                 return 0;
             }
-            else if ((currentLight & 15) >= 14) {
-                return currentLight;
-            }
             else {
 
                 for (int faceIndex = 0; faceIndex < 6; ++faceIndex) {
@@ -184,17 +209,27 @@ public class CLWorldHelper {
 
                     int light = calculateOpacity(neighborLight, opacity, block, world, par_x, par_y, par_z);
 
-                    int l2 = (light >> CLApi.bitshift_l) & 0xF;
-                    int r2 = (light >> CLApi.bitshift_r) & CLApi.bitmask;
-                    int g2 = (light >> CLApi.bitshift_g) & CLApi.bitmask;
-                    int b2 = (light >> CLApi.bitshift_b) & CLApi.bitmask;
+                    int block_l2 = (light >> CLApi.bitshift_l) & 0xF;
+                    int block_r2 = (light >> CLApi.bitshift_r) & CLApi.bitmask;
+                    int block_g2 = (light >> CLApi.bitshift_g) & CLApi.bitmask;
+                    int block_b2 = (light >> CLApi.bitshift_b) & CLApi.bitmask;
 
-                    l = Math.max(l, l2);
-                    r = Math.max(r, r2);
-                    g = Math.max(g, g2);
-                    b = Math.max(b, b2);
+                    int sun_r2 = (light >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
+                    int sun_g2 = (light >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
+                    int sun_b2 = (light >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
+
+                    block_l = Math.max(block_l, block_l2);
+                    block_r = Math.max(block_r, block_r2);
+                    block_g = Math.max(block_g, block_g2);
+                    block_b = Math.max(block_b, block_b2);
+
+                    sun_r = Math.max(sun_r, sun_r2);
+                    sun_g = Math.max(sun_g, sun_g2);
+                    sun_b = Math.max(sun_b, sun_b2);
                 }
-                return (l << CLApi.bitshift_l) | (r << CLApi.bitshift_r) | (g << CLApi.bitshift_g) | (b << CLApi.bitshift_b);
+
+                return (sun_r << CLApi.bitshift_sun_r) | (sun_g << CLApi.bitshift_sun_g) | (sun_b << CLApi.bitshift_sun_b)
+                        | (block_l << CLApi.bitshift_l) | (block_r << CLApi.bitshift_r) | (block_g << CLApi.bitshift_g) | (block_b << CLApi.bitshift_b);
             }
         }
     }
@@ -227,7 +262,6 @@ public class CLWorldHelper {
 
             long savedLightValue = world.pipe.getSavedLightValue(par1Enu, par_x, par_y, par_z);
             long compLightValue = CLWorldHelper.computeLightValue(world, par_x, par_y, par_z, par1Enu);
-            int r = (int)(compLightValue >> CLApi.bitshift_r) & CLApi.bitmask;
             long queueEntry;
             int queue_x;
             int queue_y;
@@ -239,11 +273,6 @@ public class CLWorldHelper {
             int man_z;
             long manhattan_distance;
 
-            long ll;
-            long rl;
-            long gl;
-            long bl;
-            int sortValue;
             int opacity;
 
             int neighbor_x;
@@ -252,18 +281,25 @@ public class CLWorldHelper {
 
             int neighborIndex;
             int neighborLightEntry;
+            final boolean DEBUG = false;
 
             world.theProfiler.endStartSection("lightAddition");
 
-            int saved_l = (int)(savedLightValue >> CLApi.bitshift_l) & 0xF;
-            int saved_r = (int)(savedLightValue >> CLApi.bitshift_r) & CLApi.bitmask;
-            int saved_g = (int)(savedLightValue >> CLApi.bitshift_g) & CLApi.bitmask;
-            int saved_b = (int)(savedLightValue >> CLApi.bitshift_b) & CLApi.bitmask;
+            int saved_block_l = (int)(savedLightValue >> CLApi.bitshift_l) & 0xF;
+            int saved_block_r = (int)(savedLightValue >> CLApi.bitshift_r) & CLApi.bitmask;
+            int saved_block_g = (int)(savedLightValue >> CLApi.bitshift_g) & CLApi.bitmask;
+            int saved_block_b = (int)(savedLightValue >> CLApi.bitshift_b) & CLApi.bitmask;
+            int saved_sun_r = (int)(savedLightValue >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
+            int saved_sun_g = (int)(savedLightValue >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
+            int saved_sun_b = (int)(savedLightValue >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
 
-            int comp_l = (int)(compLightValue >> CLApi.bitshift_l) & 0xF;
-            int comp_r = (int)(compLightValue >> CLApi.bitshift_r) & CLApi.bitmask;
-            int comp_g = (int)(compLightValue >> CLApi.bitshift_g) & CLApi.bitmask;
-            int comp_b = (int)(compLightValue >> CLApi.bitshift_b) & CLApi.bitmask;
+            int comp_block_l = (int)(compLightValue >> CLApi.bitshift_l) & 0xF;
+            int comp_block_r = (int)(compLightValue >> CLApi.bitshift_r) & CLApi.bitmask;
+            int comp_block_g = (int)(compLightValue >> CLApi.bitshift_g) & CLApi.bitmask;
+            int comp_block_b = (int)(compLightValue >> CLApi.bitshift_b) & CLApi.bitmask;
+            int comp_sun_r = (int)(compLightValue >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
+            int comp_sun_g = (int)(compLightValue >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
+            int comp_sun_b = (int)(compLightValue >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
 
             final int offset = 31; // Offset for the start block
             final int size = 64; // Number or blocks in one directon
@@ -275,11 +311,15 @@ public class CLWorldHelper {
             // Format of lightAdditionBlockList word:
             // bbbbb.ggggg.rrrrr.LLLLzzzzzzzyyyyyyyxxxxxxx
             // x/y/z are relative offsets
-            if (comp_l > saved_l || comp_r > saved_r || comp_g > saved_g || comp_b > saved_b) { //compLightValue has components that are larger than savedLightValue, the block at the current position is brighter than the saved value at the current positon... it must have been made brighter somehow
+            if (comp_block_l > saved_block_l || comp_block_r > saved_block_r || comp_block_g > saved_block_g || comp_block_b > saved_block_b
+                    || comp_sun_r > saved_sun_r || comp_sun_g > saved_sun_g || comp_sun_b > saved_sun_b) { //compLightValue has components that are larger than savedLightValue, the block at the current position is brighter than the saved value at the current positon... it must have been made brighter somehow
                 //Light Splat/Spread
 
                 world.pipe.lightAdditionNeeded[offset][offset][offset] = world.pipe.updateFlag; // Light needs processing processed
                 lightAdditionsCalled++;
+                if (DEBUG) {
+                    CLLog.warn("Spread Addition Original (comp_block_r : " + comp_block_r + ", comp_block_b: " + comp_block_b + ", saved_block_r : " + saved_block_r + ", saved_block_b: " + saved_block_b + ")");
+                }
                 world.pipe.lightAdditionBlockList[getter++] = startCoord | (compLightValue << (coord_size * 3));
 
                 while (filler < getter) {
@@ -300,25 +340,35 @@ public class CLWorldHelper {
 
                         lightAdditionsSatisfied++;
 
-                        int queue_l = (queueLightEntry >> CLApi.bitshift_l) & 0xF;
-                        int queue_r = (queueLightEntry >> CLApi.bitshift_r) & CLApi.bitmask;
-                        int queue_g = (queueLightEntry >> CLApi.bitshift_g) & CLApi.bitmask;
-                        int queue_b = (queueLightEntry >> CLApi.bitshift_b) & CLApi.bitmask;
+                        int queue_block_l = (queueLightEntry >> CLApi.bitshift_l) & 0xF;
+                        int queue_block_r = (queueLightEntry >> CLApi.bitshift_r) & CLApi.bitmask;
+                        int queue_block_g = (queueLightEntry >> CLApi.bitshift_g) & CLApi.bitmask;
+                        int queue_block_b = (queueLightEntry >> CLApi.bitshift_b) & CLApi.bitmask;
+                        int queue_sun_r = (queueLightEntry >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
+                        int queue_sun_g = (queueLightEntry >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
+                        int queue_sun_b = (queueLightEntry >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
 
-                        int edge_l = (int)(neighborLightEntry >> CLApi.bitshift_l) & 0xF;
-                        int edge_r = (int)(neighborLightEntry >> CLApi.bitshift_r) & CLApi.bitmask;
-                        int edge_g = (int)(neighborLightEntry >> CLApi.bitshift_g) & CLApi.bitmask;
-                        int edge_b = (int)(neighborLightEntry >> CLApi.bitshift_b) & CLApi.bitmask;
+                        int edge_block_l = (int)(neighborLightEntry >> CLApi.bitshift_l) & 0xF;
+                        int edge_block_r = (int)(neighborLightEntry >> CLApi.bitshift_r) & CLApi.bitmask;
+                        int edge_block_g = (int)(neighborLightEntry >> CLApi.bitshift_g) & CLApi.bitmask;
+                        int edge_block_b = (int)(neighborLightEntry >> CLApi.bitshift_b) & CLApi.bitmask;
+                        int edge_sun_r = (int)(neighborLightEntry >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
+                        int edge_sun_g = (int)(neighborLightEntry >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
+                        int edge_sun_b = (int)(neighborLightEntry >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
 
-                        if (queue_l > edge_l || queue_r > edge_r || queue_g > edge_g || queue_b > edge_b) { // Components in queueLightEntry are brighter than in edgeLightEntry
+                        if (queue_block_l > edge_block_l || queue_block_r > edge_block_r || queue_block_g > edge_block_g || queue_block_b > edge_block_b
+                                || queue_sun_r > edge_sun_r || queue_sun_g > edge_sun_g || queue_sun_b > edge_sun_b) { // Components in queueLightEntry are brighter than in edgeLightEntry
                             man_x = MathHelper.abs_int(queue_x - par_x);
                             man_y = MathHelper.abs_int(queue_y - par_y);
                             man_z = MathHelper.abs_int(queue_z - par_z);
                             manhattan_distance = man_x + man_y + man_z;
 
                             world.pipe.setLightValue(par1Enu, queue_x, queue_y, queue_z, queueLightEntry);
-
-                            int limit_test = Math.max(Math.max(Math.max(comp_l, comp_r), comp_g), comp_b);
+                            if (DEBUG) {
+                                CLLog.warn("Spread at (X: " + queue_x + ", Y: " + queue_y + ", Z: " + queue_z + ") with (block_l: " + queue_block_l + ", block_r: " + queue_block_r + ", block_g: " + queue_block_g +", block_b: " + queue_block_b + ", sun_r: " + queue_sun_r + ", sun_g: " + queue_sun_g + ", sun_b: " + queue_sun_b + ")");
+                            }
+                            int limit_test = Math.max(Math.max(Math.max(comp_block_l, comp_block_r), comp_block_g), comp_block_b);
+                            limit_test = Math.max(Math.max(Math.max(limit_test, comp_sun_r), comp_sun_g), comp_sun_b);
 
                             //if ((manhattan_distance < ((compLightValue & 0x0000F) - 1)) || (par1Enu == EnumSkyBlock.Sky && (man_x<14) && (man_y<14) && (man_z<14))) { //Limits the splat size to the initial brightness value, skylight checks bypass this, as they aren't always diamond-shaped
                             if (manhattan_distance < limit_test - 1) {
@@ -343,34 +393,52 @@ public class CLWorldHelper {
 
                                             int queueLightEntryFiltered = calculateOpacity(queueLightEntry, opacity, neighborBlock, world, neighbor_x, neighbor_y, neighbor_z);
 
-                                            int queue_filtered_l = (queueLightEntryFiltered >> CLApi.bitshift_l) & 0xF;
-                                            int queue_filtered_r = (queueLightEntryFiltered >> CLApi.bitshift_r) & CLApi.bitmask;
-                                            int queue_filtered_g = (queueLightEntryFiltered >> CLApi.bitshift_g) & CLApi.bitmask;
-                                            int queue_filtered_b = (queueLightEntryFiltered >> CLApi.bitshift_b) & CLApi.bitmask;
+                                            int queue_filtered_block_l = (queueLightEntryFiltered >> CLApi.bitshift_l) & 0xF;
+                                            int queue_filtered_block_r = (queueLightEntryFiltered >> CLApi.bitshift_r) & CLApi.bitmask;
+                                            int queue_filtered_block_g = (queueLightEntryFiltered >> CLApi.bitshift_g) & CLApi.bitmask;
+                                            int queue_filtered_block_b = (queueLightEntryFiltered >> CLApi.bitshift_b) & CLApi.bitmask;
+                                            int queue_filtered_sun_r = (queueLightEntryFiltered >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
+                                            int queue_filtered_sun_g = (queueLightEntryFiltered >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
+                                            int queue_filtered_sun_b = (queueLightEntryFiltered >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
 
-                                            int neighbor_l = (neighborLightEntry >> CLApi.bitshift_l) & 0xF;
-                                            int neighbor_r = (neighborLightEntry >> CLApi.bitshift_r) & CLApi.bitmask;
-                                            int neighbor_g = (neighborLightEntry >> CLApi.bitshift_g) & CLApi.bitmask;
-                                            int neighbor_b = (neighborLightEntry >> CLApi.bitshift_b) & CLApi.bitmask;
+                                            int neighbor_block_l = (neighborLightEntry >> CLApi.bitshift_l) & 0xF;
+                                            int neighbor_block_r = (neighborLightEntry >> CLApi.bitshift_r) & CLApi.bitmask;
+                                            int neighbor_block_g = (neighborLightEntry >> CLApi.bitshift_g) & CLApi.bitmask;
+                                            int neighbor_block_b = (neighborLightEntry >> CLApi.bitshift_b) & CLApi.bitmask;
+                                            int neighbor_sun_r = (neighborLightEntry >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
+                                            int neighbor_sun_g = (neighborLightEntry >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
+                                            int neighbor_sun_b = (neighborLightEntry >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
 
-                                            ll = queue_l > neighbor_l ? Math.max(0, queue_filtered_l) : neighbor_l;
-                                            rl = queue_r > neighbor_r ? Math.max(0, queue_filtered_r) : neighbor_r;
-                                            gl = queue_g > neighbor_g ? Math.max(0, queue_filtered_g) : neighbor_g;
-                                            bl = queue_b > neighbor_b ? Math.max(0, queue_filtered_b) : neighbor_b;
+                                            int final_block_l = queue_block_l > neighbor_block_l ? Math.max(0, queue_filtered_block_l) : neighbor_block_l;
+                                            int final_block_r = queue_block_r > neighbor_block_r ? Math.max(0, queue_filtered_block_r) : neighbor_block_r;
+                                            int final_block_g = queue_block_g > neighbor_block_g ? Math.max(0, queue_filtered_block_g) : neighbor_block_g;
+                                            int final_block_b = queue_block_b > neighbor_block_b ? Math.max(0, queue_filtered_block_b) : neighbor_block_b;
+                                            int final_sun_r = queue_sun_r > neighbor_sun_r ? Math.max(0, queue_filtered_sun_r) : neighbor_sun_r;
+                                            int final_sun_g = queue_sun_g > neighbor_sun_g ? Math.max(0, queue_filtered_sun_g) : neighbor_sun_g;
+                                            int final_sun_b = queue_sun_b > neighbor_sun_b ? Math.max(0, queue_filtered_sun_b) : neighbor_sun_b;
 
-                                            long light_combine = (ll << CLApi.bitshift_l) | (rl << CLApi.bitshift_r) | (gl << CLApi.bitshift_g) | (bl << CLApi.bitshift_b);
+                                            long light_combine = (final_block_l << CLApi.bitshift_l) | (final_block_r << CLApi.bitshift_r) | (final_block_g << CLApi.bitshift_g) | (final_block_b << CLApi.bitshift_b)
+                                                    | (final_sun_r << CLApi.bitshift_sun_r) | (final_sun_g << CLApi.bitshift_sun_g) | (final_sun_b << CLApi.bitshift_sun_b);
 
-                                            if (((ll > neighbor_l) ||
-                                                    (rl > neighbor_r) ||
-                                                    (gl > neighbor_g) ||
-                                                    (bl > neighbor_b)) && (getter < world.pipe.lightAdditionBlockList.length)) {
+                                            if ((
+                                                    (final_block_l > neighbor_block_l)
+                                                    || (final_block_r > neighbor_block_r)
+                                                    || (final_block_g > neighbor_block_g)
+                                                    || (final_block_b > neighbor_block_b)
+                                                    || (final_sun_r > neighbor_sun_r)
+                                                    || (final_sun_g > neighbor_sun_g)
+                                                    || (final_sun_b > neighbor_sun_b)
+                                                    ) && (getter < world.pipe.lightAdditionBlockList.length)) {
                                                 world.pipe.lightAdditionNeeded[neighbor_x - par_x + offset][neighbor_y - par_y + offset][neighbor_z - par_z + offset] = world.pipe.updateFlag; // Mark neighbor to be processed
                                                 world.pipe.lightAdditionBlockList[getter++] = ((long) neighbor_x - (long) par_x + size) | (((long) neighbor_y - (long) par_y + size) << coord_size) | (((long) neighbor_z - (long) par_z + size) << (coord_size * 2)) | (light_combine << (coord_size * 3));
                                                 lightAdditionsCalled++;
-                                            } else if ((queue_l + opacity < neighbor_l) ||
-                                                    (queue_r + opacity < neighbor_r) ||
-                                                    (queue_g + opacity < neighbor_g) ||
-                                                    (queue_b + opacity < neighbor_b)) {
+                                            } else if ((queue_block_l + opacity < neighbor_block_l)
+                                                    || (queue_block_r + opacity < neighbor_block_r)
+                                                    || (queue_block_g + opacity < neighbor_block_g)
+                                                    || (queue_block_b + opacity < neighbor_block_b)
+                                                    || (queue_sun_r + opacity < neighbor_sun_r)
+                                                    || (queue_sun_g + opacity < neighbor_sun_g)
+                                                    || (queue_sun_b + opacity < neighbor_sun_b)) {
                                                 if (Math.abs(queue_x - rel_x) < offset && Math.abs(queue_y - rel_y) < offset && Math.abs(queue_z - rel_z) < offset) {
                                                     world.pipe.lightBackfillNeeded[queue_x - rel_x + offset][queue_y - rel_y + offset][queue_z - rel_z + offset] = world.pipe.updateFlag; // Mark queue location to be re-processed
                                                 }
@@ -395,10 +463,14 @@ public class CLWorldHelper {
                 filler = 0;
                 getter = 0;
 
-                if (saved_l > comp_l || saved_r > comp_r || saved_g > comp_g || saved_b > comp_b) { //savedLightValue has components that are larger than compLightValue
+                if (saved_block_l > comp_block_l || saved_block_r > comp_block_r || saved_block_g > comp_block_g || saved_block_b > comp_block_b
+                        || saved_sun_r > comp_sun_r || saved_sun_g > comp_sun_g || saved_sun_b > comp_sun_b) { //savedLightValue has components that are larger than compLightValue
                     //Light Destruction
 
                     world.pipe.setLightValue(par1Enu, par_x, par_y, par_z, (int) compLightValue); // This kills the light
+                    if (DEBUG) {
+                        CLLog.warn("Destruction1 at (X: " + par_x + ", Y: " + par_y + ", Z: " + par_z + ") with (block_l: " + comp_block_l + ", block_r: " + comp_block_r + ", block_g: " + comp_block_g +", block_b: " + comp_block_b + ", sun_r: " + comp_sun_r + ", sun_g: " + comp_sun_g + ", sun_b: " + comp_sun_b + ")");
+                    }
                     world.pipe.lightAdditionBlockList[getter++] = (startCoord | (savedLightValue << (coord_size * 3)));
 
                     while (filler <= getter) {
@@ -413,7 +485,9 @@ public class CLWorldHelper {
                         man_z = MathHelper.abs_int(queue_z - par_z);
                         manhattan_distance = man_x + man_y + man_z;
 
-                        int limit_test = Math.max(Math.max(Math.max(saved_l, saved_r), saved_g), saved_b);
+                        int limit_test = Math.max(Math.max(Math.max(saved_block_l, saved_block_r), saved_block_g), saved_block_b);
+                        limit_test = Math.max(Math.max(Math.max(limit_test, saved_sun_r), saved_sun_g), saved_sun_b);
+
                         if (manhattan_distance < limit_test) { //Limits the splat size to the initial brightness value
                             for (neighborIndex = 0; neighborIndex < 6; ++neighborIndex) {
                                 neighbor_x = queue_x + Facing.offsetsXForSide[neighborIndex];
@@ -429,63 +503,95 @@ public class CLWorldHelper {
                                 opacity = Math.max(1, world.getBlock(neighbor_x, neighbor_y, neighbor_z).getLightOpacity(world, neighbor_x, neighbor_y, neighbor_z));
                                 neighborLightEntry = world.pipe.getSavedLightValue(par1Enu, neighbor_x, neighbor_y, neighbor_z);
 
-                                int queue_l = (queueLightEntry >> CLApi.bitshift_l) & 0xF;
-                                int queue_r = (queueLightEntry >> CLApi.bitshift_r) & CLApi.bitmask;
-                                int queue_g = (queueLightEntry >> CLApi.bitshift_g) & CLApi.bitmask;
-                                int queue_b = (queueLightEntry >> CLApi.bitshift_b) & CLApi.bitmask;
+                                int queue_block_l = (queueLightEntry >> CLApi.bitshift_l) & 0xF;
+                                int queue_block_r = (queueLightEntry >> CLApi.bitshift_r) & CLApi.bitmask;
+                                int queue_block_g = (queueLightEntry >> CLApi.bitshift_g) & CLApi.bitmask;
+                                int queue_block_b = (queueLightEntry >> CLApi.bitshift_b) & CLApi.bitmask;
+                                int queue_sun_r = (queueLightEntry >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
+                                int queue_sun_g = (queueLightEntry >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
+                                int queue_sun_b = (queueLightEntry >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
 
-                                int neighbor_l = (neighborLightEntry >> CLApi.bitshift_l) & 0xF;
-                                int neighbor_r = (neighborLightEntry >> CLApi.bitshift_r) & CLApi.bitmask;
-                                int neighbor_g = (neighborLightEntry >> CLApi.bitshift_g) & CLApi.bitmask;
-                                int neighbor_b = (neighborLightEntry >> CLApi.bitshift_b) & CLApi.bitmask;
+                                int neighbor_block_l = (neighborLightEntry >> CLApi.bitshift_l) & 0xF;
+                                int neighbor_block_r = (neighborLightEntry >> CLApi.bitshift_r) & CLApi.bitmask;
+                                int neighbor_block_g = (neighborLightEntry >> CLApi.bitshift_g) & CLApi.bitmask;
+                                int neighbor_block_b = (neighborLightEntry >> CLApi.bitshift_b) & CLApi.bitmask;
+                                int neighbor_sun_r = (neighborLightEntry >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
+                                int neighbor_sun_g = (neighborLightEntry >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
+                                int neighbor_sun_b = (neighborLightEntry >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
 
                                 if (opacity < 15 || neighborLightEntry > 0) {
                                     //Get Saved light value from face
 
                                     //   |------------------maximum theoretical light value------------------|    |------saved light value------|
-                                    ll = (Math.max(queue_l - (man_x + man_y + man_z), 0) >= neighbor_l) ? 0 : neighbor_l;
-                                    rl = (Math.max(queue_r - (man_x + man_y + man_z), 0) >= neighbor_r) ? 0 : neighbor_r;
-                                    gl = (Math.max(queue_g - (man_x + man_y + man_z), 0) >= neighbor_g) ? 0 : neighbor_g;
-                                    bl = (Math.max(queue_b - (man_x + man_y + man_z), 0) >= neighbor_b) ? 0 : neighbor_b;
+                                    int final_block_l = (Math.max(queue_block_l - (man_x + man_y + man_z), 0) >= neighbor_block_l) ? 0 : neighbor_block_l;
+                                    int final_block_r = (Math.max(queue_block_r - (man_x + man_y + man_z), 0) >= neighbor_block_r) ? 0 : neighbor_block_r;
+                                    int final_block_g = (Math.max(queue_block_g - (man_x + man_y + man_z), 0) >= neighbor_block_g) ? 0 : neighbor_block_g;
+                                    int final_block_b = (Math.max(queue_block_b - (man_x + man_y + man_z), 0) >= neighbor_block_b) ? 0 : neighbor_block_b;
+                                    int final_sun_r = (Math.max(queue_sun_r - (man_x + man_y + man_z), 0) >= neighbor_sun_r) ? 0 : neighbor_sun_r;
+                                    int final_sun_g = (Math.max(queue_sun_g - (man_x + man_y + man_z), 0) >= neighbor_sun_g) ? 0 : neighbor_sun_g;
+                                    int final_sun_b = (Math.max(queue_sun_b - (man_x + man_y + man_z), 0) >= neighbor_sun_b) ? 0 : neighbor_sun_b;
 
-                                    sortValue = 0;
-                                    if ((queue_l > 0) && (ll != 0)) {
-                                        sortValue = (int) ll;
+                                    int sortValue = 0;
+                                    if ((queue_block_l > 0) && (final_block_l != 0)) {
+                                        sortValue = (int) final_block_l;
                                     }
-                                    if ((queue_r > 0) && (rl > sortValue)) {
-                                        sortValue = (int)rl;
+                                    if ((queue_block_r > 0) && (final_block_r > sortValue)) {
+                                        sortValue = (int)final_block_r;
                                     }
-                                    if ((queue_g > 0) && (gl > sortValue)) {
-                                        sortValue = (int)gl;
+                                    if ((queue_block_g > 0) && (final_block_g > sortValue)) {
+                                        sortValue = (int)final_block_g;
                                     }
-                                    if ((queue_b > 0) && (bl > sortValue)) {
-                                        sortValue = (int)bl;
+                                    if ((queue_block_b > 0) && (final_block_b > sortValue)) {
+                                        sortValue = (int)final_block_b;
                                     }
 
-                                    long light_combine = (ll << CLApi.bitshift_l) | (rl << CLApi.bitshift_r) | (gl << CLApi.bitshift_g) | (bl << CLApi.bitshift_b);
+                                    if ((queue_sun_r > 0) && (final_sun_r > sortValue)) {
+                                        sortValue = (int)final_sun_r;
+                                    }
+                                    if ((queue_sun_g > 0) && (final_sun_g > sortValue)) {
+                                        sortValue = (int)final_sun_g;
+                                    }
+                                    if ((queue_sun_b > 0) && (final_sun_b > sortValue)) {
+                                        sortValue = (int)final_sun_b;
+                                    }
+
+                                    long light_combine = (final_block_l << CLApi.bitshift_l) | (final_block_r << CLApi.bitshift_r) | (final_block_g << CLApi.bitshift_g) | (final_block_b << CLApi.bitshift_b)
+                                            | (final_sun_r << CLApi.bitshift_sun_r) | (final_sun_g << CLApi.bitshift_sun_g) | (final_sun_b << CLApi.bitshift_sun_b);
                                     //If the light we are looking at on the edge is brighter or equal to the current light in any way, then there must be a light over there that's doing it, so we'll stop eating colors and lights in that direction
                                     if (neighborLightEntry != light_combine) {
 
                                         if (sortValue != 0) {
-                                            if (ll == sortValue) {
-                                                ll = 0;
+                                            if (final_block_l == sortValue) {
+                                                final_block_l = 0;
                                             }
-                                            if (rl == sortValue) {
-                                                rl = 0;
+                                            if (final_block_r == sortValue) {
+                                                final_block_r = 0;
                                             }
-                                            if (gl == sortValue) {
-                                                gl = 0;
+                                            if (final_block_g == sortValue) {
+                                                final_block_g = 0;
                                             }
-                                            if (bl == sortValue) {
-                                                bl = 0;
+                                            if (final_block_b == sortValue) {
+                                                final_block_b = 0;
                                             }
-                                            light_combine = (ll << CLApi.bitshift_l) | (rl << CLApi.bitshift_r) | (gl << CLApi.bitshift_g) | (bl << CLApi.bitshift_b);
+                                            if (final_sun_r == sortValue) {
+                                                final_sun_r = 0;
+                                            }
+                                            if (final_sun_g == sortValue) {
+                                                final_sun_g = 0;
+                                            }
+                                            if (final_sun_b == sortValue) {
+                                                final_sun_b = 0;
+                                            }
+                                            light_combine = (final_block_l << CLApi.bitshift_l) | (final_block_r << CLApi.bitshift_r) | (final_block_g << CLApi.bitshift_g) | (final_block_b << CLApi.bitshift_b)
+                                                    | (final_sun_r << CLApi.bitshift_sun_r) | (final_sun_g << CLApi.bitshift_sun_g) | (final_sun_b << CLApi.bitshift_sun_b);
 
                                             world.pipe.lightBackfillNeeded[queue_x - par_x + offset][queue_y - par_y + offset][queue_z - par_z + offset] = world.pipe.updateFlag;
                                             world.pipe.lightBackfillBlockList[sortValue - 1][world.pipe.lightBackfillIndexes[sortValue - 1]++] = (neighbor_x - par_x + size) | ((neighbor_y - par_y + size) << (coord_size * 1)) | ((neighbor_z - par_z + size) << (coord_size * 2)); //record coordinates for backfill
                                         }
-
                                         world.pipe.setLightValue(par1Enu, neighbor_x, neighbor_y, neighbor_z, (int)light_combine); // This kills the light
+                                        if (DEBUG) {
+                                            CLLog.warn("Destruction2 at (X: " + neighbor_x + ", Y: " + neighbor_y + ", Z: " + neighbor_z + ") with (block_l: " + final_block_l + ", block_r: " + final_block_r + ", block_g: " + final_block_g +", block_b: " + final_block_b + ", sun_r: " + final_sun_r + ", sun_g: " + final_sun_g + ", sun_b: " + final_sun_b + ")");
+                                        }
                                         world.pipe.lightAdditionBlockList[getter++] = ((long) neighbor_x - (long) par_x + size) | (((long) neighbor_y - (long) par_y + size) << coord_size) | (((long) neighbor_z - (long) par_z + size) << (coord_size * 2)) | ((long) queueLightEntry << (coord_size * 3)); //this array keeps the algorithm going, don't touch
                                     } else {
                                         if (sortValue != 0) {

@@ -55,6 +55,8 @@ public class NameMapper {
         // Chunk
         registerSrgName("CL: net/minecraft/world/chunk/Chunk net/minecraft/world/chunk/Chunk");
         registerSrgName("MD: net/minecraft/world/chunk/Chunk/getBlockLightValue (IIII)I net/minecraft/world/chunk/Chunk/func_76629_c (IIII)I");
+        registerSrgName("MD: net/minecraft/world/chunk/Chunk/generateSkylightMap ()V net/minecraft/world/chunk/Chunk/func_76603_b ()V");
+        registerSrgName("MD: net/minecraft/world/chunk/Chunk/relightBlock (III)V net/minecraft/world/chunk/Chunk/func_76615_h (III)V");
 
         // ChunkCache
         registerSrgName("CL: net/minecraft/world/ChunkCache net/minecraft/world/ChunkCache");
@@ -74,6 +76,8 @@ public class NameMapper {
         registerSrgName("CL: net/minecraft/world/chunk/storage/ExtendedBlockStorage net/minecraft/world/chunk/storage/ExtendedBlockStorage");
         registerSrgName("MD: net/minecraft/world/chunk/storage/ExtendedBlockStorage/setExtBlocklightValue (IIII)V net/minecraft/world/chunk/storage/ExtendedBlockStorage/func_76677_d (IIII)V");
         registerSrgName("MD: net/minecraft/world/chunk/storage/ExtendedBlockStorage/getExtBlocklightValue (III)I net/minecraft/world/chunk/storage/ExtendedBlockStorage/func_76674_d (III)I");
+        registerSrgName("MD: net/minecraft/world/chunk/storage/ExtendedBlockStorage/setExtSkylightValue (IIII)V net/minecraft/world/chunk/storage/ExtendedBlockStorage/func_76657_c (IIII)V");
+        registerSrgName("MD: net/minecraft/world/chunk/storage/ExtendedBlockStorage/getExtSkylightValue (III)I net/minecraft/world/chunk/storage/ExtendedBlockStorage/func_76670_c (III)I");
         registerSrgName("FD: net/minecraft/world/chunk/storage/ExtendedBlockStorage/blockLSBArray net/minecraft/world/chunk/storage/ExtendedBlockStorage/field_76680_d");
 
         // FontRenderer

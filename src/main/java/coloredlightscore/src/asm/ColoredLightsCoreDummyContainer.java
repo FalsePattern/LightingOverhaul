@@ -4,6 +4,7 @@ import static coloredlightscore.src.asm.ColoredLightsCoreLoadingPlugin.CLLog;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -12,6 +13,7 @@ import cpw.mods.fml.common.registry.GameData;
 import cpw.mods.fml.relauncher.*;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
+import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.MinecraftForge;
 import coloredlightscore.fmlevents.ChunkDataEventHandler;
@@ -59,6 +61,23 @@ public class ColoredLightsCoreDummyContainer extends DummyModContainer {
         return true;
     }
 
+    static void setSkyColor() {
+        try {
+            Field field = EnumSkyBlock.class.getDeclaredFields()[2];
+            field.setAccessible(true);
+
+            Field modifiersField = Field.class.getDeclaredField("modifiers");
+            modifiersField.setAccessible(true);
+
+            modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+
+            int color = (15 << CLApi.bitshift_sun_r) | (15 << CLApi.bitshift_sun_g) | (15 << CLApi.bitshift_sun_b);
+            field.set(EnumSkyBlock.Sky, color);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+     }
+
     @Subscribe
     public void preInit(FMLPreInitializationEvent evt) {
 
@@ -72,6 +91,7 @@ public class ColoredLightsCoreDummyContainer extends DummyModContainer {
         // Hook into chunk events
         MinecraftForge.EVENT_BUS.register(chunkDataEventHandler);
 
+        setSkyColor();
     }
 
     @Subscribe

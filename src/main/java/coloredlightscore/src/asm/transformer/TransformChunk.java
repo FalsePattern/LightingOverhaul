@@ -10,7 +10,11 @@ import org.objectweb.asm.tree.*;
 public class TransformChunk extends HelperMethodTransformer {
 
     // These methods will be replaced by statics in CLWorldHelper
-    String methodsToReplace[] = { "getBlockLightValue (IIII)I" };
+    String methodsToReplace[] = {
+        "getBlockLightValue (IIII)I",
+        "generateSkylightMap ()V",
+        "relightBlock (III)V"
+    };
 
     public TransformChunk() {
         // Inform HelperMethodTransformer which class we are interested in

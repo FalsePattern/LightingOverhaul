@@ -17,7 +17,6 @@ public class CLOpenGlHelper {
                 0000 0000 SSSS BBBB GGGG RRRR LLLL 0000
                 and needs to be decomposed.
              */
-            int s = (brightness >> CLApi.bitshift_s2) & 0xF;
             int block_b = (brightness >> CLApi.bitshift_b2) & CLApi.bitmask;
             int block_g = (brightness >> CLApi.bitshift_g2) & CLApi.bitmask;
             int block_r = (brightness >> CLApi.bitshift_r2) & CLApi.bitmask;
@@ -30,9 +29,9 @@ public class CLOpenGlHelper {
             block_g = Math.min(15, block_g);
             block_b = Math.min(15, block_b);
 
-            int sun_r = s;
-            int sun_g = s;
-            int sun_b = s;
+            int sun_r = (brightness >> CLApi.bitshift_sun_r2) & CLApi.bitmask_sun;
+            int sun_g = (brightness >> CLApi.bitshift_sun_g2) & CLApi.bitmask_sun;
+            int sun_b = (brightness >> CLApi.bitshift_sun_b2) & CLApi.bitmask_sun;
 
             GL20.glUniform4i(CLTessellatorHelper.lightCoordUniform, block_r, block_g, block_b, 0);
             GL20.glUniform4i(CLTessellatorHelper.lightCoordSunUniform, sun_r, sun_g, sun_b, 0);

@@ -35,6 +35,9 @@ public class ChunkColorDataPacket implements IMessage, IMessageHandler<ChunkColo
     public NibbleArray[] RedColorArray2;
     public NibbleArray[] GreenColorArray2;
     public NibbleArray[] BlueColorArray2;
+    public NibbleArray[] RedColorArraySun;
+    public NibbleArray[] GreenColorArraySun;
+    public NibbleArray[] BlueColorArraySun;
     public int[] yLocation;
 
     private final boolean USE_COMPRESSION = true;
@@ -55,7 +58,7 @@ public class ChunkColorDataPacket implements IMessage, IMessageHandler<ChunkColo
         targetChunk = Minecraft.getMinecraft().theWorld.getChunkFromChunkCoords(ccdPacket.chunkXPosition, ccdPacket.chunkZPosition);
 
         if (targetChunk != null) {
-            ChunkStorageRGB.loadColorData(targetChunk, ccdPacket.arraySize, ccdPacket.yLocation, ccdPacket.RedColorArray, ccdPacket.GreenColorArray, ccdPacket.BlueColorArray, ccdPacket.RedColorArray2, ccdPacket.GreenColorArray2, ccdPacket.BlueColorArray2);
+            ChunkStorageRGB.loadColorData(targetChunk, ccdPacket.arraySize, ccdPacket.yLocation, ccdPacket.RedColorArray, ccdPacket.GreenColorArray, ccdPacket.BlueColorArray, ccdPacket.RedColorArray2, ccdPacket.GreenColorArray2, ccdPacket.BlueColorArray2, ccdPacket.RedColorArraySun, ccdPacket.GreenColorArraySun, ccdPacket.BlueColorArraySun);
             //CLLog.info("ProcessColorDataPacket() loaded RGB for ({},{})", ccdPacket.chunkXPosition, ccdPacket.chunkZPosition);
         } else
             CLLog.warn("ProcessColorDataPacket()  Chunk located at ({}, {}) could not be found in the local world!", ccdPacket.chunkXPosition, ccdPacket.chunkZPosition);
@@ -64,7 +67,7 @@ public class ChunkColorDataPacket implements IMessage, IMessageHandler<ChunkColo
     @Override
     public void fromBytes(ByteBuf bytes) {
         try {
-            byte[] rawColorData = new byte[2048 * 16 * 3];
+            byte[] rawColorData = new byte[2048 * 16 * 3*2];
             byte[] compressedColorData = new byte[32000];
             byte[] nibbleData = new byte[2048];
             int compressedSize;
@@ -88,6 +91,9 @@ public class ChunkColorDataPacket implements IMessage, IMessageHandler<ChunkColo
             RedColorArray2 = new NibbleArray[arraySize];
             GreenColorArray2 = new NibbleArray[arraySize];
             BlueColorArray2 = new NibbleArray[arraySize];
+            RedColorArraySun = new NibbleArray[arraySize];
+            GreenColorArraySun = new NibbleArray[arraySize];
+            BlueColorArraySun = new NibbleArray[arraySize];
 
             if (USE_COMPRESSION) {
                 compressedSize = bytes.readInt();
@@ -145,6 +151,24 @@ public class ChunkColorDataPacket implements IMessage, IMessageHandler<ChunkColo
 
                     p += 2048;
 
+                    nibbleData = new byte[2048];
+                    System.arraycopy(rawColorData, p, nibbleData, 0, 2048);
+                    RedColorArraySun[i] = new NibbleArray(nibbleData, 4);
+
+                    p += 2048;
+
+                    nibbleData = new byte[2048];
+                    System.arraycopy(rawColorData, p, nibbleData, 0, 2048);
+                    GreenColorArraySun[i] = new NibbleArray(nibbleData, 4);
+
+                    p += 2048;
+
+                    nibbleData = new byte[2048];
+                    System.arraycopy(rawColorData, p, nibbleData, 0, 2048);
+                    BlueColorArraySun[i] = new NibbleArray(nibbleData, 4); // 4,59,10 y:3[11]  cx:-16  cz:10
+
+                    p += 2048;
+
                 } else {
                     RedColorArray[i] = new NibbleArray(4096, 4);
                     GreenColorArray[i] = new NibbleArray(4096, 4);
@@ -163,7 +187,7 @@ public class ChunkColorDataPacket implements IMessage, IMessageHandler<ChunkColo
     @Override
     public void toBytes(ByteBuf bytes) {
         try {
-            byte[] rawColorData = new byte[2048 * 16 * 3];
+            byte[] rawColorData = new byte[2048 * 16 * 3*2];
             byte[] compressedColorData = new byte[32000];
             int compressedSize;
             int arraysPresent = 0;
@@ -184,6 +208,9 @@ public class ChunkColorDataPacket implements IMessage, IMessageHandler<ChunkColo
                         byte[] localRed2 = RedColorArray2[i].getValueArray();
                         byte[] localGreen2 = GreenColorArray2[i].getValueArray();
                         byte[] localBlue2 = BlueColorArray2[i].getValueArray();
+                        byte[] localRedSun = RedColorArraySun[i].getValueArray();
+                        byte[] localGreenSun = GreenColorArraySun[i].getValueArray();
+                        byte[] localBlueSun = BlueColorArraySun[i].getValueArray();
                         System.arraycopy(localRed, 0, rawColorData, p, localRed.length);
                         p += localRed.length;
                         System.arraycopy(localGreen, 0, rawColorData, p, localGreen.length);
@@ -196,7 +223,12 @@ public class ChunkColorDataPacket implements IMessage, IMessageHandler<ChunkColo
                         p += localGreen2.length;
                         System.arraycopy(localBlue2, 0, rawColorData, p, localBlue2.length);
                         p += localBlue2.length;
-
+                        System.arraycopy(localRedSun, 0, rawColorData, p, localRedSun.length);
+                        p += localRedSun.length;
+                        System.arraycopy(localGreenSun, 0, rawColorData, p, localGreenSun.length);
+                        p += localGreenSun.length;
+                        System.arraycopy(localBlueSun, 0, rawColorData, p, localBlueSun.length);
+                        p += localBlueSun.length;
                     } else {
                         System.arraycopy(RedColorArray[i].data, 0, rawColorData, p, RedColorArray[i].data.length);
                         p += RedColorArray[i].data.length;
@@ -210,6 +242,12 @@ public class ChunkColorDataPacket implements IMessage, IMessageHandler<ChunkColo
                         p += GreenColorArray2[i].data.length;
                         System.arraycopy(BlueColorArray2[i].data, 0, rawColorData, p, BlueColorArray2[i].data.length);
                         p += BlueColorArray2[i].data.length;
+                        System.arraycopy(RedColorArraySun[i].data, 0, rawColorData, p, RedColorArraySun[i].data.length);
+                        p += RedColorArraySun[i].data.length;
+                        System.arraycopy(GreenColorArraySun[i].data, 0, rawColorData, p, GreenColorArraySun[i].data.length);
+                        p += GreenColorArraySun[i].data.length;
+                        System.arraycopy(BlueColorArraySun[i].data, 0, rawColorData, p, BlueColorArraySun[i].data.length);
+                        p += BlueColorArraySun[i].data.length;
                     }
                 }
 

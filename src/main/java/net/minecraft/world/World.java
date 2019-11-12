@@ -120,4 +120,13 @@ public class World implements IBlockAccess {
     public boolean setBlockMetadataWithNotify(int x, int y, int z, int temp, int i) {
         return false;
     }
+
+    public void func_147479_m(int i, int k, int j) {
+    }
+
+    public void markBlocksDirtyVertical(int paramInt1, int paramInt2, int paramInt3, int paramInt4) {
+    }
+
+    public void updateLightByType(EnumSkyBlock sky, int paramInt1, int i, int paramInt2) {
+    }
 }

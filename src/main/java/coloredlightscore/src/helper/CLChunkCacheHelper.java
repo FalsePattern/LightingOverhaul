@@ -29,12 +29,17 @@ public class CLChunkCacheHelper {
         int block_g = (blockBrightness >> CLApi.bitshift_g) & CLApi.bitmask;
         int block_b = (blockBrightness >> CLApi.bitshift_b) & CLApi.bitmask;
 
+        int sun_r = (skyBrightness >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
+        int sun_g = (skyBrightness >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
+        int sun_b = (skyBrightness >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
+
         block_l = Math.max(block_l, light_l);
         block_r = Math.max(block_r, light_r);
         block_g = Math.max(block_g, light_g);
         block_b = Math.max(block_b, light_b);
 
-        return skyBrightness << CLApi.bitshift_s2 | block_l << CLApi.bitshift_l2 | block_r << CLApi.bitshift_r2 | block_g << CLApi.bitshift_g2 | block_b << CLApi.bitshift_b2;
+        return (sun_r << CLApi.bitshift_sun_r2) | (sun_g << CLApi.bitshift_sun_g2) | (sun_b << CLApi.bitshift_sun_b2)
+                | block_l << CLApi.bitshift_l2 | block_r << CLApi.bitshift_r2 | block_g << CLApi.bitshift_g2 | block_b << CLApi.bitshift_b2;
     }
 
 }

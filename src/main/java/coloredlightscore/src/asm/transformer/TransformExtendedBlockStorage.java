@@ -60,20 +60,28 @@ public class TransformExtendedBlockStorage extends MethodTransformer {
     private FieldNode rColorArray2;
     private FieldNode gColorArray2;
     private FieldNode bColorArray2;
+    private FieldNode rColorArraySun;
+    private FieldNode gColorArraySun;
+    private FieldNode bColorArraySun;
     private FieldNode blockLSBArray;
 
     private final String NIBBLE_ARRAY = "Lnet.minecraft.world.chunk.NibbleArray;";
     private final String EBS_CLASSNAME = "net.minecraft.world.chunk.storage.ExtendedBlockStorage";
     private final String SET_BLOCK_LIGHT_VALUE = "setExtBlocklightValue (IIII)V";
     private final String GET_BLOCK_LIGHT_VALUE = "getExtBlocklightValue (III)I";
+    private final String SET_BLOCK_LIGHT_VALUE_SUN = "setExtSkylightValue (IIII)V";
+    private final String GET_BLOCK_LIGHT_VALUE_SUN = "getExtSkylightValue (III)I";
 
     private boolean addedMethods = false;
 
     @Override
     protected boolean transforms(ClassNode clazz, MethodNode method) {
 
-        return NameMapper.getInstance().isMethod(method, EBS_CLASSNAME, SET_BLOCK_LIGHT_VALUE) | NameMapper.getInstance().isMethod(method, EBS_CLASSNAME, GET_BLOCK_LIGHT_VALUE)
-                | method.name.equals("<init>");
+        return NameMapper.getInstance().isMethod(method, EBS_CLASSNAME, SET_BLOCK_LIGHT_VALUE)
+                | NameMapper.getInstance().isMethod(method, EBS_CLASSNAME, GET_BLOCK_LIGHT_VALUE)
+                | NameMapper.getInstance().isMethod(method, EBS_CLASSNAME, SET_BLOCK_LIGHT_VALUE_SUN)
+                | NameMapper.getInstance().isMethod(method, EBS_CLASSNAME, GET_BLOCK_LIGHT_VALUE_SUN)
+             | method.name.equals("<init>");
     }
 
     @Override
@@ -93,6 +101,16 @@ public class TransformExtendedBlockStorage extends MethodTransformer {
 
         if (NameMapper.getInstance().isMethod(method, EBS_CLASSNAME, GET_BLOCK_LIGHT_VALUE)) {
             transformGetExtBlocklightValue(clazz, method);
+            changed = true;
+        }
+
+        if (NameMapper.getInstance().isMethod(method, EBS_CLASSNAME, SET_BLOCK_LIGHT_VALUE_SUN)) {
+            transformSetExtSkylightValue(clazz, method);
+            changed = true;
+        }
+
+        if (NameMapper.getInstance().isMethod(method, EBS_CLASSNAME, GET_BLOCK_LIGHT_VALUE_SUN)) {
+            transformGetExtSkylightValue(clazz, method);
             changed = true;
         }
 
@@ -136,6 +154,9 @@ public class TransformExtendedBlockStorage extends MethodTransformer {
         rColorArray2 = new FieldNode(Opcodes.ACC_PUBLIC, "rColorArray2", typeNibbleArray.getDescriptor(), null, null);
         gColorArray2 = new FieldNode(Opcodes.ACC_PUBLIC, "gColorArray2", typeNibbleArray.getDescriptor(), null, null);
         bColorArray2 = new FieldNode(Opcodes.ACC_PUBLIC, "bColorArray2", typeNibbleArray.getDescriptor(), null, null);
+        rColorArraySun = new FieldNode(Opcodes.ACC_PUBLIC, "rColorArraySun", typeNibbleArray.getDescriptor(), null, null);
+        gColorArraySun = new FieldNode(Opcodes.ACC_PUBLIC, "gColorArraySun", typeNibbleArray.getDescriptor(), null, null);
+        bColorArraySun = new FieldNode(Opcodes.ACC_PUBLIC, "bColorArraySun", typeNibbleArray.getDescriptor(), null, null);
 
         clazz.fields.add(rColorArray);
         clazz.fields.add(gColorArray);
@@ -143,6 +164,9 @@ public class TransformExtendedBlockStorage extends MethodTransformer {
         clazz.fields.add(rColorArray2);
         clazz.fields.add(gColorArray2);
         clazz.fields.add(bColorArray2);
+        clazz.fields.add(rColorArraySun);
+        clazz.fields.add(gColorArraySun);
+        clazz.fields.add(bColorArraySun);
 
         CLLog.info("Added RGB color arrays to ExtendedBlockStorage, type " + typeNibbleArray.getDescriptor());
 
@@ -159,6 +183,9 @@ public class TransformExtendedBlockStorage extends MethodTransformer {
             clazz.methods.add(ASMUtils.generateSetterMethod(clazz.name, "setRedColorArray2", rColorArray2.name, rColorArray2.desc));
             clazz.methods.add(ASMUtils.generateSetterMethod(clazz.name, "setGreenColorArray2", gColorArray2.name, gColorArray2.desc));
             clazz.methods.add(ASMUtils.generateSetterMethod(clazz.name, "setBlueColorArray2", bColorArray2.name, bColorArray2.desc));
+            clazz.methods.add(ASMUtils.generateSetterMethod(clazz.name, "setRedColorArraySun", rColorArraySun.name, rColorArraySun.desc));
+            clazz.methods.add(ASMUtils.generateSetterMethod(clazz.name, "setGreenColorArraySun", gColorArraySun.name, gColorArraySun.desc));
+            clazz.methods.add(ASMUtils.generateSetterMethod(clazz.name, "setBlueColorArraySun", bColorArraySun.name, bColorArraySun.desc));
 
             clazz.methods.add(ASMUtils.generateGetterMethod(clazz.name, "getRedColorArray", rColorArray.name, rColorArray.desc));
             clazz.methods.add(ASMUtils.generateGetterMethod(clazz.name, "getGreenColorArray", gColorArray.name, gColorArray.desc));
@@ -166,6 +193,9 @@ public class TransformExtendedBlockStorage extends MethodTransformer {
             clazz.methods.add(ASMUtils.generateGetterMethod(clazz.name, "getRedColorArray2", rColorArray2.name, rColorArray2.desc));
             clazz.methods.add(ASMUtils.generateGetterMethod(clazz.name, "getGreenColorArray2", gColorArray2.name, gColorArray2.desc));
             clazz.methods.add(ASMUtils.generateGetterMethod(clazz.name, "getBlueColorArray2", bColorArray2.name, bColorArray2.desc));
+            clazz.methods.add(ASMUtils.generateGetterMethod(clazz.name, "getRedColorArraySun", rColorArraySun.name, rColorArraySun.desc));
+            clazz.methods.add(ASMUtils.generateGetterMethod(clazz.name, "getGreenColorArraySun", gColorArraySun.name, gColorArraySun.desc));
+            clazz.methods.add(ASMUtils.generateGetterMethod(clazz.name, "getBlueColorArraySun", bColorArraySun.name, bColorArraySun.desc));
 
             addedMethods = true;
         }
@@ -213,15 +243,18 @@ public class TransformExtendedBlockStorage extends MethodTransformer {
         // Initialize rColorArray
         transformConstructor_add_color_array(clazz, m.instructions, rColorArray);
         transformConstructor_add_color_array(clazz, m.instructions, rColorArray2);
+        transformConstructor_add_color_array(clazz, m.instructions, rColorArraySun);
         transformConstructor_add_color_array(clazz, m.instructions, gColorArray);
         transformConstructor_add_color_array(clazz, m.instructions, gColorArray2);
+        transformConstructor_add_color_array(clazz, m.instructions, gColorArraySun);
         transformConstructor_add_color_array(clazz, m.instructions, bColorArray);
         transformConstructor_add_color_array(clazz, m.instructions, bColorArray2);
+        transformConstructor_add_color_array(clazz, m.instructions, bColorArraySun);
 
         m.instructions.add(returnNode);
     }
 
-    private void transformSetExtBlocklightValue_store_array(ClassNode clazz, InsnList instructions, FieldNode array, int shift, boolean extended)
+    private void transform_store_array(ClassNode clazz, InsnList instructions, FieldNode array, int shift, int mask, boolean extended)
     {
         String ebsInternalName = clazz.name;
         Type typeNibbleArray = NameMapper.getInstance().getType(NIBBLE_ARRAY);
@@ -245,14 +278,14 @@ public class TransformExtendedBlockStorage extends MethodTransformer {
         //      22  ishr
         instructions.add(new InsnNode(Opcodes.ISHR));
         //      23  bipush
-        instructions.add(new IntInsnNode(Opcodes.BIPUSH, CLApi.bitmask));
+        instructions.add(new IntInsnNode(Opcodes.BIPUSH, mask));
         //      25  iand
         instructions.add(new InsnNode(Opcodes.IAND));
         if (extended)
         {
             instructions.add(new InsnNode(Opcodes.ICONST_4));
             instructions.add(new InsnNode(Opcodes.ISHR));
-            instructions.add(new IntInsnNode(Opcodes.BIPUSH, CLApi.bitmask >> 4));
+            instructions.add(new IntInsnNode(Opcodes.BIPUSH, mask >> 4));
             instructions.add(new InsnNode(Opcodes.IAND));
         }
         //      26  invokevirtual net.minecraft.world.chunk.NibbleArray.set(int, int, int, int) : void [93]
@@ -275,19 +308,43 @@ public class TransformExtendedBlockStorage extends MethodTransformer {
         if (oldReturn != null)
             m.instructions.remove(oldReturn);
 
-        transformSetExtBlocklightValue_store_array(clazz, m.instructions, rColorArray, CLApi.bitshift_r, false);
-        transformSetExtBlocklightValue_store_array(clazz, m.instructions, rColorArray2, CLApi.bitshift_r, true);
-        transformSetExtBlocklightValue_store_array(clazz, m.instructions, gColorArray, CLApi.bitshift_g, false);
-        transformSetExtBlocklightValue_store_array(clazz, m.instructions, gColorArray2, CLApi.bitshift_g, true);
-        transformSetExtBlocklightValue_store_array(clazz, m.instructions, bColorArray, CLApi.bitshift_b, false);
-        transformSetExtBlocklightValue_store_array(clazz, m.instructions, bColorArray2, CLApi.bitshift_b, true);
+        transform_store_array(clazz, m.instructions, rColorArray,  CLApi.bitshift_r, CLApi.bitmask, false);
+        transform_store_array(clazz, m.instructions, rColorArray2, CLApi.bitshift_r, CLApi.bitmask, true);
+        transform_store_array(clazz, m.instructions, gColorArray,  CLApi.bitshift_g, CLApi.bitmask, false);
+        transform_store_array(clazz, m.instructions, gColorArray2, CLApi.bitshift_g, CLApi.bitmask, true);
+        transform_store_array(clazz, m.instructions, bColorArray,  CLApi.bitshift_b, CLApi.bitmask, false);
+        transform_store_array(clazz, m.instructions, bColorArray2, CLApi.bitshift_b, CLApi.bitmask, true);
+
+        //      65  return
+        m.instructions.add(new InsnNode(Opcodes.RETURN));
+
+    }
+    private void transformSetExtSkylightValue(ClassNode clazz, MethodNode m) {
+        // Already in stock method:
+        //       0  aload_0 [this]
+        //       1  getfield net.minecraft.world.chunk.storage.ExtendedBlockStorage.blocklightArray : net.minecraft.world.chunk.NibbleArray [91]
+        //       4  iload_1 [x]
+        //       5  iload_2 [y]
+        //       6  iload_3 [z]
+        //       7  iload 4 [lightValue]
+        //       9  invokevirtual net.minecraft.world.chunk.NibbleArray.set(int, int, int, int) : void [93]
+        // return is there by default - remove for now
+
+        AbstractInsnNode oldReturn = ASMUtils.findLastReturn(m);
+
+        if (oldReturn != null)
+            m.instructions.remove(oldReturn);
+
+        transform_store_array(clazz, m.instructions, rColorArraySun, CLApi.bitshift_sun_r, CLApi.bitmask_sun, false);
+        transform_store_array(clazz, m.instructions, gColorArraySun, CLApi.bitshift_sun_g, CLApi.bitmask_sun, false);
+        transform_store_array(clazz, m.instructions, bColorArraySun, CLApi.bitshift_sun_b, CLApi.bitmask_sun, false);
 
         //		65  return
         m.instructions.add(new InsnNode(Opcodes.RETURN));
 
     }
 
-    private void transformGetExtBlocklightValue_load_array(ClassNode clazz, InsnList instructions, FieldNode array, int shift, boolean extended)
+    private void transform_load_array(ClassNode clazz, InsnList instructions, FieldNode array, int shift, boolean extended)
     {
         String ebsInternalName = clazz.name;
         Type typeNibbleArray = NameMapper.getInstance().getType(NIBBLE_ARRAY);
@@ -333,16 +390,37 @@ public class TransformExtendedBlockStorage extends MethodTransformer {
         if (returnNode != null)
             m.instructions.remove(returnNode);
 
-        transformGetExtBlocklightValue_load_array(clazz, m.instructions, rColorArray, CLApi.bitshift_r, false);
-        transformGetExtBlocklightValue_load_array(clazz, m.instructions, rColorArray2, CLApi.bitshift_r, true);
-        transformGetExtBlocklightValue_load_array(clazz, m.instructions, gColorArray, CLApi.bitshift_g, false);
-        transformGetExtBlocklightValue_load_array(clazz, m.instructions, gColorArray2, CLApi.bitshift_g, true);
-        transformGetExtBlocklightValue_load_array(clazz, m.instructions, bColorArray, CLApi.bitshift_b, false);
-        transformGetExtBlocklightValue_load_array(clazz, m.instructions, bColorArray2, CLApi.bitshift_b, true);
+        transform_load_array(clazz, m.instructions, rColorArray, CLApi.bitshift_r, false);
+        transform_load_array(clazz, m.instructions, rColorArray2, CLApi.bitshift_r, true);
+        transform_load_array(clazz, m.instructions, gColorArray, CLApi.bitshift_g, false);
+        transform_load_array(clazz, m.instructions, gColorArray2, CLApi.bitshift_g, true);
+        transform_load_array(clazz, m.instructions, bColorArray, CLApi.bitshift_b, false);
+        transform_load_array(clazz, m.instructions, bColorArray2, CLApi.bitshift_b, true);
 
         if (returnNode != null)
             //      51  ireturn
             m.instructions.add(returnNode);
     }
 
+    private void transformGetExtSkylightValue(ClassNode clazz, MethodNode m) {
+        // Already in stock method:
+        //       0  aload_0 [this]
+        //       1  getfield net.minecraft.world.chunk.storage.ExtendedBlockStorage.blocklightArray : net.minecraft.world.chunk.NibbleArray [91]
+        //       4  iload_1 [par1]
+        //       5  iload_2 [par2]
+        //       6  iload_3 [par3]
+        //       7  invokevirtual net.minecraft.world.chunk.NibbleArray.get(int, int, int) : int [110]
+        // ireturn is there by default - remove for now
+        AbstractInsnNode returnNode = ASMUtils.findLastReturn(m);
+
+        if (returnNode != null)
+            m.instructions.remove(returnNode);
+        transform_load_array(clazz, m.instructions, rColorArraySun, CLApi.bitshift_sun_r, false);
+        transform_load_array(clazz, m.instructions, gColorArraySun, CLApi.bitshift_sun_g, false);
+        transform_load_array(clazz, m.instructions, bColorArraySun, CLApi.bitshift_sun_b, false);
+
+        if (returnNode != null)
+            //      51  ireturn
+            m.instructions.add(returnNode);
+    }
 }

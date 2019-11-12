@@ -261,15 +261,13 @@ public class CLTessellatorHelper {
             int block_r = (instance.brightness >> CLApi.bitshift_r2 ) & CLApi.bitmask;
             int block_g = (instance.brightness >> CLApi.bitshift_g2 ) & CLApi.bitmask;
             int block_b = (instance.brightness >> CLApi.bitshift_b2 ) & CLApi.bitmask;
-            int s = (instance.brightness >> CLApi.bitshift_s2 ) & 0xF;
+            int sun_r = (instance.brightness >> CLApi.bitshift_sun_r2) & CLApi.bitmask_sun;
+            int sun_g = (instance.brightness >> CLApi.bitshift_sun_g2) & CLApi.bitmask_sun;
+            int sun_b = (instance.brightness >> CLApi.bitshift_sun_b2) & CLApi.bitmask_sun;
 
             block_r = Math.min(15, block_r);
             block_g = Math.min(15, block_g);
             block_b = Math.min(15, block_b);
-
-            int sun_r = s;
-            int sun_g = s;
-            int sun_b = s;
             
             /* 0000 SSSS 0000 BBBB 0000 GGGG 0000 RRRR */
             instance.rawBuffer[instance.rawBufferIndex + 7] = (block_r << 0)

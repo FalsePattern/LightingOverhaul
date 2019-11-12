@@ -14,6 +14,9 @@ public class ExtendedBlockStorage
     private NibbleArray rColorArray2;
     private NibbleArray gColorArray2;
     private NibbleArray bColorArray2;
+    private NibbleArray rColorArraySun;
+    private NibbleArray gColorArraySun;
+    private NibbleArray bColorArraySun;
 
     // Added by TransformExtendedBlockStorage
     public NibbleArray getRedColorArray() {
@@ -75,6 +78,36 @@ public class ExtendedBlockStorage
         this.bColorArray2 = bColorArray;
     }
 
+ // Added by TransformExtendedBlockStorage
+    public NibbleArray getRedColorArraySun() {
+        return rColorArraySun;
+    }
+
+    // Added by TransformExtendedBlockStorage
+    public void setRedColorArraySun(NibbleArray rColorArraySun) {
+        this.rColorArraySun = rColorArraySun;
+    }
+
+    // Added by TransformExtendedBlockStorage
+    public NibbleArray getGreenColorArraySun() {
+        return gColorArraySun;
+    }
+
+    // Added by TransformExtendedBlockStorage
+    public void setGreenColorArraySun(NibbleArray gColorArraySun) {
+        this.gColorArraySun = gColorArraySun;
+    }
+
+    // Added by TransformExtendedBlockStorage
+    public NibbleArray getBlueColorArraySun() {
+        return bColorArraySun;
+    }
+
+    // Added by TransformExtendedBlockStorage
+    public void setBlueColorArraySun(NibbleArray bColorArraySun) {
+        this.bColorArraySun = bColorArraySun;
+    }
+
     public int getYLocation() {
         return 0;
     }
@@ -85,5 +118,8 @@ public class ExtendedBlockStorage
 
     public int getExtSkylightValue(int p_76629_1_, int i, int p_76629_3_) {
         return 0;
+    }
+
+    public void setExtSkylightValue(int b, int i, int b1, int j) {
     }
 }

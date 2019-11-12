@@ -17,6 +17,7 @@ public class TransformWorld extends HelperMethodTransformer {
     // These methods will be replaced by statics in CLWorldHelper
     String methodsToReplace[] = { "getBlockLightValue_do (IIIZ)I",
                                   "getLightBrightnessForSkyBlocks (IIII)I",
+                                  "getLightBrightness (III)F",
                                   "computeLightValue (IIILnet/minecraft/world/EnumSkyBlock;)I",
                                   "updateLightByType (Lnet/minecraft/world/EnumSkyBlock;III)Z" };
 

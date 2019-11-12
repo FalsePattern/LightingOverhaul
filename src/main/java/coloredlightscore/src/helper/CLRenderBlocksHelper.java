@@ -855,7 +855,9 @@ public class CLRenderBlocksHelper {
         //return (p_147778_1_ & 15728880) + (p_147778_2_ & 15728880) + (p_147778_3_ & 15728880) + (p_147778_4_ & 15728880) >> 2 & 15728880;
 
         // Must mix all 5 channels now
-        return mixColorChannel(CLApi.bitshift_s2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // SSSS
+        return mixColorChannel(CLApi.bitshift_sun_r2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // SSSS
+               mixColorChannel(CLApi.bitshift_sun_g2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // SSSS
+               mixColorChannel(CLApi.bitshift_sun_b2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // SSSS
                 mixColorChannel2(CLApi.bitshift_b2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // BBBB
                 mixColorChannel2(CLApi.bitshift_g2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // GGGG this is the problem child
                 mixColorChannel2(CLApi.bitshift_r2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // RRRR

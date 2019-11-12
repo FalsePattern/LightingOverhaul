@@ -50,6 +50,9 @@ public class ChunkStorageRGB {
         NibbleArray rColorArray2;
         NibbleArray gColorArray2;
         NibbleArray bColorArray2;
+        NibbleArray rColorArraySun;
+        NibbleArray gColorArraySun;
+        NibbleArray bColorArraySun;
         ExtendedBlockStorage[] chunkStorageArrays = chunk.getBlockStorageArray();
         NBTTagCompound level = data.getCompoundTag("Level");
         NBTTagList nbttaglist = level.getTagList("Sections", 10);
@@ -67,6 +70,9 @@ public class ChunkStorageRGB {
                     rColorArray2 = checkedGetNibbleArray(nbtYCompound.getByteArray("RedColorArray2"));
                     gColorArray2 = checkedGetNibbleArray(nbtYCompound.getByteArray("GreenColorArray2"));
                     bColorArray2 = checkedGetNibbleArray(nbtYCompound.getByteArray("BlueColorArray2"));
+                    rColorArraySun = checkedGetNibbleArray(nbtYCompound.getByteArray("RedColorArraySun"));
+                    gColorArraySun = checkedGetNibbleArray(nbtYCompound.getByteArray("GreenColorArraySun"));
+                    bColorArraySun = checkedGetNibbleArray(nbtYCompound.getByteArray("BlueColorArraySun"));
 
                     // Set color arrays on chunk.storageArrays
 
@@ -76,6 +82,9 @@ public class ChunkStorageRGB {
                     chunkStorageArrays[k].setRedColorArray2(rColorArray2);
                     chunkStorageArrays[k].setGreenColorArray2(gColorArray2);
                     chunkStorageArrays[k].setBlueColorArray2(bColorArray2);
+                    chunkStorageArrays[k].setRedColorArraySun(rColorArraySun);
+                    chunkStorageArrays[k].setGreenColorArraySun(gColorArraySun);
+                    chunkStorageArrays[k].setBlueColorArraySun(bColorArraySun);
 
                     foundColorData = true;
 
@@ -95,13 +104,19 @@ public class ChunkStorageRGB {
      * @param chunk The chunk to populate with data
      * @return true if color data was loaded, false if not present or an error was encountered
      */
-    public static boolean loadColorData(Chunk chunk, int arraySize, int[] yLocation, NibbleArray[] redColorData, NibbleArray[] greenColorData, NibbleArray[] blueColorData, NibbleArray[] redColorData2, NibbleArray[] greenColorData2, NibbleArray[] blueColorData2) {
+    public static boolean loadColorData(Chunk chunk, int arraySize, int[] yLocation,
+            NibbleArray[] redColorData, NibbleArray[] greenColorData, NibbleArray[] blueColorData,
+            NibbleArray[] redColorData2, NibbleArray[] greenColorData2, NibbleArray[] blueColorData2,
+            NibbleArray[] redColorDataSun, NibbleArray[] greenColorDataSun, NibbleArray[] blueColorDataSun) {
         NibbleArray rColorArray;
         NibbleArray gColorArray;
         NibbleArray bColorArray;
         NibbleArray rColorArray2;
         NibbleArray gColorArray2;
         NibbleArray bColorArray2;
+        NibbleArray rColorArraySun;
+        NibbleArray gColorArraySun;
+        NibbleArray bColorArraySun;
         ExtendedBlockStorage[] chunkStorageArrays = chunk.getBlockStorageArray();
         boolean foundColorData = false;
 
@@ -116,6 +131,9 @@ public class ChunkStorageRGB {
                 rColorArray2 = redColorData2[k];
                 gColorArray2 = greenColorData2[k];
                 bColorArray2 = blueColorData2[k];
+                rColorArraySun = redColorDataSun[k];
+                gColorArraySun = greenColorDataSun[k];
+                bColorArraySun = blueColorDataSun[k];
 
                 // Set color arrays on chunk.storageArrays
 
@@ -125,6 +143,9 @@ public class ChunkStorageRGB {
                 chunkStorageArrays[k].setRedColorArray2(rColorArray2);
                 chunkStorageArrays[k].setGreenColorArray2(gColorArray2);
                 chunkStorageArrays[k].setBlueColorArray2(bColorArray2);
+                chunkStorageArrays[k].setRedColorArraySun(rColorArraySun);
+                chunkStorageArrays[k].setGreenColorArraySun(gColorArraySun);
+                chunkStorageArrays[k].setBlueColorArraySun(bColorArraySun);
 
                 foundColorData = true;
 
@@ -151,6 +172,9 @@ public class ChunkStorageRGB {
         NibbleArray rColorArray2;
         NibbleArray gColorArray2;
         NibbleArray bColorArray2;
+        NibbleArray rColorArraySun;
+        NibbleArray gColorArraySun;
+        NibbleArray bColorArraySun;
         ExtendedBlockStorage[] chunkStorageArrays = chunk.getBlockStorageArray();
         NBTTagCompound level = data.getCompoundTag("Level");
         NBTTagList nbttaglist = level.getTagList("Sections", 10);
@@ -166,6 +190,9 @@ public class ChunkStorageRGB {
                 rColorArray2 = chunkStorageArrays[k].getRedColorArray2();
                 gColorArray2 = chunkStorageArrays[k].getGreenColorArray2();
                 bColorArray2 = chunkStorageArrays[k].getBlueColorArray2();
+                rColorArraySun = chunkStorageArrays[k].getRedColorArraySun();
+                gColorArraySun = chunkStorageArrays[k].getGreenColorArraySun();
+                bColorArraySun = chunkStorageArrays[k].getBlueColorArraySun();
 
 
                 //Cauldron adds .getValueArray() instead of .data
@@ -176,6 +203,9 @@ public class ChunkStorageRGB {
                     nbtYCompound.setByteArray("RedColorArray2", rColorArray2.getValueArray());
                     nbtYCompound.setByteArray("GreenColorArray2", gColorArray2.getValueArray());
                     nbtYCompound.setByteArray("BlueColorArray2", bColorArray2.getValueArray());
+                    nbtYCompound.setByteArray("RedColorArraySun", rColorArraySun.getValueArray());
+                    nbtYCompound.setByteArray("GreenColorArraySun", gColorArraySun.getValueArray());
+                    nbtYCompound.setByteArray("BlueColorArraySun", bColorArraySun.getValueArray());
                 } else {
                     nbtYCompound.setByteArray("RedColorArray", rColorArray.data);
                     nbtYCompound.setByteArray("GreenColorArray", gColorArray.data);
@@ -183,6 +213,9 @@ public class ChunkStorageRGB {
                     nbtYCompound.setByteArray("RedColorArray2", rColorArray2.data);
                     nbtYCompound.setByteArray("GreenColorArray2", gColorArray2.data);
                     nbtYCompound.setByteArray("BlueColorArray2", bColorArray2.data);
+                    nbtYCompound.setByteArray("RedColorArraySun", rColorArraySun.data);
+                    nbtYCompound.setByteArray("GreenColorArraySun", gColorArraySun.data);
+                    nbtYCompound.setByteArray("BlueColorArraySun", bColorArraySun.data);
                 }
             }
         }
@@ -228,6 +261,22 @@ public class ChunkStorageRGB {
         return redColorArrays2;
     }
 
+    public static NibbleArray[] getRedColorArraysSun(Chunk chunk) {
+        ExtendedBlockStorage[] chunkStorageArrays = chunk.getBlockStorageArray();
+        NibbleArray[] redColorArraysSun;
+
+        redColorArraysSun = new NibbleArray[chunkStorageArrays.length];
+
+        for (int i = 0; i < chunkStorageArrays.length; i++) {
+            if (chunkStorageArrays[i] != null)
+                redColorArraysSun[i] = chunkStorageArrays[i].getRedColorArraySun();
+            else
+                redColorArraysSun[i] = null;
+        }
+
+        return redColorArraysSun;
+    }
+
     /**
      * Extracts all the green color arrays from a chunk's extended block storage
      * 
@@ -267,6 +316,22 @@ public class ChunkStorageRGB {
         return greenColorArrays2;
     }
 
+    public static NibbleArray[] getGreenColorArraysSun(Chunk chunk) {
+        ExtendedBlockStorage[] chunkStorageArrays = chunk.getBlockStorageArray();
+        NibbleArray[] greenColorArraysSun;
+
+        greenColorArraysSun = new NibbleArray[chunkStorageArrays.length];
+
+        for (int i = 0; i < chunkStorageArrays.length; i++) {
+            if (chunkStorageArrays[i] != null)
+                greenColorArraysSun[i] = chunkStorageArrays[i].getGreenColorArraySun();
+            else
+                greenColorArraysSun[i] = null;
+        }
+
+        return greenColorArraysSun;
+    }
+
     /**
      * Extracts all the blue color arrays from a chunk's extended block storage
      * 
@@ -304,6 +369,22 @@ public class ChunkStorageRGB {
         }
 
         return blueColorArrays2;
+    }
+
+    public static NibbleArray[] getBlueColorArraysSun(Chunk chunk) {
+        ExtendedBlockStorage[] chunkStorageArrays = chunk.getBlockStorageArray();
+        NibbleArray[] blueColorArraysSun;
+
+        blueColorArraysSun = new NibbleArray[chunkStorageArrays.length];
+
+        for (int i = 0; i < chunkStorageArrays.length; i++) {
+            if (chunkStorageArrays[i] != null)
+                blueColorArraysSun[i] = chunkStorageArrays[i].getBlueColorArraySun();
+            else
+                blueColorArraysSun[i] = null;
+        }
+
+        return blueColorArraysSun;
     }
 
     public static int[] getYLocationArray(Chunk chunk) {

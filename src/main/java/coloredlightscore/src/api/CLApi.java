@@ -15,17 +15,23 @@ public class CLApi {
     public static int b[] = new int[] {     0,  0,    0,    0,  15,    15,  15,  10,        5,  13,   0,     0,       15,     15,    10,   15 };
 
     public static int bitshift_l = 0;
-    public static int bitshift_r = 5;
-    public static int bitshift_g = 10;
-    public static int bitshift_b = 15;
+    public static int bitshift_r = 4;
+    public static int bitshift_g = 9;
+    public static int bitshift_b = 14;
+    public static int bitshift_sun_r = 19;
+    public static int bitshift_sun_g = 23;
+    public static int bitshift_sun_b = 27;
 
     public static int bitshift_l2 = 4;
     public static int bitshift_r2 = 8;
     public static int bitshift_g2 = 13;
     public static int bitshift_b2 = 18;
-    public static int bitshift_s2 = 24;
+    public static int bitshift_sun_r2 = 23;
+    public static int bitshift_sun_g2 = 27;
+    public static int bitshift_sun_b2 = 0;
 
     public static int bitmask = 0x1F;
+    public static int bitmask_sun = 0xF;
 
     /**
      * Computes a 20-bit lighting word, containing red, green, blue settings, and brightness settings.
