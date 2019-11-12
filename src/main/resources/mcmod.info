@@ -3,8 +3,6 @@
   "modid": "easycoloredlights",
   "name": "Easy Colored Lights",
   "description": "This mod adds various blocks with colored light",
-  "mcversion": ${mcversion},
-  "version": ${version},
   "url": "https://www.minecraftforum.net/forums/mapping-and-modding-java-edition/minecraft-mods/wip-mods/2993392-colored-light-continuation",
   "authorList": ["heaton84", "Murray65536", "Kovu", "Biggerfisch", "CptSpaceToaster", "DarkShadow44"],
   "parent": "mod_ColoredLightCore",
