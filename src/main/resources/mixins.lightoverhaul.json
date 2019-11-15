@@ -8,6 +8,7 @@
 	  "ChunkMixin",
 	  "ChunkCacheMixin",
 	  "FontRendererMixin",
+	  "EntityRendererMixin",
 	  "ExtendedBlockStorageMixin",
 	  "WorldMixin",
 	  "BlockMixin"

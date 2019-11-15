@@ -1,43 +1,69 @@
-package coloredlightscore.src.helper;
+package com.darkshadow44.lightoverhaul.mixins;
 
-import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.glDisable;
 
+import org.lwjgl.opengl.GL11;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
+
+import coloredlightscore.src.helper.CLTessellatorHelper;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.Potion;
-import org.lwjgl.opengl.GL11;
+import net.minecraft.util.ResourceLocation;
 
-public class CLEntityRendererHelper {
+@Mixin(EntityRenderer.class)
+public abstract class EntityRendererMixin {
 
-    public static final float f = (1.0F/4096.0F);
-    public static final float t = 8.0f;
-    public static final float nightVisionMinBrightness = 0.7f;
+    @Shadow
+    private ResourceLocation locationLightMap;
+
+    @Shadow
+    private Minecraft mc;
+
+    @Shadow
+    private boolean lightmapUpdateNeeded;
+
+    @Shadow
+    private float getNightVisionBrightness(EntityPlayer paramEntityPlayer, float paramFloat) {
+        return 0;
+    }
+
+    @Shadow
+    private DynamicTexture lightmapTexture;
+
+    private static final float f = (1.0F / 4096.0F);
+    private static final float t = 8.0f;
+    private static final float nightVisionMinBrightness = 0.7f;
     private static boolean ignoreNextEnableLightmap;
 
-    public static void Initialize() {
-    }
-    
-    public static void updateLightmap(EntityRenderer instance, float partialTickTime) {
-        WorldClient worldclient = instance.mc.theWorld;
-        
+    @Overwrite
+    public void updateLightmap(float partialTickTime) {
+        WorldClient worldclient = this.mc.theWorld;
+
         float min = 0.05F;
         float max = 1.0F;
         float nightVisionWeight = 0;
-        if (instance.mc.thePlayer.isPotionActive(Potion.nightVision)) {
-            nightVisionWeight = instance.getNightVisionBrightness(instance.mc.thePlayer, partialTickTime);
+        if (this.mc.thePlayer.isPotionActive(Potion.nightVision)) {
+            nightVisionWeight = this.getNightVisionBrightness(this.mc.thePlayer, partialTickTime);
             min = min * (1.0f - nightVisionWeight) + nightVisionMinBrightness * nightVisionWeight;
         }
-        
+
         if (worldclient != null) {
-            int[] map = new int[16*16*16*16];
+            int[] map = new int[16 * 16 * 16 * 16];
             float sunlightBase = worldclient.getSunBrightness(partialTickTime);
             if (worldclient.lastLightningBolt > 0) {
                 sunlightBase = 1.0f;
             }
             float sunlight, bSunlight, gSunlight, rSunlight, bLight, gLight, rLight, gamma;
 
-            gamma = instance.mc.gameSettings.gammaSetting;
+            gamma = this.mc.gameSettings.gammaSetting;
             CLTessellatorHelper.updateShaders(gamma, sunlightBase, nightVisionWeight);
             for (int s = 0; s < 16; s++) {
                 sunlight = sunlightBase * worldclient.provider.lightBrightnessTable[s];
@@ -47,7 +73,7 @@ public class CLEntityRendererHelper {
                 rSunlight = sunlight;
                 gSunlight = sunlight;
                 bSunlight = sunlight;
-                
+
                 for (int b = 0; b < 16; b++) {
                     bLight = worldclient.provider.lightBrightnessTable[b] + bSunlight;
                     bLight = applyGamma(bLight, gamma) * (max - min) + min;
@@ -62,10 +88,10 @@ public class CLEntityRendererHelper {
                     }
                 }
             }
-            instance.setLightmapTexture(map);
-            
-            instance.lightmapTexture.updateDynamicTexture();
-            instance.lightmapUpdateNeeded = false;
+            this.lightmapTexture.dynamicTextureData = map;
+
+            this.lightmapTexture.updateDynamicTexture();
+            this.lightmapUpdateNeeded = false;
         }
     }
 
@@ -92,7 +118,8 @@ public class CLEntityRendererHelper {
         return x;
     }
 
-    public static void enableLightmap(EntityRenderer instance, double par1) {
+    @Overwrite
+    public void enableLightmap(double par1) {
         if (ignoreNextEnableLightmap) {
             ignoreNextEnableLightmap = false;
             return;
@@ -103,7 +130,7 @@ public class CLEntityRendererHelper {
         GL11.glScalef(f, f, f);
         GL11.glTranslatef(t, t, t);
         GL11.glMatrixMode(GL11.GL_MODELVIEW);
-        instance.mc.getTextureManager().bindTexture(instance.locationLightMap);
+        this.mc.getTextureManager().bindTexture(this.locationLightMap);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
@@ -115,19 +142,20 @@ public class CLEntityRendererHelper {
         CLTessellatorHelper.enableShader();
     }
 
-    public static void disableLightmap(EntityRenderer instance, double par1) {
+    @Overwrite
+    public void disableLightmap(double par1) {
         CLTessellatorHelper.disableShader();
         OpenGlHelper.setActiveTexture(OpenGlHelper.lightmapTexUnit);
         glDisable(GL_TEXTURE_2D);
-        
+
         OpenGlHelper.setActiveTexture(OpenGlHelper.defaultTexUnit);
     }
 
-    public static void disableLightmap(EntityRenderer instance, double par1, boolean forRealz) {
+    public void disableLightmap(double par1, boolean forRealz) {
         if (!forRealz) {
             ignoreNextEnableLightmap = true;
             return;
         }
-        disableLightmap(instance, par1);
+        disableLightmap(par1);
     }
 }

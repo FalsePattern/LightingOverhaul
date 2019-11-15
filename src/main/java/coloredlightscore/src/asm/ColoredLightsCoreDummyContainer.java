@@ -19,7 +19,6 @@ import net.minecraftforge.common.MinecraftForge;
 import coloredlightscore.fmlevents.ChunkDataEventHandler;
 import coloredlightscore.network.PacketHandler;
 import coloredlightscore.src.api.CLApi;
-import coloredlightscore.src.helper.CLEntityRendererHelper;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -96,10 +95,6 @@ public class ColoredLightsCoreDummyContainer extends DummyModContainer {
 
     @Subscribe
     public void postInit(FMLPostInitializationEvent evt) {
-        if (evt.getSide() == Side.CLIENT) {
-            CLEntityRendererHelper.Initialize();
-        }
-
         // Inject RGB values into vanilla blocks		
         Blocks.lava.lightValue = CLApi.makeRGBLightValue(15, 10, 0);
 
