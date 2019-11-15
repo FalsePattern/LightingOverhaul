@@ -1,7 +1,9 @@
-package coloredlightscore.src.helper;
+package com.darkshadow44.lightoverhaul.mixins;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 
 import com.darkshadow44.lightoverhaul.helper.BlockHelper;
-import com.darkshadow44.lightoverhaul.mixins.BlockMixin;
 
 import coloredlightscore.src.api.CLApi;
 import net.minecraft.block.Block;
@@ -11,19 +13,20 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.IIcon;
 
-// 56-59 fps w/o renderCache
+@Mixin(RenderBlocks.class)
+public abstract class RenderBlocksMixin {
 
-public class CLRenderBlocksHelper {
-
-    public CLRenderBlocksHelper() {
-        // Ehhhh?
+    @Overwrite
+    public boolean renderStandardBlockWithAmbientOcclusionPartial(Block block, int x, int y, int z, float r, float g, float b) {
+        return renderStandardBlockWithAmbientOcclusion_internal((RenderBlocks) (Object) this, block, x, y, z, r, g, b);
     }
 
-    public static boolean renderStandardBlockWithAmbientOcclusionPartial(RenderBlocks instance, Block block, int x, int y, int z, float r, float g, float b) {
-        return renderStandardBlockWithAmbientOcclusion(instance, block, x, y, z, r, g, b);
+    @Overwrite
+    public boolean renderStandardBlockWithAmbientOcclusion(Block block, int x, int y, int z, float r, float g, float b) {
+        return renderStandardBlockWithAmbientOcclusion_internal((RenderBlocks) (Object) this, block, x, y, z, r, g, b);
     }
 
-    public static boolean renderStandardBlockWithAmbientOcclusion(RenderBlocks instance, Block block, int x, int y, int z, float r, float g, float b) {
+    private static boolean renderStandardBlockWithAmbientOcclusion_internal(RenderBlocks instance, Block block, int x, int y, int z, float r, float g, float b) {
         instance.enableAO = true;
         boolean flag = false;
         float topLeftAoLightValue = 0.0F;
@@ -123,10 +126,10 @@ public class CLRenderBlocksHelper {
             topRightAoLightValue = (instance.aoLightValueScratchYZNP + normalAoValue + instance.aoLightValueScratchXYZPNP + instance.aoLightValueScratchXYPN) / 4.0F;
             bottomRightAoLightValue = (normalAoValue + instance.aoLightValueScratchYZNN + instance.aoLightValueScratchXYPN + instance.aoLightValueScratchXYZPNN) / 4.0F;
             bottomLeftAoLightValue = (instance.aoLightValueScratchXYNN + instance.aoLightValueScratchXYZNNN + normalAoValue + instance.aoLightValueScratchYZNN) / 4.0F;
-            instance.brightnessTopLeft = getAoBrightness(instance.aoBrightnessXYZNNP, instance.aoBrightnessXYNN, instance.aoBrightnessYZNP, brightnessScratchValue);
-            instance.brightnessTopRight = getAoBrightness(instance.aoBrightnessYZNP, instance.aoBrightnessXYZPNP, instance.aoBrightnessXYPN, brightnessScratchValue);
-            instance.brightnessBottomRight = getAoBrightness(instance.aoBrightnessYZNN, instance.aoBrightnessXYPN, instance.aoBrightnessXYZPNN, brightnessScratchValue);
-            instance.brightnessBottomLeft = getAoBrightness(instance.aoBrightnessXYNN, instance.aoBrightnessXYZNNN, instance.aoBrightnessYZNN, brightnessScratchValue);
+            instance.brightnessTopLeft = instance.getAoBrightness(instance.aoBrightnessXYZNNP, instance.aoBrightnessXYNN, instance.aoBrightnessYZNP, brightnessScratchValue);
+            instance.brightnessTopRight = instance.getAoBrightness(instance.aoBrightnessYZNP, instance.aoBrightnessXYZPNP, instance.aoBrightnessXYPN, brightnessScratchValue);
+            instance.brightnessBottomRight = instance.getAoBrightness(instance.aoBrightnessYZNN, instance.aoBrightnessXYPN, instance.aoBrightnessXYZPNN, brightnessScratchValue);
+            instance.brightnessBottomLeft = instance.getAoBrightness(instance.aoBrightnessXYNN, instance.aoBrightnessXYZNNN, instance.aoBrightnessYZNN, brightnessScratchValue);
 
             if (notGrassAndNotOverridden) {
                 instance.colorRedTopLeft = instance.colorRedBottomLeft = instance.colorRedBottomRight = instance.colorRedTopRight = r * bottomColorMultiplier;
@@ -220,10 +223,10 @@ public class CLRenderBlocksHelper {
             topLeftAoLightValue = (instance.aoLightValueScratchYZPP + normalAoValue + instance.aoLightValueScratchXYZPPP + instance.aoLightValueScratchXYPP) / 4.0F;
             bottomLeftAoLightValue = (normalAoValue + instance.aoLightValueScratchYZPN + instance.aoLightValueScratchXYPP + instance.aoLightValueScratchXYZPPN) / 4.0F;
             bottomRightAoLightValue = (instance.aoLightValueScratchXYNP + instance.aoLightValueScratchXYZNPN + normalAoValue + instance.aoLightValueScratchYZPN) / 4.0F;
-            instance.brightnessTopRight = getAoBrightness(instance.aoBrightnessXYZNPP, instance.aoBrightnessXYNP, instance.aoBrightnessYZPP, brightnessScratchValue);
-            instance.brightnessTopLeft = getAoBrightness(instance.aoBrightnessYZPP, instance.aoBrightnessXYZPPP, instance.aoBrightnessXYPP, brightnessScratchValue);
-            instance.brightnessBottomLeft = getAoBrightness(instance.aoBrightnessYZPN, instance.aoBrightnessXYPP, instance.aoBrightnessXYZPPN, brightnessScratchValue);
-            instance.brightnessBottomRight = getAoBrightness(instance.aoBrightnessXYNP, instance.aoBrightnessXYZNPN, instance.aoBrightnessYZPN, brightnessScratchValue);
+            instance.brightnessTopRight = instance.getAoBrightness(instance.aoBrightnessXYZNPP, instance.aoBrightnessXYNP, instance.aoBrightnessYZPP, brightnessScratchValue);
+            instance.brightnessTopLeft = instance.getAoBrightness(instance.aoBrightnessYZPP, instance.aoBrightnessXYZPPP, instance.aoBrightnessXYPP, brightnessScratchValue);
+            instance.brightnessBottomLeft = instance.getAoBrightness(instance.aoBrightnessYZPN, instance.aoBrightnessXYPP, instance.aoBrightnessXYZPPN, brightnessScratchValue);
+            instance.brightnessBottomRight = instance.getAoBrightness(instance.aoBrightnessXYNP, instance.aoBrightnessXYZNPN, instance.aoBrightnessYZPN, brightnessScratchValue);
             instance.colorRedTopLeft = instance.colorRedBottomLeft = instance.colorRedBottomRight = instance.colorRedTopRight = r * topColorMultiplier;
             instance.colorGreenTopLeft = instance.colorGreenBottomLeft = instance.colorGreenBottomRight = instance.colorGreenTopRight = g * topColorMultiplier;
             instance.colorBlueTopLeft = instance.colorBlueBottomLeft = instance.colorBlueBottomRight = instance.colorBlueTopRight = b * topColorMultiplier;
@@ -311,10 +314,10 @@ public class CLRenderBlocksHelper {
             bottomLeftAoLightValue = (normalAoValue + instance.aoLightValueScratchYZPN + instance.aoLightValueScratchXZPN + instance.aoLightValueScratchXYZPPN) / 4.0F;
             bottomRightAoLightValue = (instance.aoLightValueScratchYZNN + normalAoValue + instance.aoLightValueScratchXYZPNN + instance.aoLightValueScratchXZPN) / 4.0F;
             topRightAoLightValue = (instance.aoLightValueScratchXYZNNN + instance.aoLightValueScratchXZNN + instance.aoLightValueScratchYZNN + normalAoValue) / 4.0F;
-            instance.brightnessTopLeft = getAoBrightness(instance.aoBrightnessXZNN, instance.aoBrightnessXYZNPN, instance.aoBrightnessYZPN, brightnessScratchValue);
-            instance.brightnessBottomLeft = getAoBrightness(instance.aoBrightnessYZPN, instance.aoBrightnessXZPN, instance.aoBrightnessXYZPPN, brightnessScratchValue);
-            instance.brightnessBottomRight = getAoBrightness(instance.aoBrightnessYZNN, instance.aoBrightnessXYZPNN, instance.aoBrightnessXZPN, brightnessScratchValue);
-            instance.brightnessTopRight = getAoBrightness(instance.aoBrightnessXYZNNN, instance.aoBrightnessXZNN, instance.aoBrightnessYZNN, brightnessScratchValue);
+            instance.brightnessTopLeft = instance.getAoBrightness(instance.aoBrightnessXZNN, instance.aoBrightnessXYZNPN, instance.aoBrightnessYZPN, brightnessScratchValue);
+            instance.brightnessBottomLeft = instance.getAoBrightness(instance.aoBrightnessYZPN, instance.aoBrightnessXZPN, instance.aoBrightnessXYZPPN, brightnessScratchValue);
+            instance.brightnessBottomRight = instance.getAoBrightness(instance.aoBrightnessYZNN, instance.aoBrightnessXYZPNN, instance.aoBrightnessXZPN, brightnessScratchValue);
+            instance.brightnessTopRight = instance.getAoBrightness(instance.aoBrightnessXYZNNN, instance.aoBrightnessXZNN, instance.aoBrightnessYZNN, brightnessScratchValue);
 
             if (notGrassAndNotOverridden) {
                 instance.colorRedTopLeft = instance.colorRedBottomLeft = instance.colorRedBottomRight = instance.colorRedTopRight = r * northSouthColorMultiplier;
@@ -426,10 +429,10 @@ public class CLRenderBlocksHelper {
             topRightAoLightValue = (normalAoValue + instance.aoLightValueScratchYZPP + instance.aoLightValueScratchXZPP + instance.aoLightValueScratchXYZPPP) / 4.0F;
             bottomRightAoLightValue = (instance.aoLightValueScratchYZNP + normalAoValue + instance.aoLightValueScratchXYZPNP + instance.aoLightValueScratchXZPP) / 4.0F;
             bottomLeftAoLightValue = (instance.aoLightValueScratchXYZNNP + instance.aoLightValueScratchXZNP + instance.aoLightValueScratchYZNP + normalAoValue) / 4.0F;
-            instance.brightnessTopLeft = getAoBrightness(instance.aoBrightnessXZNP, instance.aoBrightnessXYZNPP, instance.aoBrightnessYZPP, brightnessScratchValue);
-            instance.brightnessTopRight = getAoBrightness(instance.aoBrightnessYZPP, instance.aoBrightnessXZPP, instance.aoBrightnessXYZPPP, brightnessScratchValue);
-            instance.brightnessBottomRight = getAoBrightness(instance.aoBrightnessYZNP, instance.aoBrightnessXYZPNP, instance.aoBrightnessXZPP, brightnessScratchValue);
-            instance.brightnessBottomLeft = getAoBrightness(instance.aoBrightnessXYZNNP, instance.aoBrightnessXZNP, instance.aoBrightnessYZNP, brightnessScratchValue);
+            instance.brightnessTopLeft = instance.getAoBrightness(instance.aoBrightnessXZNP, instance.aoBrightnessXYZNPP, instance.aoBrightnessYZPP, brightnessScratchValue);
+            instance.brightnessTopRight = instance.getAoBrightness(instance.aoBrightnessYZPP, instance.aoBrightnessXZPP, instance.aoBrightnessXYZPPP, brightnessScratchValue);
+            instance.brightnessBottomRight = instance.getAoBrightness(instance.aoBrightnessYZNP, instance.aoBrightnessXYZPNP, instance.aoBrightnessXZPP, brightnessScratchValue);
+            instance.brightnessBottomLeft = instance.getAoBrightness(instance.aoBrightnessXYZNNP, instance.aoBrightnessXZNP, instance.aoBrightnessYZNP, brightnessScratchValue);
 
             if (notGrassAndNotOverridden) {
                 instance.colorRedTopLeft = instance.colorRedBottomLeft = instance.colorRedBottomRight = instance.colorRedTopRight = r * northSouthColorMultiplier;
@@ -541,10 +544,10 @@ public class CLRenderBlocksHelper {
             topLeftAoLightValue = (normalAoValue + instance.aoLightValueScratchXZNP + instance.aoLightValueScratchXYNP + instance.aoLightValueScratchXYZNPP) / 4.0F;
             bottomLeftAoLightValue = (instance.aoLightValueScratchXZNN + normalAoValue + instance.aoLightValueScratchXYZNPN + instance.aoLightValueScratchXYNP) / 4.0F;
             bottomRightAoLightValue = (instance.aoLightValueScratchXYZNNN + instance.aoLightValueScratchXYNN + instance.aoLightValueScratchXZNN + normalAoValue) / 4.0F;
-            instance.brightnessTopRight = getAoBrightness(instance.aoBrightnessXYNN, instance.aoBrightnessXYZNNP, instance.aoBrightnessXZNP, brightnessScratchValue);
-            instance.brightnessTopLeft = getAoBrightness(instance.aoBrightnessXZNP, instance.aoBrightnessXYNP, instance.aoBrightnessXYZNPP, brightnessScratchValue);
-            instance.brightnessBottomLeft = getAoBrightness(instance.aoBrightnessXZNN, instance.aoBrightnessXYZNPN, instance.aoBrightnessXYNP, brightnessScratchValue);
-            instance.brightnessBottomRight = getAoBrightness(instance.aoBrightnessXYZNNN, instance.aoBrightnessXYNN, instance.aoBrightnessXZNN, brightnessScratchValue);
+            instance.brightnessTopRight = instance.getAoBrightness(instance.aoBrightnessXYNN, instance.aoBrightnessXYZNNP, instance.aoBrightnessXZNP, brightnessScratchValue);
+            instance.brightnessTopLeft = instance.getAoBrightness(instance.aoBrightnessXZNP, instance.aoBrightnessXYNP, instance.aoBrightnessXYZNPP, brightnessScratchValue);
+            instance.brightnessBottomLeft = instance.getAoBrightness(instance.aoBrightnessXZNN, instance.aoBrightnessXYZNPN, instance.aoBrightnessXYNP, brightnessScratchValue);
+            instance.brightnessBottomRight = instance.getAoBrightness(instance.aoBrightnessXYZNNN, instance.aoBrightnessXYNN, instance.aoBrightnessXZNN, brightnessScratchValue);
 
             if (notGrassAndNotOverridden) {
                 instance.colorRedTopLeft = instance.colorRedBottomLeft = instance.colorRedBottomRight = instance.colorRedTopRight = r * eastWestColorMultiplier;
@@ -656,10 +659,10 @@ public class CLRenderBlocksHelper {
             bottomLeftAoLightValue = (instance.aoLightValueScratchXYZPNN + instance.aoLightValueScratchXYPN + instance.aoLightValueScratchXZPN + normalAoValue) / 4.0F;
             bottomRightAoLightValue = (instance.aoLightValueScratchXZPN + normalAoValue + instance.aoLightValueScratchXYZPPN + instance.aoLightValueScratchXYPP) / 4.0F;
             topRightAoLightValue = (normalAoValue + instance.aoLightValueScratchXZPP + instance.aoLightValueScratchXYPP + instance.aoLightValueScratchXYZPPP) / 4.0F;
-            instance.brightnessTopLeft = getAoBrightness(instance.aoBrightnessXYPN, instance.aoBrightnessXYZPNP, instance.aoBrightnessXZPP, brightnessScratchValue);
-            instance.brightnessTopRight = getAoBrightness(instance.aoBrightnessXZPP, instance.aoBrightnessXYPP, instance.aoBrightnessXYZPPP, brightnessScratchValue);
-            instance.brightnessBottomRight = getAoBrightness(instance.aoBrightnessXZPN, instance.aoBrightnessXYZPPN, instance.aoBrightnessXYPP, brightnessScratchValue);
-            instance.brightnessBottomLeft = getAoBrightness(instance.aoBrightnessXYZPNN, instance.aoBrightnessXYPN, instance.aoBrightnessXZPN, brightnessScratchValue);
+            instance.brightnessTopLeft = instance.getAoBrightness(instance.aoBrightnessXYPN, instance.aoBrightnessXYZPNP, instance.aoBrightnessXZPP, brightnessScratchValue);
+            instance.brightnessTopRight = instance.getAoBrightness(instance.aoBrightnessXZPP, instance.aoBrightnessXYPP, instance.aoBrightnessXYZPPP, brightnessScratchValue);
+            instance.brightnessBottomRight = instance.getAoBrightness(instance.aoBrightnessXZPN, instance.aoBrightnessXYZPPN, instance.aoBrightnessXYPP, brightnessScratchValue);
+            instance.brightnessBottomLeft = instance.getAoBrightness(instance.aoBrightnessXYZPNN, instance.aoBrightnessXYPN, instance.aoBrightnessXZPN, brightnessScratchValue);
 
             if (notGrassAndNotOverridden) {
                 instance.colorRedTopLeft = instance.colorRedBottomLeft = instance.colorRedBottomRight = instance.colorRedTopRight = r * eastWestColorMultiplier;
@@ -709,15 +712,12 @@ public class CLRenderBlocksHelper {
         return flag;
     }
 
-    /**
-     * Renders a standard cube block at the given coordinates, with a given color ratio.  Args: block, x, y, z, r, g, b
-     *
-     * Accepts and tints blocks according to their colored light value 
-     * CptSpaceToaster
-     * 
-     * 03-05-2014 heaton84 - Ported to helper method, refactored to match 1.7.2 architecture
-     */
-    public static boolean renderStandardBlockWithColorMultiplier(RenderBlocks instance, Block par1Block, int par2X, int par3Y, int par4Z, float par5R, float par6G, float par7B) {
+    @Overwrite
+    public boolean renderStandardBlockWithColorMultiplier(Block par1Block, int par2X, int par3Y, int par4Z, float par5R, float par6G, float par7B) {
+        return renderStandardBlockWithColorMultiplier_internal((RenderBlocks) (Object) this, par1Block, par2X, par3Y, par4Z, par5R, par6G, par7B);
+    }
+
+    private static boolean renderStandardBlockWithColorMultiplier_internal(RenderBlocks instance, Block par1Block, int par2X, int par3Y, int par4Z, float par5R, float par6G, float par7B) {
         instance.enableAO = false;
         Tessellator tessellator = Tessellator.instance;
         boolean flag = false;
@@ -832,14 +832,11 @@ public class CLRenderBlocksHelper {
         return flag;
     }
 
-    public static int getAoBrightness(RenderBlocks instance, int p_147778_1_, int p_147778_2_, int p_147778_3_, int p_147778_4_) {
-        return getAoBrightness(p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_);
-    }
-
     /**
      * Get ambient occlusion brightness
      */
-    public static int getAoBrightness(int p_147778_1_, int p_147778_2_, int p_147778_3_, int p_147778_4_) {
+    @Overwrite
+    public int getAoBrightness(int p_147778_1_, int p_147778_2_, int p_147778_3_, int p_147778_4_) {
         // SSSS BBBB GGGG RRRR LLLL 0000
         // 1111 0000 0000 0000 1111 0000 = 15728880
 
@@ -855,19 +852,20 @@ public class CLRenderBlocksHelper {
             p_147778_3_ = p_147778_4_;
         }
 
-        //return (p_147778_1_ & 15728880) + (p_147778_2_ & 15728880) + (p_147778_3_ & 15728880) + (p_147778_4_ & 15728880) >> 2 & 15728880;
+        // return (p_147778_1_ & 15728880) + (p_147778_2_ & 15728880) + (p_147778_3_ &
+        // 15728880) + (p_147778_4_ & 15728880) >> 2 & 15728880;
 
         // Must mix all 5 channels now
         return mixColorChannel(CLApi.bitshift_sun_r2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // SSSS
-               mixColorChannel(CLApi.bitshift_sun_g2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // SSSS
-               mixColorChannel(CLApi.bitshift_sun_b2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // SSSS
+                mixColorChannel(CLApi.bitshift_sun_g2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // SSSS
+                mixColorChannel(CLApi.bitshift_sun_b2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // SSSS
                 mixColorChannel2(CLApi.bitshift_b2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // BBBB
                 mixColorChannel2(CLApi.bitshift_g2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // GGGG this is the problem child
                 mixColorChannel2(CLApi.bitshift_r2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // RRRR
                 mixColorChannel(CLApi.bitshift_l2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_); // LLLL
     }
 
-    public static int mixColorChannel(int startBit, int p1, int p2, int p3, int p4) {
+    public int mixColorChannel(int startBit, int p1, int p2, int p3, int p4) {
         int avg;
 
         int q1 = (p1 >> startBit) & 0xf;
@@ -883,7 +881,7 @@ public class CLRenderBlocksHelper {
         return avg << startBit;
     }
 
-    public static int mixColorChannel2(int startBit, int p1, int p2, int p3, int p4) {
+    public int mixColorChannel2(int startBit, int p1, int p2, int p3, int p4) {
         int avg;
 
         int q1 = (p1 >> startBit) & CLApi.bitmask;
