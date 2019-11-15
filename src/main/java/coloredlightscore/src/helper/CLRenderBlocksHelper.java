@@ -1,5 +1,8 @@
 package coloredlightscore.src.helper;
 
+import com.darkshadow44.lightoverhaul.helper.BlockHelper;
+import com.darkshadow44.lightoverhaul.mixins.BlockMixin;
+
 import coloredlightscore.src.api.CLApi;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockGrass;
@@ -748,10 +751,10 @@ public class CLRenderBlocksHelper {
             f18 = f6 * par7B;
         }
 
-        int l = CLBlockHelper.getMixedBrightnessForBlockWithColor(instance.blockAccess, par2X, par3Y, par4Z);
+        int l = BlockHelper.getMixedBrightnessForBlockWithColor(instance.blockAccess, par2X, par3Y, par4Z);
 
         if (instance.renderAllFaces || par1Block.shouldSideBeRendered(instance.blockAccess, par2X, par3Y - 1, par4Z, 0)) {
-            int i = instance.renderMinY > 0.0D ? l : CLBlockHelper.getMixedBrightnessForBlockWithColor(instance.blockAccess, par2X, par3Y - 1, par4Z);
+            int i = instance.renderMinY > 0.0D ? l : BlockHelper.getMixedBrightnessForBlockWithColor(instance.blockAccess, par2X, par3Y - 1, par4Z);
             tessellator.setBrightness(i);
             tessellator.setColorOpaque_F(f10, f13, f16);
             instance.renderFaceYNeg(par1Block, par2X, par3Y, par4Z, instance.getBlockIcon(par1Block, instance.blockAccess, par2X, par3Y, par4Z, 0));
@@ -759,7 +762,7 @@ public class CLRenderBlocksHelper {
         }
 
         if (instance.renderAllFaces || par1Block.shouldSideBeRendered(instance.blockAccess, par2X, par3Y + 1, par4Z, 1)) {
-            int i = instance.renderMaxY < 1.0D ? l : CLBlockHelper.getMixedBrightnessForBlockWithColor(instance.blockAccess, par2X, par3Y + 1, par4Z);
+            int i = instance.renderMaxY < 1.0D ? l : BlockHelper.getMixedBrightnessForBlockWithColor(instance.blockAccess, par2X, par3Y + 1, par4Z);
             tessellator.setBrightness(i);
             tessellator.setColorOpaque_F(f7, f8, f9);
             instance.renderFaceYPos(par1Block, par2X, par3Y, par4Z, instance.getBlockIcon(par1Block, instance.blockAccess, par2X, par3Y, par4Z, 1));
@@ -767,7 +770,7 @@ public class CLRenderBlocksHelper {
         }
 
         if (instance.renderAllFaces || par1Block.shouldSideBeRendered(instance.blockAccess, par2X, par3Y, par4Z - 1, 2)) {
-            int i = instance.renderMinZ > 0.0D ? l : CLBlockHelper.getMixedBrightnessForBlockWithColor(instance.blockAccess, par2X, par3Y, par4Z - 1);
+            int i = instance.renderMinZ > 0.0D ? l : BlockHelper.getMixedBrightnessForBlockWithColor(instance.blockAccess, par2X, par3Y, par4Z - 1);
             tessellator.setBrightness(i);
             tessellator.setColorOpaque_F(f11, f14, f17);
             blockIcon = instance.getBlockIcon(par1Block, instance.blockAccess, par2X, par3Y, par4Z, 2);
@@ -782,7 +785,7 @@ public class CLRenderBlocksHelper {
         }
 
         if (instance.renderAllFaces || par1Block.shouldSideBeRendered(instance.blockAccess, par2X, par3Y, par4Z + 1, 3)) {
-            int i = instance.renderMaxZ < 1.0D ? l : CLBlockHelper.getMixedBrightnessForBlockWithColor(instance.blockAccess, par2X, par3Y, par4Z + 1);
+            int i = instance.renderMaxZ < 1.0D ? l : BlockHelper.getMixedBrightnessForBlockWithColor(instance.blockAccess, par2X, par3Y, par4Z + 1);
             tessellator.setBrightness(i);
             tessellator.setColorOpaque_F(f11, f14, f17);
             blockIcon = instance.getBlockIcon(par1Block, instance.blockAccess, par2X, par3Y, par4Z, 3);
@@ -797,7 +800,7 @@ public class CLRenderBlocksHelper {
         }
 
         if (instance.renderAllFaces || par1Block.shouldSideBeRendered(instance.blockAccess, par2X - 1, par3Y, par4Z, 4)) {
-            int i = instance.renderMinX > 0.0D ? l : CLBlockHelper.getMixedBrightnessForBlockWithColor(instance.blockAccess, par2X - 1, par3Y, par4Z);
+            int i = instance.renderMinX > 0.0D ? l : BlockHelper.getMixedBrightnessForBlockWithColor(instance.blockAccess, par2X - 1, par3Y, par4Z);
             tessellator.setBrightness(i);
             tessellator.setColorOpaque_F(f12, f15, f18);
             blockIcon = instance.getBlockIcon(par1Block, instance.blockAccess, par2X, par3Y, par4Z, 4);
@@ -812,7 +815,7 @@ public class CLRenderBlocksHelper {
         }
 
         if (instance.renderAllFaces || par1Block.shouldSideBeRendered(instance.blockAccess, par2X + 1, par3Y, par4Z, 5)) {
-            int i = instance.renderMaxX < 1.0D ? l : CLBlockHelper.getMixedBrightnessForBlockWithColor(instance.blockAccess, par2X + 1, par3Y, par4Z);
+            int i = instance.renderMaxX < 1.0D ? l : BlockHelper.getMixedBrightnessForBlockWithColor(instance.blockAccess, par2X + 1, par3Y, par4Z);
             tessellator.setBrightness(i);
             tessellator.setColorOpaque_F(f12, f15, f18);
             blockIcon = instance.getBlockIcon(par1Block, instance.blockAccess, par2X, par3Y, par4Z, 5);
