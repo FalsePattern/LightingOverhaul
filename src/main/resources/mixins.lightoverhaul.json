@@ -11,6 +11,7 @@
 	  "FontRendererMixin",
 	  "EntityRendererMixin",
 	  "RenderingRegistryMixin",
+	  "OpenGlHelperMixin",
 	  "ExtendedBlockStorageMixin",
 	  "WorldMixin",
 	  "BlockMixin"

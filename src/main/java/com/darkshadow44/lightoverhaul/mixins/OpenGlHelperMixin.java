@@ -1,18 +1,19 @@
-package coloredlightscore.src.helper;
-
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.Tessellator;
+package com.darkshadow44.lightoverhaul.mixins;
 
 import org.lwjgl.opengl.GL20;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 
 import com.darkshadow44.lightoverhaul.interfaces.ITessellatorMixin;
 
 import coloredlightscore.src.api.CLApi;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.Tessellator;
 
-/**
- * Created by Murray on 11/30/2014.
- */
-public class CLOpenGlHelper {
+@Mixin(OpenGlHelper.class)
+public abstract class OpenGlHelperMixin {
+
+    @Overwrite
     public static void setLightmapTextureCoords(int textureId, float x, float y) {
 
         ITessellatorMixin tessellatorMixin = (ITessellatorMixin) Tessellator.instance;

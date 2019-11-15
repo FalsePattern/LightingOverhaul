@@ -25,8 +25,7 @@ public class ColoredLightsCoreLoadingPlugin implements IFMLLoadingPlugin {
                               TransformRenderBlocks.class.getName(),
                               TransformPlayerInstance.class.getName(), 
                               TransformEntityPlayerMP.class.getName(),
-                              TransformGuiIngameForge.class.getName(),
-                              TransformOpenGlHelper.class.getName()
+                              TransformGuiIngameForge.class.getName()
                               };
     }
 
