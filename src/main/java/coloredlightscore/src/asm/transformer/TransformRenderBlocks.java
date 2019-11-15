@@ -70,7 +70,7 @@ public class TransformRenderBlocks extends HelperMethodTransformer {
                 aloadNode = insn;
             }
             if (insn.getOpcode() == Opcodes.INVOKEVIRTUAL && ((MethodInsnNode)insn).name.equals(getMixedBrightnessForBlock)) {
-                AbstractInsnNode staticInvoke = new MethodInsnNode(Opcodes.INVOKESTATIC, "coloredlightscore/src/helper/CLBlockHelper", "getMixedBrightnessForBlockWithColor", "(Lnet/minecraft/world/IBlockAccess;III)I");
+                AbstractInsnNode staticInvoke = new MethodInsnNode(Opcodes.INVOKESTATIC, "com/darkshadow44/lightoverhaul/helper/BlockHelper", "getMixedBrightnessForBlockWithColor", "(Lnet/minecraft/world/IBlockAccess;III)I");
                 iterator.set(staticInvoke);
                 method.instructions.remove(aloadNode); // Drop ALOAD 1 since the replacement method is static
             }
