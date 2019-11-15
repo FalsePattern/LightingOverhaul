@@ -10,6 +10,7 @@
 	  "ChunkCacheMixin",
 	  "FontRendererMixin",
 	  "EntityRendererMixin",
+	  "RenderingRegistryMixin",
 	  "ExtendedBlockStorageMixin",
 	  "WorldMixin",
 	  "BlockMixin"
