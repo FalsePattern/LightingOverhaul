@@ -8,11 +8,13 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
-import coloredlightscore.src.helper.CLTessellatorHelper;
+import com.darkshadow44.lightoverhaul.interfaces.ITessellatorMixin;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.Potion;
@@ -46,6 +48,7 @@ public abstract class EntityRendererMixin {
     @Overwrite
     public void updateLightmap(float partialTickTime) {
         WorldClient worldclient = this.mc.theWorld;
+        ITessellatorMixin tessellatorMixin = (ITessellatorMixin) Tessellator.instance;
 
         float min = 0.05F;
         float max = 1.0F;
@@ -64,7 +67,7 @@ public abstract class EntityRendererMixin {
             float sunlight, bSunlight, gSunlight, rSunlight, bLight, gLight, rLight, gamma;
 
             gamma = this.mc.gameSettings.gammaSetting;
-            CLTessellatorHelper.updateShaders(gamma, sunlightBase, nightVisionWeight);
+            tessellatorMixin.updateShaders(gamma, sunlightBase, nightVisionWeight);
             for (int s = 0; s < 16; s++) {
                 sunlight = sunlightBase * worldclient.provider.lightBrightnessTable[s];
                 if (worldclient.lastLightningBolt > 0) {
@@ -139,12 +142,14 @@ public abstract class EntityRendererMixin {
         GL11.glEnable(GL11.GL_TEXTURE_2D);
 
         OpenGlHelper.setActiveTexture(OpenGlHelper.defaultTexUnit);
-        CLTessellatorHelper.enableShader();
+        ITessellatorMixin tessellatorMixin = (ITessellatorMixin) Tessellator.instance;
+        tessellatorMixin.enableShader();
     }
 
     @Overwrite
     public void disableLightmap(double par1) {
-        CLTessellatorHelper.disableShader();
+        ITessellatorMixin tessellatorMixin = (ITessellatorMixin) Tessellator.instance;
+        tessellatorMixin.disableShader();
         OpenGlHelper.setActiveTexture(OpenGlHelper.lightmapTexUnit);
         glDisable(GL_TEXTURE_2D);
 

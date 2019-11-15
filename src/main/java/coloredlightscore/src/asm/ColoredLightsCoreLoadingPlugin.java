@@ -23,7 +23,6 @@ public class ColoredLightsCoreLoadingPlugin implements IFMLLoadingPlugin {
     public String[] getASMTransformerClass() {
         return new String[] {
                               TransformRenderBlocks.class.getName(),
-                              TransformTessellator.class.getName(),
                               TransformPlayerInstance.class.getName(), 
                               TransformEntityPlayerMP.class.getName(),
                               TransformGuiIngameForge.class.getName(),

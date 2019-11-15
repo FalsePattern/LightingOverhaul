@@ -1,7 +1,11 @@
 package coloredlightscore.src.helper;
 
 import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.Tessellator;
+
 import org.lwjgl.opengl.GL20;
+
+import com.darkshadow44.lightoverhaul.interfaces.ITessellatorMixin;
 
 import coloredlightscore.src.api.CLApi;
 
@@ -10,12 +14,14 @@ import coloredlightscore.src.api.CLApi;
  */
 public class CLOpenGlHelper {
     public static void setLightmapTextureCoords(int textureId, float x, float y) {
-        if (CLTessellatorHelper.isProgramInUse()) {
+
+        ITessellatorMixin tessellatorMixin = (ITessellatorMixin) Tessellator.instance;
+
+        if (tessellatorMixin.isProgramInUse()) {
             int brightness = ((int) y << 16) + (int) x;
             /*
-                brightness is of the form
-                0000 0000 SSSS BBBB GGGG RRRR LLLL 0000
-                and needs to be decomposed.
+             * brightness is of the form 0000 0000 SSSS BBBB GGGG RRRR LLLL 0000 and needs
+             * to be decomposed.
              */
             int block_b = (brightness >> CLApi.bitshift_b2) & CLApi.bitmask;
             int block_g = (brightness >> CLApi.bitshift_g2) & CLApi.bitmask;
@@ -33,8 +39,8 @@ public class CLOpenGlHelper {
             int sun_g = (brightness >> CLApi.bitshift_sun_g2) & CLApi.bitmask_sun;
             int sun_b = (brightness >> CLApi.bitshift_sun_b2) & CLApi.bitmask_sun;
 
-            GL20.glUniform4i(CLTessellatorHelper.lightCoordUniform, block_r, block_g, block_b, 0);
-            GL20.glUniform4i(CLTessellatorHelper.lightCoordSunUniform, sun_r, sun_g, sun_b, 0);
+            GL20.glUniform4i(tessellatorMixin.getLightCoordUniform(), block_r, block_g, block_b, 0);
+            GL20.glUniform4i(tessellatorMixin.getLightCoordSunUniform(), sun_r, sun_g, sun_b, 0);
         } // else noop; why is this ever called if enableLightmap hasn't been called?
 
         OpenGlHelper.lastBrightnessX = x;

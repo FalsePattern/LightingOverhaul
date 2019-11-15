@@ -1,5 +1,7 @@
 package coloredlightscore.src.helper;
 
+import com.darkshadow44.lightoverhaul.interfaces.ITessellatorMixin;
+
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import net.minecraft.block.Block;
@@ -11,6 +13,7 @@ public class CLRenderingRegistry {
 
     public static boolean renderWorldBlock(RenderingRegistry instance, RenderBlocks renderer, IBlockAccess world, int x, int y, int z, Block block, int modelId)
     {
+        ITessellatorMixin tessellatorMixin = (ITessellatorMixin) Tessellator.instance;
         if (!instance.blockRenderers.containsKey(modelId)) { return false; }
         ISimpleBlockRenderingHandler bri = instance.blockRenderers.get(modelId);
 
@@ -20,13 +23,13 @@ public class CLRenderingRegistry {
         if (doLock)
         {
             int light = block.getMixedBrightnessForBlock(world, x, y, z);
-            CLTessellatorHelper.setBrightness(Tessellator.instance, light);
-            CLTessellatorHelper.lockedBrightness = true;
+            Tessellator.instance.setBrightness(light);
+            tessellatorMixin.setLockedBrightness(true);
         }
         boolean ret = bri.renderWorldBlock(world, x, y, z, block, modelId, renderer);
         if (doLock)
         {
-            CLTessellatorHelper.lockedBrightness = false;
+            tessellatorMixin.setLockedBrightness(false);
         }
 
         return ret;
