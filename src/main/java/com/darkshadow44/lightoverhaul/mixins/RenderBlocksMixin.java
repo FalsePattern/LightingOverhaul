@@ -2,6 +2,8 @@ package com.darkshadow44.lightoverhaul.mixins;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
 import com.darkshadow44.lightoverhaul.helper.BlockHelper;
 
@@ -12,9 +14,15 @@ import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.IIcon;
+import net.minecraft.world.IBlockAccess;
 
 @Mixin(RenderBlocks.class)
 public abstract class RenderBlocksMixin {
+
+    @Redirect(at = @At(value = "INVOKE", target = "getMixedBrightnessForBlock"), method = { "renderBlockLiquid" })
+    public int renderBlockLiquid_inject(Block block, IBlockAccess blockAccess, int x, int y, int z) {
+        return BlockHelper.getMixedBrightnessForBlockWithColor(blockAccess, x, y, z);
+    }
 
     @Overwrite
     public boolean renderStandardBlockWithAmbientOcclusionPartial(Block block, int x, int y, int z, float r, float g, float b) {
