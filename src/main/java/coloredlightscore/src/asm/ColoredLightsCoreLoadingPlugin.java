@@ -24,7 +24,6 @@ public class ColoredLightsCoreLoadingPlugin implements IFMLLoadingPlugin {
         return new String[] {
                               TransformRenderBlocks.class.getName(),
                               TransformTessellator.class.getName(),
-                              TransformChunkCache.class.getName(),
                               TransformPlayerInstance.class.getName(), 
                               TransformEntityPlayerMP.class.getName(),
                               TransformEntityRenderer.class.getName(),

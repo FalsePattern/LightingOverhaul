@@ -1,6 +1,5 @@
 package com.darkshadow44.lightoverhaul.helper;
 
-import coloredlightscore.src.helper.CLChunkCacheHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSlab;
 import net.minecraft.world.ChunkCache;
@@ -14,7 +13,7 @@ public class BlockHelper {
         if (blockAccess instanceof World)
             l = ((World) blockAccess).getLightBrightnessForSkyBlocks(x, y, z, block.getLightValue(blockAccess, x, y, z));
         else if (blockAccess instanceof ChunkCache)
-            l = CLChunkCacheHelper.getLightBrightnessForSkyBlocks((ChunkCache) blockAccess, x, y, z, block.getLightValue(blockAccess, x, y, z));
+            l = ChunkCacheHelper.getLightBrightnessForSkyBlocks((ChunkCache) blockAccess, x, y, z, block.getLightValue(blockAccess, x, y, z));
         else
             l = 0;
 
@@ -24,7 +23,7 @@ public class BlockHelper {
             if (blockAccess instanceof World)
                 return ((World) blockAccess).getLightBrightnessForSkyBlocks(x, y, z, block.getLightValue(blockAccess, x, y, z));
             else if (blockAccess instanceof ChunkCache)
-                return CLChunkCacheHelper.getLightBrightnessForSkyBlocks((ChunkCache) blockAccess, x, y, z, block.getLightValue(blockAccess, x, y, z));
+                return ChunkCacheHelper.getLightBrightnessForSkyBlocks((ChunkCache) blockAccess, x, y, z, block.getLightValue(blockAccess, x, y, z));
             else
                 return 0;
         } else {
