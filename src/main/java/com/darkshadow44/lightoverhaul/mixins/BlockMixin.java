@@ -29,7 +29,7 @@ public abstract class BlockMixin {
             par1 = 0.0F;
         }
 
-        if (par1 < 1.0F) {
+        if (par1 <= 1.0F) {
             // If the incoming light value is a plain white call, then "color" the light
             // value white
             this.lightValue = CLApi.makeRGBLightValue(par1, par1, par1);
