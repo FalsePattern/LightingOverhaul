@@ -22,7 +22,7 @@ public class ColoredLightsCoreLoadingPlugin implements IFMLLoadingPlugin {
     @Override
     public String[] getASMTransformerClass() {
         return new String[] {
-                              TransformPlayerInstance.class.getName(), 
+                  
                               };
     }
 
