@@ -45,8 +45,12 @@ public abstract class EntityRendererMixin {
     private static final float nightVisionMinBrightness = 0.7f;
     private static boolean ignoreNextEnableLightmap;
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Overwrite
-    public void updateLightmap(float partialTickTime) {
+    private void updateLightmap(float partialTickTime) {
         WorldClient worldclient = this.mc.theWorld;
         ITessellatorMixin tessellatorMixin = (ITessellatorMixin) Tessellator.instance;
 
@@ -121,6 +125,10 @@ public abstract class EntityRendererMixin {
         return x;
     }
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Overwrite
     public void enableLightmap(double par1) {
         if (ignoreNextEnableLightmap) {
@@ -146,6 +154,10 @@ public abstract class EntityRendererMixin {
         tessellatorMixin.enableShader();
     }
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Overwrite
     public void disableLightmap(double par1) {
         ITessellatorMixin tessellatorMixin = (ITessellatorMixin) Tessellator.instance;

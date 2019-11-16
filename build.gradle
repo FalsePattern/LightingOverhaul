@@ -39,7 +39,7 @@ configurations {
 }
 
 dependencies {
-	shade group: "org.spongepowered", name: "mixin", version: "0.7-SNAPSHOT", changing: true
+	shade group: "org.spongepowered", name: "mixin", version: "0.8-SNAPSHOT", changing: true
 	shadeClient group: "org.spongepowered", name: "mixin", version: "0.8-SNAPSHOT", changing: true
 	shade group: "com.google.guava", name: "guava", version: "24.0-jre", changing: true
 }
@@ -68,6 +68,10 @@ jar {
 }
 
 def mixinSrg = "${tasks.reobf.temporaryDir}" + File.separator + "mixins.srg"
+
+reobf {
+	addExtraSrgFile mixinSrg
+}
 
 afterEvaluate {
 	tasks.compileJava.options.compilerArgs += ["-AreobfSrgFile=${tasks.reobf.srg}", "-AoutSrgFile=${mixinSrg}", "-AoutRefMapFile=${refMap}"]

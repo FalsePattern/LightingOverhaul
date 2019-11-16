@@ -108,6 +108,10 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
         hasFlaggedOpenglError = false;
     }
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Overwrite
     public void setBrightness(int par1) {
         if (lockedBrightness)
@@ -291,6 +295,10 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
         return lightlevel << CLApi.bitshift_l2 | lightlevel << CLApi.bitshift_r2 | lightlevel << CLApi.bitshift_g2 | lightlevel << CLApi.bitshift_b2;
     }
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Overwrite
     public void addVertex(double par1, double par3, double par5) {
 
@@ -383,6 +391,10 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
     private void reset() {
     }
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Overwrite
     public int draw() {
         if (!this.isDrawing)

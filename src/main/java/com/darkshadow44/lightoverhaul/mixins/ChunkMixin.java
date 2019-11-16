@@ -50,6 +50,10 @@ public abstract class ChunkMixin {
     private void updateSkylightNeighborHeight(int paramInt1, int paramInt2, int paramInt3, int paramInt4) {
     }
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Overwrite
     public int getBlockLightValue(int x, int y, int z, int value) {
         ExtendedBlockStorage extendedblockstorage = this.storageArrays[y >> 4];
@@ -79,6 +83,10 @@ public abstract class ChunkMixin {
         }
     }
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Overwrite
     public void generateSkylightMap() {
         int i = this.getTopFilledSegment();
@@ -125,8 +133,12 @@ public abstract class ChunkMixin {
         this.isModified = true;
     }
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Overwrite
-    public void relightBlock(int x, int y, int z) {
+    private void relightBlock(int x, int y, int z) {
         int i = this.heightMap[z << 4 | x] & 0xFF;
         int j = i;
         if (y > i)

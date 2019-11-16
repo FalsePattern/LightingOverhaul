@@ -18,6 +18,10 @@ public abstract class BlockMixin {
     @Shadow
     protected int lightValue;
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Inject(at = @At("RETURN"), method = { "setLightLevel" })
     public void setLightLevel(float par1, CallbackInfoReturnable<?> callback) {
         // Clamp negative values
@@ -35,6 +39,10 @@ public abstract class BlockMixin {
         }
     }
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Overwrite
     public int getMixedBrightnessForBlock(IBlockAccess blockAccess, int x, int y, int z) {
         return BlockHelper.getMixedBrightnessForBlockWithColor(blockAccess, x, y, z);

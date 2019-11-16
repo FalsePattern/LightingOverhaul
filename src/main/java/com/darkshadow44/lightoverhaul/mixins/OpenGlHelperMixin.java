@@ -13,6 +13,10 @@ import net.minecraft.client.renderer.Tessellator;
 @Mixin(OpenGlHelper.class)
 public abstract class OpenGlHelperMixin {
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Overwrite
     public static void setLightmapTextureCoords(int textureId, float x, float y) {
 

@@ -107,6 +107,10 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
         return bColorArraySun;
     }
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Inject(at = @At("RETURN"), method = { "<init>" })
     public void init(CallbackInfo callbackInfo) {
         this.rColorArray = new NibbleArray(this.blockLSBArray.length, 4);
@@ -120,6 +124,10 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
         this.bColorArraySun = new NibbleArray(this.blockLSBArray.length, 4);
     }
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Overwrite
     public void setExtBlocklightValue(int x, int y, int z, int value) {
         this.blocklightArray.set(x, y, z, value);
@@ -132,6 +140,10 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
         this.bColorArray2.set(x, y, z, (value >> (CLApi.bitshift_b + 4)) & (CLApi.bitmask >> 4));
     }
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Overwrite
     public int getExtBlocklightValue(int x, int y, int z) {
         int ret = this.blocklightArray.get(x, y, z);
@@ -147,6 +159,10 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
         return ret;
     }
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Overwrite
     public void setExtSkylightValue(int x, int y, int z, int value) {
         this.skylightArray.set(x, y, z, value);
@@ -155,6 +171,10 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
         this.bColorArraySun.set(x, y, z, (value >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun);
     }
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Overwrite
     public int getExtSkylightValue(int x, int y, int z) {
         int ret = this.skylightArray.get(x, y, z);

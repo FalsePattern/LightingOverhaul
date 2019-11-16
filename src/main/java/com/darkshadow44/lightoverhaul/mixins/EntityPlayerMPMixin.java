@@ -16,7 +16,7 @@ import net.minecraft.world.chunk.Chunk;
 @Mixin(EntityPlayerMP.class)
 public abstract class EntityPlayerMPMixin {
 
-    @Inject(method = "onUpdate", at = @At(value = "INVOKE", target = "sendPacket", ordinal = 1, shift = Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
+    @Inject(method = "onUpdate", at = @At(value = "INVOKE", target = "net.minecraft.network.NetHandlerPlayServer.sendPacket(Lnet/minecraft/network/Packet;)V", ordinal = 1, shift = Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
     void constructS26PacketMapChunkBulk(CallbackInfo callback, ArrayList<Chunk> chunks) {
         PlayerManagerHelper.entityPlayerMP_onUpdate(chunks, (EntityPlayerMP) (Object) this);
     }

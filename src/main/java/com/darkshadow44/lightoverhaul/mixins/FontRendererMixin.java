@@ -35,12 +35,12 @@ public abstract class FontRendererMixin {
     @Shadow
     private int[] charWidth;
 
-    @Shadow
-    public void bindTexture(ResourceLocation paramResourceLocation) {
-    }
-
     private static boolean optifineUpInThisFontRenderer = false;
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Overwrite
     public float renderDefaultChar(int c, boolean italics) {
         float tx = (float) (c % 16 * 8);
@@ -49,7 +49,7 @@ public abstract class FontRendererMixin {
 
         // Assuming that if the RenderEngine is null, we are in the loading screen
         if (this.renderEngine == null) {
-            this.bindTexture(this.locationFontTexture); // created by Forge since version 1339
+            return 0;
         } else {
             this.renderEngine.bindTexture(this.locationFontTexture); // Avoid using previous method for compatibility
         }
@@ -75,6 +75,10 @@ public abstract class FontRendererMixin {
         return optifineUpInThisFontRenderer ? /* //TODO instance.d[c] */ 0 : (float) this.charWidth[c];
     }
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Overwrite
     public float renderUnicodeChar(char c, boolean flag) {
         if (this.glyphWidth[c] == 0) {

@@ -16,6 +16,10 @@ public abstract class ChunkCacheMixin {
         return 0;
     }
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Overwrite
     public int getLightBrightnessForSkyBlocks(int x, int y, int z, int lightValue) {
         return ChunkCacheHelper.getLightBrightnessForSkyBlocks((ChunkCache) (Object) this, x, y, z, lightValue);

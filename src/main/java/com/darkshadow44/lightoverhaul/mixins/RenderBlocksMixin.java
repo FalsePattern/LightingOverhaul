@@ -19,16 +19,28 @@ import net.minecraft.world.IBlockAccess;
 @Mixin(RenderBlocks.class)
 public abstract class RenderBlocksMixin {
 
-    @Redirect(at = @At(value = "INVOKE", target = "getMixedBrightnessForBlock"), method = { "renderBlockLiquid" })
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
+    @Redirect(at = @At(value = "INVOKE", target = "net.minecraft.block.Block.getMixedBrightnessForBlock(Lnet/minecraft/world/IBlockAccess;III)I"), method = { "renderBlockLiquid" })
     public int renderBlockLiquid_inject(Block block, IBlockAccess blockAccess, int x, int y, int z) {
         return BlockHelper.getMixedBrightnessForBlockWithColor(blockAccess, x, y, z);
     }
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Overwrite
     public boolean renderStandardBlockWithAmbientOcclusionPartial(Block block, int x, int y, int z, float r, float g, float b) {
         return renderStandardBlockWithAmbientOcclusion_internal((RenderBlocks) (Object) this, block, x, y, z, r, g, b);
     }
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Overwrite
     public boolean renderStandardBlockWithAmbientOcclusion(Block block, int x, int y, int z, float r, float g, float b) {
         return renderStandardBlockWithAmbientOcclusion_internal((RenderBlocks) (Object) this, block, x, y, z, r, g, b);
@@ -720,6 +732,10 @@ public abstract class RenderBlocksMixin {
         return flag;
     }
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Overwrite
     public boolean renderStandardBlockWithColorMultiplier(Block par1Block, int par2X, int par3Y, int par4Z, float par5R, float par6G, float par7B) {
         return renderStandardBlockWithColorMultiplier_internal((RenderBlocks) (Object) this, par1Block, par2X, par3Y, par4Z, par5R, par6G, par7B);
@@ -840,8 +856,10 @@ public abstract class RenderBlocksMixin {
         return flag;
     }
 
-    /**
+    /***
      * Get ambient occlusion brightness
+     * @author darkshadow44
+     * @reason TODO
      */
     @Overwrite
     public int getAoBrightness(int p_147778_1_, int p_147778_2_, int p_147778_3_, int p_147778_4_) {

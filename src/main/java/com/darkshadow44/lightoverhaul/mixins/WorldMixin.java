@@ -90,6 +90,10 @@ public abstract class WorldMixin {
     // blue brown green red black
     int[] stainedglass_api_index;
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Inject(at = @At("RETURN"), method = { "<init>*" })
     public void init(CallbackInfo callbackInfo) {
         lightAdditionBlockList = new long[32768 * 4];
@@ -211,6 +215,10 @@ public abstract class WorldMixin {
     }
 
     // Use this one if you want color
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @SideOnly(Side.CLIENT)
     @Overwrite
     public int getLightBrightnessForSkyBlocks(int x, int y, int z, int lightValue) {
@@ -240,8 +248,12 @@ public abstract class WorldMixin {
                 | (block_g << CLApi.bitshift_g2) | (block_b << CLApi.bitshift_b2);
     }
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Overwrite
-    public int computeLightValue(int par_x, int par_y, int par_z, EnumSkyBlock par1Enu) {
+    private int computeLightValue(int par_x, int par_y, int par_z, EnumSkyBlock par1Enu) {
         if (par1Enu == EnumSkyBlock.Sky && this.canBlockSeeTheSky(par_x, par_y, par_z)) {
             return (15 << CLApi.bitshift_sun_r) | (15 << CLApi.bitshift_sun_g) | (15 << CLApi.bitshift_sun_b);
         } else {
@@ -325,6 +337,10 @@ public abstract class WorldMixin {
         }
     }
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
     @Overwrite
     public boolean updateLightByType(EnumSkyBlock par1Enu, int par_x, int par_y, int par_z) {
         return this.updateLightByType_withIncrement(par1Enu, par_x, par_y, par_z, true, par_x, par_y, par_z);
