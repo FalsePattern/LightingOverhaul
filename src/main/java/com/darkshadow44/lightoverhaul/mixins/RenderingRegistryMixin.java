@@ -16,10 +16,10 @@ import net.minecraft.world.IBlockAccess;
 
 @Mixin(RenderingRegistry.class)
 public abstract class RenderingRegistryMixin {
-    
+
     @Shadow
     private Map<Integer, ISimpleBlockRenderingHandler> blockRenderers;
-    
+
     public boolean renderWorldBlock(RenderBlocks renderer, IBlockAccess world, int x, int y, int z, Block block, int modelId) {
         ITessellatorMixin tessellatorMixin = (ITessellatorMixin) Tessellator.instance;
         if (!this.blockRenderers.containsKey(modelId)) {

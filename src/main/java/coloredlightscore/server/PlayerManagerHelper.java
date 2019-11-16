@@ -14,7 +14,8 @@ public class PlayerManagerHelper {
     }
 
     /**
-     * Invoked for each player in net.minecraft.server.management.PlayerManager.sendToAllPlayersWatchingChunk
+     * Invoked for each player in
+     * net.minecraft.server.management.PlayerManager.sendToAllPlayersWatchingChunk
      * 
      * Happens when a server is sending chunk data to a player
      * 
@@ -22,15 +23,18 @@ public class PlayerManagerHelper {
      * @param chunkLocation
      */
     public static void sendToPlayerWatchingChunk(EntityPlayerMP player, ChunkCoordIntPair chunkLocation) {
-        //CLLog.info("Server just sent chunk ({}, {}) to player {}", chunkLocation.chunkXPos, chunkLocation.chunkZPos, player.getDisplayName());
+        // CLLog.info("Server just sent chunk ({}, {}) to player {}",
+        // chunkLocation.chunkXPos, chunkLocation.chunkZPos, player.getDisplayName());
 
         // TODO: Load chunk from server
-        //sendChunkRGBDataToPlayer(player, chunkLocation.chunkXPos, chunkLocation.chunkZPos, null);
+        // sendChunkRGBDataToPlayer(player, chunkLocation.chunkXPos,
+        // chunkLocation.chunkZPos, null);
     }
 
     public static void entityPlayerMP_onUpdate(List<Chunk> chunks, EntityPlayerMP player) {
         for (Chunk c : chunks) {
-            //CLLog.info("S26: Server just sent chunk ({}, {}) to player {}", c.xPosition, c.zPosition, player.getDisplayName());
+            // CLLog.info("S26: Server just sent chunk ({}, {}) to player {}", c.xPosition,
+            // c.zPosition, player.getDisplayName());
 
             sendChunkRGBDataToPlayer(player, c.xPosition, c.zPosition, c);
         }
@@ -40,7 +44,8 @@ public class PlayerManagerHelper {
         if (chunk == null) {
             // Pick out chunk from world
             // TODO: This kills the server
-            //chunk = Minecraft.getMinecraft().theWorld.getChunkFromChunkCoords(chunkX, chunkZ);
+            // chunk = Minecraft.getMinecraft().theWorld.getChunkFromChunkCoords(chunkX,
+            // chunkZ);
 
             if (chunk == null) {
                 CLLog.warn("Could not load chunk ({}, {}) for RGB color data!", chunkX, chunkZ);

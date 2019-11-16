@@ -55,12 +55,9 @@ public abstract class ChunkMixin {
         ExtendedBlockStorage extendedblockstorage = this.storageArrays[y >> 4];
 
         if (extendedblockstorage == null) {
-            return !this.worldObj.provider.hasNoSky && value < EnumSkyBlock.Sky.defaultLightValue
-                    ? EnumSkyBlock.Sky.defaultLightValue - value
-                    : 0;
+            return !this.worldObj.provider.hasNoSky && value < EnumSkyBlock.Sky.defaultLightValue ? EnumSkyBlock.Sky.defaultLightValue - value : 0;
         } else {
-            int skyLight = this.worldObj.provider.hasNoSky ? 0
-                    : extendedblockstorage.getExtSkylightValue(x, y & 15, z) & 0xf;
+            int skyLight = this.worldObj.provider.hasNoSky ? 0 : extendedblockstorage.getExtSkylightValue(x, y & 15, z) & 0xf;
 
             if (skyLight > 0) {
                 Chunk.isLit = true;
@@ -117,8 +114,7 @@ public abstract class ChunkMixin {
                         if (extendedBlockStorage == null)
                             continue;
 
-                        int sun_combined = (15 << CLApi.bitshift_sun_r) | (sun_g << CLApi.bitshift_sun_g)
-                                | (sun_b << CLApi.bitshift_sun_b);
+                        int sun_combined = (15 << CLApi.bitshift_sun_r) | (sun_g << CLApi.bitshift_sun_g) | (sun_b << CLApi.bitshift_sun_b);
                         extendedBlockStorage.setExtSkylightValue(b, k & 0xF, b1, sun_combined);
                         this.worldObj.func_147479_m((this.xPosition << 4) + b, k, (this.zPosition << 4) + b1);
                         --k;
@@ -176,8 +172,7 @@ public abstract class ChunkMixin {
                 sun_r = Math.max(0, sun_r);
                 sun_g = Math.max(0, sun_g);
                 sun_b = Math.max(0, sun_b);
-                int sun_combined = (sun_r << CLApi.bitshift_sun_r) | (sun_g << CLApi.bitshift_sun_g)
-                        | (sun_b << CLApi.bitshift_sun_b);
+                int sun_combined = (sun_r << CLApi.bitshift_sun_r) | (sun_g << CLApi.bitshift_sun_g) | (sun_b << CLApi.bitshift_sun_b);
                 ExtendedBlockStorage extendedBlockStorage = this.storageArrays[j >> 4];
                 if (extendedBlockStorage != null)
                     extendedBlockStorage.setExtSkylightValue(x, j & 0xF, z, sun_combined);

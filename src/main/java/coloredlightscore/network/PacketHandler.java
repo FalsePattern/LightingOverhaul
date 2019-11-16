@@ -50,14 +50,15 @@ public class PacketHandler {
             packet.GreenColorArraySun = greenColorArraySun;
             packet.BlueColorArraySun = blueColorArraySun;
 
-            //this.channels.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.PLAYER);
-            //this.channels.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(player);
-            //this.channels.get(Side.SERVER).writeOutbound(packet);		
+            // this.channels.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.PLAYER);
+            // this.channels.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(player);
+            // this.channels.get(Side.SERVER).writeOutbound(packet);
 
-            //Think this is right 
+            // Think this is right
             INSTANCE.sendTo(packet, player);
 
-            //CLLog.info("SendChunkColorData()  Sent for {}, {}", chunk.xPosition, chunk.zPosition);
+            // CLLog.info("SendChunkColorData() Sent for {}, {}", chunk.xPosition,
+            // chunk.zPosition);
         } catch (Exception e) {
             CLLog.warn("SendChunkColorData()  ", e);
         }

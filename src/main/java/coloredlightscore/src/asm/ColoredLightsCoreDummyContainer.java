@@ -32,10 +32,10 @@ public class ColoredLightsCoreDummyContainer extends DummyModContainer {
     // This is picked up and replaced by the build.gradle
     public static final String version = "@VERSION@";
 
-    //Reference to atomicstryker.dynamiclights.client.DynamicLights
+    // Reference to atomicstryker.dynamiclights.client.DynamicLights
     public static Object dynamicLights;
 
-    //Reference to atomicstryker.dynamiclights.client.DynamicLights.getLightValue
+    // Reference to atomicstryker.dynamiclights.client.DynamicLights.getLightValue
     public static Method getDynamicLight = null;
 
     public ColoredLightsCoreDummyContainer() {
@@ -75,7 +75,7 @@ public class ColoredLightsCoreDummyContainer extends DummyModContainer {
         } catch (Exception e) {
             e.printStackTrace();
         }
-     }
+    }
 
     @Subscribe
     public void preInit(FMLPreInitializationEvent evt) {
@@ -95,7 +95,7 @@ public class ColoredLightsCoreDummyContainer extends DummyModContainer {
 
     @Subscribe
     public void postInit(FMLPostInitializationEvent evt) {
-        // Inject RGB values into vanilla blocks		
+        // Inject RGB values into vanilla blocks
         Blocks.lava.lightValue = CLApi.makeRGBLightValue(15, 10, 0);
 
         Blocks.flowing_lava.lightValue = CLApi.makeRGBLightValue(15, 10, 0);
@@ -113,10 +113,10 @@ public class ColoredLightsCoreDummyContainer extends DummyModContainer {
         while (blockRegistryInterator.hasNext()) {
             thisShouldBeABlock = blockRegistryInterator.next();
             if (thisShouldBeABlock instanceof Block) {
-                l = ((Block)thisShouldBeABlock).lightValue;
+                l = ((Block) thisShouldBeABlock).lightValue;
                 if ((l > 0) && (l <= 0xF)) {
-                    CLLog.info(((Block)thisShouldBeABlock).getLocalizedName() + "has light:" + l + ", but no color");
-                    ((Block)thisShouldBeABlock).lightValue = (l<<15) | (l<<10) | (l<<5) | l; //copy vanilla brightness into each color component to make it white/grey.
+                    CLLog.info(((Block) thisShouldBeABlock).getLocalizedName() + "has light:" + l + ", but no color");
+                    ((Block) thisShouldBeABlock).lightValue = (l << 15) | (l << 10) | (l << 5) | l; // copy vanilla brightness into each color component to make it white/grey.
                 }
             }
         }
