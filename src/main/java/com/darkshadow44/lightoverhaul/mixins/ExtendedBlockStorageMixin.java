@@ -190,8 +190,9 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
         if (r == 0 && g == 0 && b == 0) {
             r = g = b = normal;
         }
+        normal = Math.max(Math.max(r, g), b);
 
-        int ret = 0;
+        int ret = normal;
         ret |= r << CLApi.bitshift_sun_r;
         ret |= g << CLApi.bitshift_sun_g;
         ret |= b << CLApi.bitshift_sun_b;

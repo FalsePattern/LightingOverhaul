@@ -69,14 +69,9 @@ public abstract class ChunkMixin {
 
             skyLight -= value;
 
-            int sun_r = (skyLight >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
-            int sun_g = (skyLight >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
-            int sun_b = (skyLight >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
-            int sun_l = Math.max(Math.max(sun_r, sun_g), sun_b);
-
             int blockLight = extendedblockstorage.getExtBlocklightValue(x, y & 15, z) & 0xf;
-            if (sun_l > blockLight) {
-                blockLight = sun_l;
+            if (skyLight > blockLight) {
+                blockLight = skyLight;
             }
 
             return blockLight;

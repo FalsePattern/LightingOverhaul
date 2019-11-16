@@ -15,6 +15,7 @@
 	  "RenderBlocksMixin",
 	  "ExtendedBlockStorageMixin",
 	  "EntityPlayerMPMixin",
+	  "EntityMobMixin",
 	  "WorldMixin",
 	  "BlockMixin"
   ]
