@@ -316,7 +316,6 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
              * << and >> take precedence over & Incoming: 0000 0000 SSSS BBBB GGGG RRRR LLLL
              * 0000
              */
-            int l = (this.brightness >> CLApi.bitshift_l2) & 0xF;
             int block_r = (this.brightness >> CLApi.bitshift_r2) & CLApi.bitmask;
             int block_g = (this.brightness >> CLApi.bitshift_g2) & CLApi.bitmask;
             int block_b = (this.brightness >> CLApi.bitshift_b2) & CLApi.bitmask;

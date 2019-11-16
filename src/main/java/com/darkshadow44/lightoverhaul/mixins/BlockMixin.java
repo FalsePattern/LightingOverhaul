@@ -19,7 +19,7 @@ public abstract class BlockMixin {
     protected int lightValue;
 
     @Inject(at = @At("RETURN"), method = { "setLightLevel" })
-    public void setLightLevel(float par1, CallbackInfoReturnable callback) {
+    public void setLightLevel(float par1, CallbackInfoReturnable<?> callback) {
         // Clamp negative values
         if (par1 < 0.0F) {
             par1 = 0.0F;

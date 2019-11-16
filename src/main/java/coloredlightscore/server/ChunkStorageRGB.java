@@ -4,7 +4,6 @@ import static coloredlightscore.src.asm.ColoredLightsCoreLoadingPlugin.CLLog;
 
 import com.darkshadow44.lightoverhaul.interfaces.IExtendedBlockStorageMixin;
 
-import coloredlightscore.src.api.CLApi;
 import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -19,11 +18,9 @@ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
  */
 public class ChunkStorageRGB {
 
-    private static String EVENT_SOURCE = "coloredlightscore.server.ChunkStorageRGB";
-
     /**
-     * Constructs a NibbleArray from a raw stream of byte data. If the
-     * byte data is incomplete, returns an empty array.
+     * Constructs a NibbleArray from a raw stream of byte data. If the byte data is
+     * incomplete, returns an empty array.
      * 
      * @param rawdata The raw bytestream to build an array from.
      * @return Instance of a NibbleArray.
@@ -42,8 +39,9 @@ public class ChunkStorageRGB {
      * Loads RGB color data from a world store, if present.
      * 
      * @param chunk The chunk to populate with data
-     * @param data Top-level NBTTag, must contain "Level" tag.
-     * @return true if color data was loaded, false if not present or an error was encountered
+     * @param data  Top-level NBTTag, must contain "Level" tag.
+     * @return true if color data was loaded, false if not present or an error was
+     *         encountered
      */
     public static boolean loadColorData(Chunk chunk, NBTTagCompound data) {
         NibbleArray rColorArray;
@@ -64,7 +62,7 @@ public class ChunkStorageRGB {
             NBTTagCompound nbtYCompound = nbttaglist.getCompoundTagAt(k);
 
             if (chunkStorageArrays[k] != null) {
-                if (nbtYCompound.hasKey("RedColorArray")) //, 7))
+                if (nbtYCompound.hasKey("RedColorArray")) // , 7))
                 {
                     rColorArray = checkedGetNibbleArray(nbtYCompound.getByteArray("RedColorArray"));
                     gColorArray = checkedGetNibbleArray(nbtYCompound.getByteArray("GreenColorArray"));
@@ -78,7 +76,7 @@ public class ChunkStorageRGB {
 
                     // Set color arrays on chunk.storageArrays
 
-                    IExtendedBlockStorageMixin blockStorageMixin = (IExtendedBlockStorageMixin)chunkStorageArrays[k];
+                    IExtendedBlockStorageMixin blockStorageMixin = (IExtendedBlockStorageMixin) chunkStorageArrays[k];
 
                     blockStorageMixin.setRedColorArray(rColorArray);
                     blockStorageMixin.setGreenColorArray(gColorArray);
@@ -92,10 +90,12 @@ public class ChunkStorageRGB {
 
                     foundColorData = true;
 
-                    //CLLog.info("Loaded nibble array for {} {} {}", chunk.xPosition, chunk.zPosition, k);
+                    // CLLog.info("Loaded nibble array for {} {} {}", chunk.xPosition,
+                    // chunk.zPosition, k);
                 }
-                //else
-                //CLLog.warning("NO NIBBLE ARRAY EXISTS FOR {} {} {}", chunk.xPosition, chunk.zPosition, k);
+                // else
+                // CLLog.warning("NO NIBBLE ARRAY EXISTS FOR {} {} {}", chunk.xPosition,
+                // chunk.zPosition, k);
             }
         }
 
@@ -106,12 +106,11 @@ public class ChunkStorageRGB {
      * Loads RGB color data from a world store, if present.
      * 
      * @param chunk The chunk to populate with data
-     * @return true if color data was loaded, false if not present or an error was encountered
+     * @return true if color data was loaded, false if not present or an error was
+     *         encountered
      */
-    public static boolean loadColorData(Chunk chunk, int arraySize, int[] yLocation,
-            NibbleArray[] redColorData, NibbleArray[] greenColorData, NibbleArray[] blueColorData,
-            NibbleArray[] redColorData2, NibbleArray[] greenColorData2, NibbleArray[] blueColorData2,
-            NibbleArray[] redColorDataSun, NibbleArray[] greenColorDataSun, NibbleArray[] blueColorDataSun) {
+    public static boolean loadColorData(Chunk chunk, int arraySize, int[] yLocation, NibbleArray[] redColorData, NibbleArray[] greenColorData, NibbleArray[] blueColorData, NibbleArray[] redColorData2,
+            NibbleArray[] greenColorData2, NibbleArray[] blueColorData2, NibbleArray[] redColorDataSun, NibbleArray[] greenColorDataSun, NibbleArray[] blueColorDataSun) {
         NibbleArray rColorArray;
         NibbleArray gColorArray;
         NibbleArray bColorArray;
@@ -140,7 +139,7 @@ public class ChunkStorageRGB {
                 bColorArraySun = blueColorDataSun[k];
 
                 // Set color arrays on chunk.storageArrays
-                IExtendedBlockStorageMixin blockStorageMixin = (IExtendedBlockStorageMixin)chunkStorageArrays[k];
+                IExtendedBlockStorageMixin blockStorageMixin = (IExtendedBlockStorageMixin) chunkStorageArrays[k];
 
                 blockStorageMixin.setRedColorArray(rColorArray);
                 blockStorageMixin.setGreenColorArray(gColorArray);
@@ -154,20 +153,23 @@ public class ChunkStorageRGB {
 
                 foundColorData = true;
 
-                //CLLog.info("Loaded nibble array for {} {} {}", chunk.xPosition, chunk.zPosition, k);
+                // CLLog.info("Loaded nibble array for {} {} {}", chunk.xPosition,
+                // chunk.zPosition, k);
             }
-            //else
-            //CLLog.warning("NO NIBBLE ARRAY EXISTS FOR {} {} {}", chunk.xPosition, chunk.zPosition, k);
+            // else
+            // CLLog.warning("NO NIBBLE ARRAY EXISTS FOR {} {} {}", chunk.xPosition,
+            // chunk.zPosition, k);
         }
 
         return foundColorData;
     }
 
     /**
-     * Saves RGB color data into world store NBTTag data. Should be called before chunk is saved.
+     * Saves RGB color data into world store NBTTag data. Should be called before
+     * chunk is saved.
      * 
      * @param chunk The chunk to extract RGB color data from.
-     * @param data Top-level NBTTag, must contain "Level" tag.
+     * @param data  Top-level NBTTag, must contain "Level" tag.
      * @return true if color data was saved, false if an error was encountered
      */
     public static boolean saveColorData(Chunk chunk, NBTTagCompound data) {
@@ -187,7 +189,7 @@ public class ChunkStorageRGB {
         for (int k = 0; k < chunkStorageArrays.length; k++) {
             if (chunkStorageArrays[k] != null) {
                 NBTTagCompound nbtYCompound = nbttaglist.getCompoundTagAt(k);
-                IExtendedBlockStorageMixin blockStorageMixin = (IExtendedBlockStorageMixin)chunkStorageArrays[k];
+                IExtendedBlockStorageMixin blockStorageMixin = (IExtendedBlockStorageMixin) chunkStorageArrays[k];
 
                 // Add our RGB arrays to it
                 rColorArray = blockStorageMixin.getRedColorArray();
@@ -200,18 +202,22 @@ public class ChunkStorageRGB {
                 gColorArraySun = blockStorageMixin.getGreenColorArraySun();
                 bColorArraySun = blockStorageMixin.getBlueColorArraySun();
 
-
-                //Cauldron adds .getValueArray() instead of .data
+                // Cauldron adds .getValueArray() instead of .data
                 if (FMLCommonHandler.instance().getModName().contains("cauldron")) {
-                    /*nbtYCompound.setByteArray("RedColorArray", rColorArray.getValueArray());
-                    nbtYCompound.setByteArray("GreenColorArray", gColorArray.getValueArray());
-                    nbtYCompound.setByteArray("BlueColorArray", bColorArray.getValueArray());
-                    nbtYCompound.setByteArray("RedColorArray2", rColorArray2.getValueArray());
-                    nbtYCompound.setByteArray("GreenColorArray2", gColorArray2.getValueArray());
-                    nbtYCompound.setByteArray("BlueColorArray2", bColorArray2.getValueArray());
-                    nbtYCompound.setByteArray("RedColorArraySun", rColorArraySun.getValueArray());
-                    nbtYCompound.setByteArray("GreenColorArraySun", gColorArraySun.getValueArray());
-                    nbtYCompound.setByteArray("BlueColorArraySun", bColorArraySun.getValueArray());*/
+                    /*
+                     * nbtYCompound.setByteArray("RedColorArray", rColorArray.getValueArray());
+                     * nbtYCompound.setByteArray("GreenColorArray", gColorArray.getValueArray());
+                     * nbtYCompound.setByteArray("BlueColorArray", bColorArray.getValueArray());
+                     * nbtYCompound.setByteArray("RedColorArray2", rColorArray2.getValueArray());
+                     * nbtYCompound.setByteArray("GreenColorArray2", gColorArray2.getValueArray());
+                     * nbtYCompound.setByteArray("BlueColorArray2", bColorArray2.getValueArray());
+                     * nbtYCompound.setByteArray("RedColorArraySun",
+                     * rColorArraySun.getValueArray());
+                     * nbtYCompound.setByteArray("GreenColorArraySun",
+                     * gColorArraySun.getValueArray());
+                     * nbtYCompound.setByteArray("BlueColorArraySun",
+                     * bColorArraySun.getValueArray());
+                     */
                 } else {
                     nbtYCompound.setByteArray("RedColorArray", rColorArray.data);
                     nbtYCompound.setByteArray("GreenColorArray", gColorArray.data);
@@ -243,7 +249,7 @@ public class ChunkStorageRGB {
 
         for (int i = 0; i < chunkStorageArrays.length; i++) {
             if (chunkStorageArrays[i] != null)
-                redColorArrays[i] = ((IExtendedBlockStorageMixin)chunkStorageArrays[i]).getRedColorArray();
+                redColorArrays[i] = ((IExtendedBlockStorageMixin) chunkStorageArrays[i]).getRedColorArray();
             else
                 redColorArrays[i] = null;
         }
@@ -259,7 +265,7 @@ public class ChunkStorageRGB {
 
         for (int i = 0; i < chunkStorageArrays.length; i++) {
             if (chunkStorageArrays[i] != null)
-                redColorArrays2[i] = ((IExtendedBlockStorageMixin)chunkStorageArrays[i]).getRedColorArray2();
+                redColorArrays2[i] = ((IExtendedBlockStorageMixin) chunkStorageArrays[i]).getRedColorArray2();
             else
                 redColorArrays2[i] = null;
         }
@@ -275,7 +281,7 @@ public class ChunkStorageRGB {
 
         for (int i = 0; i < chunkStorageArrays.length; i++) {
             if (chunkStorageArrays[i] != null)
-                redColorArraysSun[i] =((IExtendedBlockStorageMixin)chunkStorageArrays[i]).getRedColorArraySun();
+                redColorArraysSun[i] = ((IExtendedBlockStorageMixin) chunkStorageArrays[i]).getRedColorArraySun();
             else
                 redColorArraysSun[i] = null;
         }
@@ -298,7 +304,7 @@ public class ChunkStorageRGB {
 
         for (int i = 0; i < chunkStorageArrays.length; i++) {
             if (chunkStorageArrays[i] != null)
-                greenColorArrays[i] = ((IExtendedBlockStorageMixin)chunkStorageArrays[i]).getGreenColorArray();
+                greenColorArrays[i] = ((IExtendedBlockStorageMixin) chunkStorageArrays[i]).getGreenColorArray();
             else
                 greenColorArrays[i] = null;
         }
@@ -314,7 +320,7 @@ public class ChunkStorageRGB {
 
         for (int i = 0; i < chunkStorageArrays.length; i++) {
             if (chunkStorageArrays[i] != null)
-                greenColorArrays2[i] = ((IExtendedBlockStorageMixin)chunkStorageArrays[i]).getGreenColorArray2();
+                greenColorArrays2[i] = ((IExtendedBlockStorageMixin) chunkStorageArrays[i]).getGreenColorArray2();
             else
                 greenColorArrays2[i] = null;
         }
@@ -330,7 +336,7 @@ public class ChunkStorageRGB {
 
         for (int i = 0; i < chunkStorageArrays.length; i++) {
             if (chunkStorageArrays[i] != null)
-                greenColorArraysSun[i] = ((IExtendedBlockStorageMixin)chunkStorageArrays[i]).getGreenColorArraySun();
+                greenColorArraysSun[i] = ((IExtendedBlockStorageMixin) chunkStorageArrays[i]).getGreenColorArraySun();
             else
                 greenColorArraysSun[i] = null;
         }
@@ -353,7 +359,7 @@ public class ChunkStorageRGB {
 
         for (int i = 0; i < chunkStorageArrays.length; i++) {
             if (chunkStorageArrays[i] != null)
-                blueColorArrays[i] = ((IExtendedBlockStorageMixin)chunkStorageArrays[i]).getBlueColorArray();
+                blueColorArrays[i] = ((IExtendedBlockStorageMixin) chunkStorageArrays[i]).getBlueColorArray();
             else
                 blueColorArrays[i] = null;
         }
@@ -369,7 +375,7 @@ public class ChunkStorageRGB {
 
         for (int i = 0; i < chunkStorageArrays.length; i++) {
             if (chunkStorageArrays[i] != null)
-                blueColorArrays2[i] = ((IExtendedBlockStorageMixin)chunkStorageArrays[i]).getBlueColorArray2();
+                blueColorArrays2[i] = ((IExtendedBlockStorageMixin) chunkStorageArrays[i]).getBlueColorArray2();
             else
                 blueColorArrays2[i] = null;
         }
@@ -385,7 +391,7 @@ public class ChunkStorageRGB {
 
         for (int i = 0; i < chunkStorageArrays.length; i++) {
             if (chunkStorageArrays[i] != null)
-                blueColorArraysSun[i] = ((IExtendedBlockStorageMixin)chunkStorageArrays[i]).getBlueColorArraySun();
+                blueColorArraysSun[i] = ((IExtendedBlockStorageMixin) chunkStorageArrays[i]).getBlueColorArraySun();
             else
                 blueColorArraysSun[i] = null;
         }

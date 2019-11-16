@@ -8,23 +8,23 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import cpw.mods.fml.common.*;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+
+import coloredlightscore.fmlevents.ChunkDataEventHandler;
+import coloredlightscore.network.PacketHandler;
+import coloredlightscore.src.api.CLApi;
+import cpw.mods.fml.common.DummyModContainer;
+import cpw.mods.fml.common.LoadController;
+import cpw.mods.fml.common.ModMetadata;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameData;
-import cpw.mods.fml.relauncher.*;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.MinecraftForge;
-import coloredlightscore.fmlevents.ChunkDataEventHandler;
-import coloredlightscore.network.PacketHandler;
-import coloredlightscore.src.api.CLApi;
-
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
-
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
 public class ColoredLightsCoreDummyContainer extends DummyModContainer {
     public ChunkDataEventHandler chunkDataEventHandler;
@@ -109,7 +109,7 @@ public class ColoredLightsCoreDummyContainer extends DummyModContainer {
 
         Object thisShouldBeABlock;
         int l;
-        Iterator blockRegistryInterator = GameData.getBlockRegistry().iterator();
+        Iterator<Block> blockRegistryInterator = GameData.getBlockRegistry().iterator();
         while (blockRegistryInterator.hasNext()) {
             thisShouldBeABlock = blockRegistryInterator.next();
             if (thisShouldBeABlock instanceof Block) {
