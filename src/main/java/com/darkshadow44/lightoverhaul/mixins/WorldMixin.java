@@ -209,6 +209,11 @@ public abstract class WorldMixin {
         return (1.0f - f1) / (f1 * 3.0f + 1.0f);
     }
 
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
+    @Overwrite
     public float getLightBrightness(int x, int y, int z) {
         int lightlevel = this.getBlockLightValue(x, y, z);
         return getBrightness(lightlevel);
