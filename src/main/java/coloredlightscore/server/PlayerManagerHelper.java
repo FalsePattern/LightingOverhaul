@@ -2,7 +2,7 @@ package coloredlightscore.server;
 
 import static coloredlightscore.src.asm.ColoredLightsCoreLoadingPlugin.CLLog;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.ChunkCoordIntPair;
@@ -28,7 +28,7 @@ public class PlayerManagerHelper {
         //sendChunkRGBDataToPlayer(player, chunkLocation.chunkXPos, chunkLocation.chunkZPos, null);
     }
 
-    public static void entityPlayerMP_onUpdate(ArrayList<Chunk> chunks, EntityPlayerMP player) {
+    public static void entityPlayerMP_onUpdate(List<Chunk> chunks, EntityPlayerMP player) {
         for (Chunk c : chunks) {
             //CLLog.info("S26: Server just sent chunk ({}, {}) to player {}", c.xPosition, c.zPosition, player.getDisplayName());
 
