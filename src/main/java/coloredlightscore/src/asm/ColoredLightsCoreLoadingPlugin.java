@@ -2,29 +2,20 @@ package coloredlightscore.src.asm;
 
 import java.util.Map;
 
-import coloredlightscore.src.asm.transformer.*;
-import coloredlightscore.src.asm.transformer.core.NameMapper;
-import net.minecraft.launchwrapper.LaunchClassLoader;
+import org.apache.logging.log4j.LogManager;
+
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin.*;
-import org.apache.logging.log4j.*;
+import cpw.mods.fml.relauncher.IFMLLoadingPlugin.MCVersion;
+import cpw.mods.fml.relauncher.IFMLLoadingPlugin.Name;
+import cpw.mods.fml.relauncher.IFMLLoadingPlugin.SortingIndex;
+import cpw.mods.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
 
 @TransformerExclusions("coloredlightscore.*")
 @MCVersion("1.7.10")
 @Name("ColoredLightsCore")
 @SortingIndex(1001)
 public class ColoredLightsCoreLoadingPlugin implements IFMLLoadingPlugin {
-    public static LaunchClassLoader CLASSLOADER;
-    public static boolean MCP_ENVIRONMENT;
-
     public static org.apache.logging.log4j.Logger CLLog = LogManager.getLogger("coloredlightscore");
-
-    @Override
-    public String[] getASMTransformerClass() {
-        return new String[] {
-                  
-                              };
-    }
 
     @Override
     public String getModContainerClass() {
@@ -38,13 +29,15 @@ public class ColoredLightsCoreLoadingPlugin implements IFMLLoadingPlugin {
 
     @Override
     public void injectData(Map<String, Object> data) {
-        MCP_ENVIRONMENT = !((Boolean) data.get("runtimeDeobfuscationEnabled")).booleanValue();
-        NameMapper.getInstance().setObfuscated(!MCP_ENVIRONMENT);
-        CLASSLOADER = (LaunchClassLoader) data.get("classLoader");
     }
 
     @Override
     public String getAccessTransformerClass() {
         return ColoredLightsCoreAccessTransformer.class.getName();
+    }
+
+    @Override
+    public String[] getASMTransformerClass() {
+        return null;
     }
 }
