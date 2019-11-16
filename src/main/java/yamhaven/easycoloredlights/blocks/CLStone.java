@@ -3,6 +3,10 @@ package yamhaven.easycoloredlights.blocks;
 import java.util.List;
 import java.util.Random;
 
+import coloredlightscore.src.api.CLApi;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
@@ -10,15 +14,12 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
+import net.minecraft.world.IBlockAccess;
 import yamhaven.easycoloredlights.CLMaterialsController;
 import yamhaven.easycoloredlights.lib.BlockInfo;
 import yamhaven.easycoloredlights.lib.ModInfo;
-import coloredlightscore.src.api.CLApi;
-import coloredlightscore.src.api.CLBlock;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
-public class CLStone extends CLBlock {
+public class CLStone extends Block {
     public CLStone() {
         super(Material.glass);
         setHardness(0.3F);
@@ -59,18 +60,17 @@ public class CLStone extends CLBlock {
     }
 
     /**
-     * Returns the usual quantity dropped by the block plus a bonus of 1 to 'i' (inclusive).
+     * Returns the usual quantity dropped by the block plus a bonus of 1 to 'i'
+     * (inclusive).
      */
-    public int quantityDroppedWithBonus(int p_149679_1_, Random p_149679_2_)
-    {
+    public int quantityDroppedWithBonus(int p_149679_1_, Random p_149679_2_) {
         return MathHelper.clamp_int(this.quantityDropped(p_149679_2_) + p_149679_2_.nextInt(p_149679_1_ + 1), 1, 4);
     }
 
     /**
      * Returns the quantity of items to drop on block destruction.
      */
-    public int quantityDropped(Random p_149745_1_)
-    {
+    public int quantityDropped(Random p_149745_1_) {
         return 2 + p_149745_1_.nextInt(3);
     }
 
@@ -80,9 +80,10 @@ public class CLStone extends CLBlock {
     }
 
     @Override
-    public int getColorLightValue(int meta) {
+    public int getLightValue(IBlockAccess world, int x, int y, int z) {
+        int meta = world.getBlockMetadata(x, y, z);
         if (meta == 0) {
-            //Temporary
+            // Temporary
             return CLApi.makeRGBLightValue(15, 15, 15);
         } else {
             return CLApi.makeRGBLightValue(CLApi.r[meta], CLApi.g[meta], CLApi.b[meta]);

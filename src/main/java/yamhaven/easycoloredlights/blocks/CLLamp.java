@@ -3,6 +3,9 @@ package yamhaven.easycoloredlights.blocks;
 import java.util.List;
 import java.util.Random;
 
+import coloredlightscore.src.api.CLApi;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -10,15 +13,12 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import yamhaven.easycoloredlights.lib.BlockInfo;
 import yamhaven.easycoloredlights.lib.ModInfo;
-import coloredlightscore.src.api.CLApi;
-import coloredlightscore.src.api.CLBlock;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
-public class CLLamp extends CLBlock {
+public class CLLamp extends Block {
     /** Whether this lamp block is the powered version of the block. */
     protected final boolean powered;
     /** The Block the lamp is supposed to switch to **/
@@ -46,7 +46,7 @@ public class CLLamp extends CLBlock {
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void registerBlockIcons(IIconRegister iconRegister) { //registerIcons()
+    public void registerBlockIcons(IIconRegister iconRegister) { // registerIcons()
         icons = new IIcon[16];
         for (int i = 0; i < icons.length; i++) {
             icons[i] = iconRegister.registerIcon(ModInfo.ID + ":" + BlockInfo.CLLamp + (powered ? "On" : "") + i);
@@ -58,7 +58,7 @@ public class CLLamp extends CLBlock {
     public IIcon getIcon(int side, int meta) {
         return icons[meta];
     }
-    
+
     @Override
     public String getUnlocalizedName() {
         return "tile." + BlockInfo.CLLamp;
@@ -94,7 +94,9 @@ public class CLLamp extends CLBlock {
     }
 
     /**
-     * Lets the block know when one of its neighbor changes. Doesn't know which neighbor changed (coordinates passed are their own) Args: x, y, z, neighbor blockID
+     * Lets the block know when one of its neighbor changes. Doesn't know which
+     * neighbor changed (coordinates passed are their own) Args: x, y, z, neighbor
+     * blockID
      */
     @Override
     public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
@@ -136,12 +138,11 @@ public class CLLamp extends CLBlock {
     }
 
     @Override
-    public int getColorLightValue(int meta) {
-        //System.out.println("Metadata: " + meta);
-        //System.out.println(Integer.toBinaryString(CLApi.makeColorLightValue(CLApi.r[meta], CLApi.g[meta], CLApi.b[meta])) + System.lineSeparator());
+    public int getLightValue(IBlockAccess world, int x, int y, int z) {
+        int meta = world.getBlockMetadata(x, y, z);
         if (powered) {
             if (meta == 0) {
-                //Temporary
+                // Temporary
                 return CLApi.makeRGBLightValue(15, 15, 15);
             } else {
                 return CLApi.makeRGBLightValue(CLApi.r[meta], CLApi.g[meta], CLApi.b[meta]);

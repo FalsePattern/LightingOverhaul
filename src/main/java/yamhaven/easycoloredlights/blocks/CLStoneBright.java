@@ -1,24 +1,22 @@
 package yamhaven.easycoloredlights.blocks;
 
 import java.util.List;
-import java.util.Random;
 
+import coloredlightscore.src.api.CLApi;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
-import net.minecraft.util.MathHelper;
-import yamhaven.easycoloredlights.CLMaterialsController;
+import net.minecraft.world.IBlockAccess;
 import yamhaven.easycoloredlights.lib.BlockInfo;
 import yamhaven.easycoloredlights.lib.ModInfo;
-import coloredlightscore.src.api.CLApi;
-import coloredlightscore.src.api.CLBlock;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
-public class CLStoneBright extends CLBlock {
+public class CLStoneBright extends Block {
     public CLStoneBright() {
         super(Material.glass);
         setHardness(0.3F);
@@ -59,12 +57,13 @@ public class CLStoneBright extends CLBlock {
     }
 
     @Override
-    public int getColorLightValue(int meta) {
+    public int getLightValue(IBlockAccess world, int x, int y, int z) {
+        int meta = world.getBlockMetadata(x, y, z);
         if (meta == 0) {
-            //Temporary
+            // Temporary
             return CLApi.makeRGBLightValue(15, 15, 15);
         } else {
-            return CLApi.makeRGBLightValue(CLApi.r[meta] * 2 + 1, CLApi.g[meta]* 2 + 1, CLApi.b[meta]* 2 + 1);
+            return CLApi.makeRGBLightValue(CLApi.r[meta] * 2 + 1, CLApi.g[meta] * 2 + 1, CLApi.b[meta] * 2 + 1);
         }
     }
 }
