@@ -165,10 +165,15 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
      */
     @Overwrite
     public void setExtSkylightValue(int x, int y, int z, int value) {
-        this.skylightArray.set(x, y, z, value);
-        this.rColorArraySun.set(x, y, z, (value >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun);
-        this.gColorArraySun.set(x, y, z, (value >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun);
-        this.bColorArraySun.set(x, y, z, (value >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun);
+        int r = (value >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
+        int g = (value >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
+        int b = (value >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
+        int normal = Math.max(Math.max(r, g), b);
+
+        this.skylightArray.set(x, y, z, normal);
+        this.rColorArraySun.set(x, y, z, r);
+        this.gColorArraySun.set(x, y, z, g);
+        this.bColorArraySun.set(x, y, z, b);
     }
 
     /***
@@ -177,11 +182,19 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
      */
     @Overwrite
     public int getExtSkylightValue(int x, int y, int z) {
-        int ret = this.skylightArray.get(x, y, z);
+        int normal = this.skylightArray.get(x, y, z);
+        int r = this.rColorArraySun.get(x, y, z);
+        int g = this.gColorArraySun.get(x, y, z);
+        int b = this.bColorArraySun.get(x, y, z);
 
-        ret |= this.rColorArraySun.get(x, y, z) << CLApi.bitshift_sun_r;
-        ret |= this.gColorArraySun.get(x, y, z) << CLApi.bitshift_sun_g;
-        ret |= this.bColorArraySun.get(x, y, z) << CLApi.bitshift_sun_b;
+        if (r == 0 && g == 0 && b == 0) {
+            r = g = b = normal;
+        }
+
+        int ret = 0;
+        ret |= r << CLApi.bitshift_sun_r;
+        ret |= g << CLApi.bitshift_sun_g;
+        ret |= b << CLApi.bitshift_sun_b;
 
         return ret;
     }
