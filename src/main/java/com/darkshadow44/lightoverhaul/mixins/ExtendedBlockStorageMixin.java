@@ -164,6 +164,7 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
             r = g = b = normal;
         }
         normal = Math.max(Math.max(r, g), b);
+        normal = Math.min(15, normal);
 
         int ret = normal;
         ret |= r << CLApi.bitshift_r;
