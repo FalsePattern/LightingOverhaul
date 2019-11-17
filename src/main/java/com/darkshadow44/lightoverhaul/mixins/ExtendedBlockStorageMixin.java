@@ -130,14 +130,20 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
      */
     @Overwrite
     public void setExtBlocklightValue(int x, int y, int z, int value) {
-        this.blocklightArray.set(x, y, z, value);
-        this.rColorArray.set(x, y, z, (value >> CLApi.bitshift_r) & CLApi.bitmask);
-        this.gColorArray.set(x, y, z, (value >> CLApi.bitshift_g) & CLApi.bitmask);
-        this.bColorArray.set(x, y, z, (value >> CLApi.bitshift_b) & CLApi.bitmask);
+        int r = (value >> CLApi.bitshift_r) & CLApi.bitmask;
+        int g = (value >> CLApi.bitshift_g) & CLApi.bitmask;
+        int b = (value >> CLApi.bitshift_b) & CLApi.bitmask;
+        int normal = Math.max(Math.max(r, g), b);
+        normal = Math.min(15, normal);
 
-        this.rColorArray2.set(x, y, z, (value >> (CLApi.bitshift_r + 4)) & (CLApi.bitmask >> 4));
-        this.gColorArray2.set(x, y, z, (value >> (CLApi.bitshift_g + 4)) & (CLApi.bitmask >> 4));
-        this.bColorArray2.set(x, y, z, (value >> (CLApi.bitshift_b + 4)) & (CLApi.bitmask >> 4));
+        this.blocklightArray.set(x, y, z, value);
+        this.rColorArray.set(x, y, z, r & 0xF);
+        this.gColorArray.set(x, y, z, g & 0xF);
+        this.bColorArray.set(x, y, z, b & 0xF);
+
+        this.rColorArray2.set(x, y, z, r >> 4);
+        this.gColorArray2.set(x, y, z, g >> 4);
+        this.bColorArray2.set(x, y, z, b >> 4);
     }
 
     /***
@@ -146,15 +152,23 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
      */
     @Overwrite
     public int getExtBlocklightValue(int x, int y, int z) {
-        int ret = this.blocklightArray.get(x, y, z);
+        int normal = this.blocklightArray.get(x, y, z);
+        int r = this.rColorArray.get(x, y, z);
+        int g = this.gColorArray.get(x, y, z);
+        int b = this.bColorArray.get(x, y, z);
+        r |= this.rColorArray2.get(x, y, z) << 4;
+        g |= this.gColorArray2.get(x, y, z) << 4;
+        b |= this.bColorArray2.get(x, y, z) << 4;
 
-        ret |= this.rColorArray.get(x, y, z) << CLApi.bitshift_r;
-        ret |= this.gColorArray.get(x, y, z) << CLApi.bitshift_g;
-        ret |= this.bColorArray.get(x, y, z) << CLApi.bitshift_b;
+        if (r == 0 && g == 0 && b == 0) {
+            r = g = b = normal;
+        }
+        normal = Math.max(Math.max(r, g), b);
 
-        ret |= this.rColorArray2.get(x, y, z) << (CLApi.bitshift_r + 4);
-        ret |= this.gColorArray2.get(x, y, z) << (CLApi.bitshift_g + 4);
-        ret |= this.bColorArray2.get(x, y, z) << (CLApi.bitshift_b + 4);
+        int ret = normal;
+        ret |= r << CLApi.bitshift_r;
+        ret |= g << CLApi.bitshift_g;
+        ret |= b << CLApi.bitshift_b;
 
         return ret;
     }

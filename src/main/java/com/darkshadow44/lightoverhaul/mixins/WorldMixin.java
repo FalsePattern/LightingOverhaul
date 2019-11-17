@@ -351,8 +351,8 @@ public abstract class WorldMixin {
         return this.updateLightByType_withIncrement(par1Enu, par_x, par_y, par_z, true, par_x, par_y, par_z);
     }
 
-    private String makeLightStr(int block_l, int block_r, int block_g, int block_b, int sun_r, int sun_g, int sun_b) {
-        return "(block_l: " + block_l + ", block_r : " + block_r + ", block_g: " + block_g + ", block_b: " + block_b + ", sun_r: " + sun_r + ", sun_g: " + sun_g + ", sun_b: " + sun_b + ")";
+    private String makeLightStr(int block_r, int block_g, int block_b, int sun_r, int sun_g, int sun_b) {
+        return "(block_r : " + block_r + ", block_g: " + block_g + ", block_b: " + block_b + ", sun_r: " + sun_r + ", sun_g: " + sun_g + ", sun_b: " + sun_b + ")";
     }
 
     private String makePosStr(int x, int y, int z) {
@@ -408,7 +408,6 @@ public abstract class WorldMixin {
 
             this.theProfiler.endStartSection("lightAddition");
 
-            int saved_block_l = (int) (savedLightValue >> CLApi.bitshift_l) & 0xF;
             int saved_block_r = (int) (savedLightValue >> CLApi.bitshift_r) & CLApi.bitmask;
             int saved_block_g = (int) (savedLightValue >> CLApi.bitshift_g) & CLApi.bitmask;
             int saved_block_b = (int) (savedLightValue >> CLApi.bitshift_b) & CLApi.bitmask;
@@ -416,7 +415,6 @@ public abstract class WorldMixin {
             int saved_sun_g = (int) (savedLightValue >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
             int saved_sun_b = (int) (savedLightValue >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
 
-            int comp_block_l = (int) (compLightValue >> CLApi.bitshift_l) & 0xF;
             int comp_block_r = (int) (compLightValue >> CLApi.bitshift_r) & CLApi.bitmask;
             int comp_block_g = (int) (compLightValue >> CLApi.bitshift_g) & CLApi.bitmask;
             int comp_block_b = (int) (compLightValue >> CLApi.bitshift_b) & CLApi.bitmask;
@@ -434,7 +432,7 @@ public abstract class WorldMixin {
             // Format of lightAdditionBlockList word:
             // bbbbb.ggggg.rrrrr.LLLLzzzzzzzyyyyyyyxxxxxxx
             // x/y/z are relative offsets
-            if (comp_block_l > saved_block_l || comp_block_r > saved_block_r || comp_block_g > saved_block_g || comp_block_b > saved_block_b || comp_sun_r > saved_sun_r || comp_sun_g > saved_sun_g
+            if (comp_block_r > saved_block_r || comp_block_g > saved_block_g || comp_block_b > saved_block_b || comp_sun_r > saved_sun_r || comp_sun_g > saved_sun_g
                     || comp_sun_b > saved_sun_b) { // compLightValue has components that are larger than
                                                    // savedLightValue, the block at the current position is brighter
                                                    // than the saved value at the current positon... it must have been
@@ -473,7 +471,6 @@ public abstract class WorldMixin {
 
                         lightAdditionsSatisfied++;
 
-                        int queue_block_l = (queueLightEntry >> CLApi.bitshift_l) & 0xF;
                         int queue_block_r = (queueLightEntry >> CLApi.bitshift_r) & CLApi.bitmask;
                         int queue_block_g = (queueLightEntry >> CLApi.bitshift_g) & CLApi.bitmask;
                         int queue_block_b = (queueLightEntry >> CLApi.bitshift_b) & CLApi.bitmask;
@@ -481,7 +478,6 @@ public abstract class WorldMixin {
                         int queue_sun_g = (queueLightEntry >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
                         int queue_sun_b = (queueLightEntry >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
 
-                        int edge_block_l = (int) (neighborLightEntry >> CLApi.bitshift_l) & 0xF;
                         int edge_block_r = (int) (neighborLightEntry >> CLApi.bitshift_r) & CLApi.bitmask;
                         int edge_block_g = (int) (neighborLightEntry >> CLApi.bitshift_g) & CLApi.bitmask;
                         int edge_block_b = (int) (neighborLightEntry >> CLApi.bitshift_b) & CLApi.bitmask;
@@ -489,7 +485,7 @@ public abstract class WorldMixin {
                         int edge_sun_g = (int) (neighborLightEntry >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
                         int edge_sun_b = (int) (neighborLightEntry >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
 
-                        if (queue_block_l > edge_block_l || queue_block_r > edge_block_r || queue_block_g > edge_block_g || queue_block_b > edge_block_b || queue_sun_r > edge_sun_r
+                        if (queue_block_r > edge_block_r || queue_block_g > edge_block_g || queue_block_b > edge_block_b || queue_sun_r > edge_sun_r
                                 || queue_sun_g > edge_sun_g || queue_sun_b > edge_sun_b) { // Components in queueLightEntry are brighter than in
                                                                                            // edgeLightEntry
                             man_x = MathHelper.abs_int(queue_x - par_x);
@@ -499,10 +495,10 @@ public abstract class WorldMixin {
 
                             this.setLightValue(par1Enu, queue_x, queue_y, queue_z, queueLightEntry);
                             if (DEBUG) {
-                                CLLog.warn("Spread at (X: " + queue_x + ", Y: " + queue_y + ", Z: " + queue_z + ") with (block_l: " + queue_block_l + ", block_r: " + queue_block_r + ", block_g: "
+                                CLLog.warn("Spread at (X: " + queue_x + ", Y: " + queue_y + ", Z: " + queue_z + ") with (block_r: " + queue_block_r + ", block_g: "
                                         + queue_block_g + ", block_b: " + queue_block_b + ", sun_r: " + queue_sun_r + ", sun_g: " + queue_sun_g + ", sun_b: " + queue_sun_b + ")");
                             }
-                            int limit_test = Math.max(Math.max(Math.max(comp_block_l, comp_block_r), comp_block_g), comp_block_b);
+                            int limit_test = Math.max(Math.max(comp_block_r, comp_block_g), comp_block_b);
                             limit_test = Math.max(Math.max(Math.max(limit_test, comp_sun_r), comp_sun_g), comp_sun_b);
 
                             // if ((manhattan_distance < ((compLightValue & 0x0000F) - 1)) || (par1Enu ==
@@ -540,7 +536,6 @@ public abstract class WorldMixin {
 
                                             int queueLightEntryFiltered = calculateOpacity(queueLightEntry, opacity, neighborBlock, neighbor_x, neighbor_y, neighbor_z);
 
-                                            int queue_filtered_block_l = (queueLightEntryFiltered >> CLApi.bitshift_l) & 0xF;
                                             int queue_filtered_block_r = (queueLightEntryFiltered >> CLApi.bitshift_r) & CLApi.bitmask;
                                             int queue_filtered_block_g = (queueLightEntryFiltered >> CLApi.bitshift_g) & CLApi.bitmask;
                                             int queue_filtered_block_b = (queueLightEntryFiltered >> CLApi.bitshift_b) & CLApi.bitmask;
@@ -548,7 +543,6 @@ public abstract class WorldMixin {
                                             int queue_filtered_sun_g = (queueLightEntryFiltered >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
                                             int queue_filtered_sun_b = (queueLightEntryFiltered >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
 
-                                            int neighbor_block_l = (neighborLightEntry >> CLApi.bitshift_l) & 0xF;
                                             int neighbor_block_r = (neighborLightEntry >> CLApi.bitshift_r) & CLApi.bitmask;
                                             int neighbor_block_g = (neighborLightEntry >> CLApi.bitshift_g) & CLApi.bitmask;
                                             int neighbor_block_b = (neighborLightEntry >> CLApi.bitshift_b) & CLApi.bitmask;
@@ -556,7 +550,6 @@ public abstract class WorldMixin {
                                             int neighbor_sun_g = (neighborLightEntry >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
                                             int neighbor_sun_b = (neighborLightEntry >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
 
-                                            int final_block_l = queue_block_l > neighbor_block_l ? Math.max(0, queue_filtered_block_l) : neighbor_block_l;
                                             int final_block_r = queue_block_r > neighbor_block_r ? Math.max(0, queue_filtered_block_r) : neighbor_block_r;
                                             int final_block_g = queue_block_g > neighbor_block_g ? Math.max(0, queue_filtered_block_g) : neighbor_block_g;
                                             int final_block_b = queue_block_b > neighbor_block_b ? Math.max(0, queue_filtered_block_b) : neighbor_block_b;
@@ -564,11 +557,11 @@ public abstract class WorldMixin {
                                             int final_sun_g = queue_sun_g > neighbor_sun_g ? Math.max(0, queue_filtered_sun_g) : neighbor_sun_g;
                                             int final_sun_b = queue_sun_b > neighbor_sun_b ? Math.max(0, queue_filtered_sun_b) : neighbor_sun_b;
 
-                                            long light_combine = (final_block_l << CLApi.bitshift_l) | (final_block_r << CLApi.bitshift_r) | (final_block_g << CLApi.bitshift_g)
+                                            long light_combine = (final_block_r << CLApi.bitshift_r) | (final_block_g << CLApi.bitshift_g)
                                                     | (final_block_b << CLApi.bitshift_b) | (final_sun_r << CLApi.bitshift_sun_r) | (final_sun_g << CLApi.bitshift_sun_g)
                                                     | (final_sun_b << CLApi.bitshift_sun_b);
 
-                                            if (((final_block_l > neighbor_block_l) || (final_block_r > neighbor_block_r) || (final_block_g > neighbor_block_g) || (final_block_b > neighbor_block_b)
+                                            if (((final_block_r > neighbor_block_r) || (final_block_g > neighbor_block_g) || (final_block_b > neighbor_block_b)
                                                     || (final_sun_r > neighbor_sun_r) || (final_sun_g > neighbor_sun_g) || (final_sun_b > neighbor_sun_b))
                                                     && (getter < this.lightAdditionBlockList.length)) {
                                                 this.lightAdditionNeeded[neighbor_x - par_x + offset][neighbor_y - par_y + offset][neighbor_z - par_z + offset] = this.updateFlag; // Mark
@@ -579,7 +572,7 @@ public abstract class WorldMixin {
                                                 this.lightAdditionBlockList[getter++] = ((long) neighbor_x - (long) par_x + size) | (((long) neighbor_y - (long) par_y + size) << coord_size)
                                                         | (((long) neighbor_z - (long) par_z + size) << (coord_size * 2)) | (light_combine << (coord_size * 3));
                                                 lightAdditionsCalled++;
-                                            } else if ((queue_block_l + opacity < neighbor_block_l) || (queue_block_r + opacity < neighbor_block_r) || (queue_block_g + opacity < neighbor_block_g)
+                                            } else if ((queue_block_r + opacity < neighbor_block_r) || (queue_block_g + opacity < neighbor_block_g)
                                                     || (queue_block_b + opacity < neighbor_block_b) || (queue_sun_r + opacity < neighbor_sun_r) || (queue_sun_g + opacity < neighbor_sun_g)
                                                     || (queue_sun_b + opacity < neighbor_sun_b)) {
                                                 if (Math.abs(queue_x - rel_x) < offset && Math.abs(queue_y - rel_y) < offset && Math.abs(queue_z - rel_z) < offset) {
@@ -613,7 +606,7 @@ public abstract class WorldMixin {
                 filler = 0;
                 getter = 0;
 
-                if (saved_block_l > comp_block_l || saved_block_r > comp_block_r || saved_block_g > comp_block_g || saved_block_b > comp_block_b || saved_sun_r > comp_sun_r || saved_sun_g > comp_sun_g
+                if (saved_block_r > comp_block_r || saved_block_g > comp_block_g || saved_block_b > comp_block_b || saved_sun_r > comp_sun_r || saved_sun_g > comp_sun_g
                         || saved_sun_b > comp_sun_b) { // savedLightValue has components that are larger than
                                                        // compLightValue
                     // Light Destruction
@@ -622,8 +615,8 @@ public abstract class WorldMixin {
                                                                                             // light
                     if (DEBUG) {
                         CLLog.warn("Destruction1 " + makePosStr(par_x, par_y, par_z) + " with saved "
-                                + makeLightStr(saved_block_l, saved_block_r, saved_block_g, saved_block_b, saved_sun_r, saved_sun_g, saved_sun_b) + " and comp "
-                                + makeLightStr(comp_block_l, comp_block_r, comp_block_g, comp_block_b, comp_sun_r, comp_sun_g, comp_sun_b));
+                                + makeLightStr(saved_block_r, saved_block_g, saved_block_b, saved_sun_r, saved_sun_g, saved_sun_b) + " and comp "
+                                + makeLightStr(comp_block_r, comp_block_g, comp_block_b, comp_sun_r, comp_sun_g, comp_sun_b));
                     }
                     this.lightAdditionBlockList[getter++] = (startCoord | (savedLightValue << (coord_size * 3)));
 
@@ -640,7 +633,7 @@ public abstract class WorldMixin {
                         man_z = MathHelper.abs_int(queue_z - par_z);
                         manhattan_distance = man_x + man_y + man_z;
 
-                        int limit_test = Math.max(Math.max(Math.max(saved_block_l, saved_block_r), saved_block_g), saved_block_b);
+                        int limit_test = Math.max(Math.max(saved_block_r, saved_block_g), saved_block_b);
                         limit_test = Math.max(Math.max(Math.max(limit_test, saved_sun_r), saved_sun_g), saved_sun_b);
 
                         if (manhattan_distance < limit_test) { // Limits the splat size to the initial brightness value
@@ -658,7 +651,6 @@ public abstract class WorldMixin {
                                 opacity = Math.max(1, this.getBlock(neighbor_x, neighbor_y, neighbor_z).getLightOpacity((World) (Object) this, neighbor_x, neighbor_y, neighbor_z));
                                 neighborLightEntry = this.getSavedLightValue(par1Enu, neighbor_x, neighbor_y, neighbor_z);
 
-                                int queue_block_l = (queueLightEntry >> CLApi.bitshift_l) & 0xF;
                                 int queue_block_r = (queueLightEntry >> CLApi.bitshift_r) & CLApi.bitmask;
                                 int queue_block_g = (queueLightEntry >> CLApi.bitshift_g) & CLApi.bitmask;
                                 int queue_block_b = (queueLightEntry >> CLApi.bitshift_b) & CLApi.bitmask;
@@ -666,7 +658,6 @@ public abstract class WorldMixin {
                                 int queue_sun_g = (queueLightEntry >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
                                 int queue_sun_b = (queueLightEntry >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
 
-                                int neighbor_block_l = (neighborLightEntry >> CLApi.bitshift_l) & 0xF;
                                 int neighbor_block_r = (neighborLightEntry >> CLApi.bitshift_r) & CLApi.bitmask;
                                 int neighbor_block_g = (neighborLightEntry >> CLApi.bitshift_g) & CLApi.bitmask;
                                 int neighbor_block_b = (neighborLightEntry >> CLApi.bitshift_b) & CLApi.bitmask;
@@ -679,7 +670,6 @@ public abstract class WorldMixin {
 
                                     // |------------------maximum theoretical light value------------------|
                                     // |------saved light value------|
-                                    int final_block_l = (Math.max(queue_block_l - (man_x + man_y + man_z), 0) >= neighbor_block_l) ? 0 : neighbor_block_l;
                                     int final_block_r = (Math.max(queue_block_r - (man_x + man_y + man_z), 0) >= neighbor_block_r) ? 0 : neighbor_block_r;
                                     int final_block_g = (Math.max(queue_block_g - (man_x + man_y + man_z), 0) >= neighbor_block_g) ? 0 : neighbor_block_g;
                                     int final_block_b = (Math.max(queue_block_b - (man_x + man_y + man_z), 0) >= neighbor_block_b) ? 0 : neighbor_block_b;
@@ -688,9 +678,6 @@ public abstract class WorldMixin {
                                     int final_sun_b = (Math.max(queue_sun_b - (man_x + man_y + man_z), 0) >= neighbor_sun_b) ? 0 : neighbor_sun_b;
 
                                     int sortValue = 0;
-                                    if ((queue_block_l > 0) && (final_block_l != 0)) {
-                                        sortValue = (int) final_block_l;
-                                    }
                                     if ((queue_block_r > 0) && (final_block_r > sortValue)) {
                                         sortValue = (int) final_block_r;
                                     }
@@ -711,7 +698,7 @@ public abstract class WorldMixin {
                                         sortValue = (int) final_sun_b;
                                     }
 
-                                    long light_combine = (final_block_l << CLApi.bitshift_l) | (final_block_r << CLApi.bitshift_r) | (final_block_g << CLApi.bitshift_g)
+                                    long light_combine = (final_block_r << CLApi.bitshift_r) | (final_block_g << CLApi.bitshift_g)
                                             | (final_block_b << CLApi.bitshift_b) | (final_sun_r << CLApi.bitshift_sun_r) | (final_sun_g << CLApi.bitshift_sun_g)
                                             | (final_sun_b << CLApi.bitshift_sun_b);
                                     // If the light we are looking at on the edge is brighter or equal to the
@@ -720,9 +707,6 @@ public abstract class WorldMixin {
                                     if (neighborLightEntry != light_combine) {
 
                                         if (sortValue != 0) {
-                                            if (final_block_l == sortValue) {
-                                                final_block_l = 0;
-                                            }
                                             if (final_block_r == sortValue) {
                                                 final_block_r = 0;
                                             }
@@ -741,7 +725,7 @@ public abstract class WorldMixin {
                                             if (final_sun_b == sortValue) {
                                                 final_sun_b = 0;
                                             }
-                                            light_combine = (final_block_l << CLApi.bitshift_l) | (final_block_r << CLApi.bitshift_r) | (final_block_g << CLApi.bitshift_g)
+                                            light_combine = (final_block_r << CLApi.bitshift_r) | (final_block_g << CLApi.bitshift_g)
                                                     | (final_block_b << CLApi.bitshift_b) | (final_sun_r << CLApi.bitshift_sun_r) | (final_sun_g << CLApi.bitshift_sun_g)
                                                     | (final_sun_b << CLApi.bitshift_sun_b);
 
@@ -754,7 +738,7 @@ public abstract class WorldMixin {
                                         }
                                         this.setLightValue(par1Enu, neighbor_x, neighbor_y, neighbor_z, (int) light_combine); // This kills the light
                                         if (DEBUG) {
-                                            CLLog.warn("Destruction2 at (X: " + neighbor_x + ", Y: " + neighbor_y + ", Z: " + neighbor_z + ") with (block_l: " + final_block_l + ", block_r: "
+                                            CLLog.warn("Destruction2 at (X: " + neighbor_x + ", Y: " + neighbor_y + ", Z: " + neighbor_z + ") with (block_r: "
                                                     + final_block_r + ", block_g: " + final_block_g + ", block_b: " + final_block_b + ", sun_r: " + final_sun_r + ", sun_g: " + final_sun_g
                                                     + ", sun_b: " + final_sun_b + ")");
                                         }

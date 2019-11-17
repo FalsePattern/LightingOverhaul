@@ -114,12 +114,11 @@ public abstract class ChunkMixin {
                         if (sun_r <= 0 && sun_g <= 0 && sun_b <= 0)
                             continue;
                         ExtendedBlockStorage extendedBlockStorage = this.storageArrays[k >> 4];
-                        if (extendedBlockStorage == null)
-                            continue;
-
-                        int sun_combined = (15 << CLApi.bitshift_sun_r) | (sun_g << CLApi.bitshift_sun_g) | (sun_b << CLApi.bitshift_sun_b);
-                        extendedBlockStorage.setExtSkylightValue(b, k & 0xF, b1, sun_combined);
-                        this.worldObj.func_147479_m((this.xPosition << 4) + b, k, (this.zPosition << 4) + b1);
+                        if (extendedBlockStorage != null) {
+                            int sun_combined = (sun_r << CLApi.bitshift_sun_r) | (sun_g << CLApi.bitshift_sun_g) | (sun_b << CLApi.bitshift_sun_b);
+                            extendedBlockStorage.setExtSkylightValue(b, k & 0xF, b1, sun_combined);
+                            this.worldObj.func_147479_m((this.xPosition << 4) + b, k, (this.zPosition << 4) + b1);
+                        }
                         --k;
                     } while (k > 0 && (sun_r > 0 || sun_g > 0 || sun_b > 0));
                 }

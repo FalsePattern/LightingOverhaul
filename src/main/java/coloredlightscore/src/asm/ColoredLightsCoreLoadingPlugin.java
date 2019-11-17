@@ -8,7 +8,6 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.MCVersion;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.Name;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.SortingIndex;
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
 
 @MCVersion("1.7.10")
 @Name("LightOverhaulCore")
