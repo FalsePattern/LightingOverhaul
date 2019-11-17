@@ -96,10 +96,10 @@ public abstract class WorldMixin {
      */
     @Inject(at = @At("RETURN"), method = { "<init>*" })
     public void init(CallbackInfo callbackInfo) {
-        lightAdditionBlockList = new long[32768 * 4];
+        lightAdditionBlockList = new long[32768 * 4*4];
         lightAdditionNeeded = new int[64][64][64];
         lightBackfillIndexes = new int[32];
-        lightBackfillBlockList = new int[32][5000 * 4];
+        lightBackfillBlockList = new int[32][5000 * 4*8];
         lightBackfillNeeded = new int[64][64][64];
         updateFlag = 1;
         flagEntry = EnumSkyBlock.Block;
