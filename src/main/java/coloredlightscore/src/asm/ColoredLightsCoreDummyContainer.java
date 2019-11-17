@@ -41,14 +41,14 @@ public class ColoredLightsCoreDummyContainer extends DummyModContainer {
     public ColoredLightsCoreDummyContainer() {
         super(new ModMetadata());
         ModMetadata meta = getMetadata();
-        meta.modId = "coloredlightscore";
-        meta.name = "Colored Lights Core";
+        meta.modId = "lightoverhaulcore";
+        meta.name = "Light Overhaul Core";
         meta.version = version;
         meta.logoFile = "/mod_ColoredLightCore.logo.png";
-        meta.url = "http://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/wip-mods/1445251-1-7-10-beta-wip-colored-light-progress-and";
+        meta.url = "https://www.curseforge.com/minecraft/mc-mods/light-overhaul";
         meta.credits = "";
-        meta.authorList = Arrays.asList("heaton84", "Murray65536", "Kovu", "Biggerfisch", "CptSpaceToaster");
-        meta.description = "The coremod for Colored Lights";
+        meta.authorList = Arrays.asList("heaton84", "Murray65536", "Kovu", "Biggerfisch", "CptSpaceToaster", "DarkShadow44");
+        meta.description = "The coremod for Light Overhaul";
         meta.useDependencyInformation = true;
         chunkDataEventHandler = new ChunkDataEventHandler();
     }

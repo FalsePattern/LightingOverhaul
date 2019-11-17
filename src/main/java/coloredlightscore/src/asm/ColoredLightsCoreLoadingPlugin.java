@@ -10,12 +10,11 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin.Name;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.SortingIndex;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
 
-@TransformerExclusions("coloredlightscore.*")
 @MCVersion("1.7.10")
-@Name("ColoredLightsCore")
+@Name("LightOverhaulCore")
 @SortingIndex(1001)
 public class ColoredLightsCoreLoadingPlugin implements IFMLLoadingPlugin {
-    public static org.apache.logging.log4j.Logger CLLog = LogManager.getLogger("coloredlightscore");
+    public static org.apache.logging.log4j.Logger CLLog = LogManager.getLogger("lightoverhaulcore");
 
     @Override
     public String getModContainerClass() {
