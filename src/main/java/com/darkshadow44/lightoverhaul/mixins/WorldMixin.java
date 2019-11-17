@@ -96,10 +96,10 @@ public abstract class WorldMixin {
      */
     @Inject(at = @At("RETURN"), method = { "<init>*" })
     public void init(CallbackInfo callbackInfo) {
-        lightAdditionBlockList = new long[32768 * 4*4];
+        lightAdditionBlockList = new long[32768 * 4 * 4];
         lightAdditionNeeded = new int[64][64][64];
         lightBackfillIndexes = new int[32];
-        lightBackfillBlockList = new int[32][5000 * 4*8];
+        lightBackfillBlockList = new int[32][5000 * 4 * 8];
         lightBackfillNeeded = new int[64][64][64];
         updateFlag = 1;
         flagEntry = EnumSkyBlock.Block;
@@ -349,6 +349,14 @@ public abstract class WorldMixin {
     @Overwrite
     public boolean updateLightByType(EnumSkyBlock par1Enu, int par_x, int par_y, int par_z) {
         return this.updateLightByType_withIncrement(par1Enu, par_x, par_y, par_z, true, par_x, par_y, par_z);
+    }
+
+    private String makeLightStr(int block_l, int block_r, int block_g, int block_b, int sun_r, int sun_g, int sun_b) {
+        return "(block_l: " + block_l + ", block_r : " + block_r + ", block_g: " + block_g + ", block_b: " + block_b + ", sun_r: " + sun_r + ", sun_g: " + sun_g + ", sun_b: " + sun_b + ")";
+    }
+
+    private String makePosStr(int x, int y, int z) {
+        return "at (X: " + x + ", Y: " + y + " Z: " + z + ")";
     }
 
     public boolean updateLightByType_withIncrement(EnumSkyBlock par1Enu, int par_x, int par_y, int par_z, boolean shouldIncrement, int rel_x, int rel_y, int rel_z) {
@@ -613,8 +621,9 @@ public abstract class WorldMixin {
                     this.setLightValue(par1Enu, par_x, par_y, par_z, (int) compLightValue); // This kills the
                                                                                             // light
                     if (DEBUG) {
-                        CLLog.warn("Destruction1 at (X: " + par_x + ", Y: " + par_y + ", Z: " + par_z + ") with (block_l: " + comp_block_l + ", block_r: " + comp_block_r + ", block_g: " + comp_block_g
-                                + ", block_b: " + comp_block_b + ", sun_r: " + comp_sun_r + ", sun_g: " + comp_sun_g + ", sun_b: " + comp_sun_b + ")");
+                        CLLog.warn("Destruction1 " + makePosStr(par_x, par_y, par_z) + " with saved "
+                                + makeLightStr(saved_block_l, saved_block_r, saved_block_g, saved_block_b, saved_sun_r, saved_sun_g, saved_sun_b) + " and comp "
+                                + makeLightStr(comp_block_l, comp_block_r, comp_block_g, comp_block_b, comp_sun_r, comp_sun_g, comp_sun_b));
                     }
                     this.lightAdditionBlockList[getter++] = (startCoord | (savedLightValue << (coord_size * 3)));
 
