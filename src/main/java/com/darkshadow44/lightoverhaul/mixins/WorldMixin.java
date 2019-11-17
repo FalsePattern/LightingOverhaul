@@ -96,10 +96,10 @@ public abstract class WorldMixin {
      */
     @Inject(at = @At("RETURN"), method = { "<init>*" })
     public void init(CallbackInfo callbackInfo) {
-        lightAdditionBlockList = new long[32768 * 4 * 4];
+        lightAdditionBlockList = new long[32768 * 8];
         lightAdditionNeeded = new int[64][64][64];
         lightBackfillIndexes = new int[32];
-        lightBackfillBlockList = new int[32][5000 * 4 * 8];
+        lightBackfillBlockList = new int[32][5000 * 8];
         lightBackfillNeeded = new int[64][64][64];
         updateFlag = 1;
         flagEntry = EnumSkyBlock.Block;
@@ -443,8 +443,8 @@ public abstract class WorldMixin {
                                                                                     // processing processed
                 lightAdditionsCalled++;
                 if (DEBUG) {
-                    CLLog.warn("Spread Addition Original (comp_block_r : " + comp_block_r + ", comp_block_b: " + comp_block_b + ", saved_block_r : " + saved_block_r + ", saved_block_b: "
-                            + saved_block_b + ")");
+                    CLLog.warn("Spread Addition Original " + makePosStr(par_x, par_y, par_z) + " with comp " + makeLightStr(comp_block_r, comp_block_g, comp_block_b, comp_sun_r, comp_sun_g, comp_sun_b) + " and saved "
+                            + makeLightStr(saved_block_r, saved_block_g, saved_block_b, comp_sun_r, comp_sun_g, comp_sun_b));
                 }
                 this.lightAdditionBlockList[getter++] = startCoord | (compLightValue << (coord_size * 3));
 
@@ -495,8 +495,9 @@ public abstract class WorldMixin {
 
                             this.setLightValue(par1Enu, queue_x, queue_y, queue_z, queueLightEntry);
                             if (DEBUG) {
-                                CLLog.warn("Spread at (X: " + queue_x + ", Y: " + queue_y + ", Z: " + queue_z + ") with (block_r: " + queue_block_r + ", block_g: "
-                                        + queue_block_g + ", block_b: " + queue_block_b + ", sun_r: " + queue_sun_r + ", sun_g: " + queue_sun_g + ", sun_b: " + queue_sun_b + ")");
+                                CLLog.warn("Spread " + makePosStr(queue_x, queue_y, queue_z)
+                                + " with queue " + makeLightStr(queue_block_r, queue_block_g, queue_block_b, queue_sun_r, queue_sun_g, queue_sun_b)
+                                + " and edge " + makeLightStr(edge_block_r, edge_block_g, edge_block_b, edge_sun_r, edge_sun_g, edge_sun_b));
                             }
                             int limit_test = Math.max(Math.max(comp_block_r, comp_block_g), comp_block_b);
                             limit_test = Math.max(Math.max(Math.max(limit_test, comp_sun_r), comp_sun_g), comp_sun_b);
@@ -650,6 +651,7 @@ public abstract class WorldMixin {
 
                                 opacity = Math.max(1, this.getBlock(neighbor_x, neighbor_y, neighbor_z).getLightOpacity((World) (Object) this, neighbor_x, neighbor_y, neighbor_z));
                                 neighborLightEntry = this.getSavedLightValue(par1Enu, neighbor_x, neighbor_y, neighbor_z);
+                                neighborLightEntry = neighborLightEntry & ~0xF;
 
                                 int queue_block_r = (queueLightEntry >> CLApi.bitshift_r) & CLApi.bitmask;
                                 int queue_block_g = (queueLightEntry >> CLApi.bitshift_g) & CLApi.bitmask;
