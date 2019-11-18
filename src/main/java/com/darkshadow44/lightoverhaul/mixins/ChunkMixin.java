@@ -3,9 +3,16 @@ package com.darkshadow44.lightoverhaul.mixins;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import coloredlightscore.src.api.CLApi;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockStainedGlass;
 import net.minecraft.world.EnumSkyBlock;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
@@ -125,6 +132,18 @@ public abstract class ChunkMixin {
             }
         }
         this.isModified = true;
+    }
+
+    /***
+     * @author darkshadow44
+     * @reason We need relightBlock to be called when glass is placed or removed...
+     */
+    @Redirect(method = "func_150807_a", at = @At(value = "INVOKE", target = "net.minecraft.block.Block.getLightOpacity(Lnet/minecraft/world/IBlockAccess;III)I", ordinal = 1))
+    private int func_150807_a_getLightOpacity(Block instance, IBlockAccess world, int x, int y, int z) {
+        if (instance instanceof BlockStainedGlass) {
+            return 1;
+        }
+        return instance.getLightOpacity(world, x, y, z);
     }
 
     /***
