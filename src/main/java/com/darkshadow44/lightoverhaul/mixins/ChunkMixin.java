@@ -138,12 +138,19 @@ public abstract class ChunkMixin {
      * @author darkshadow44
      * @reason We need relightBlock to be called when glass is placed or removed...
      */
-    @Redirect(method = "func_150807_a", at = @At(value = "INVOKE", target = "net.minecraft.block.Block.getLightOpacity(Lnet/minecraft/world/IBlockAccess;III)I", ordinal = 1))
+    @Redirect(method = "func_150807_a", at = @At(value = "INVOKE", target = "net.minecraft.block.Block.getLightOpacity(Lnet/minecraft/world/IBlockAccess;III)I"))
     private int func_150807_a_getLightOpacity(Block instance, IBlockAccess world, int x, int y, int z) {
         if (instance instanceof BlockStainedGlass) {
             return 1;
         }
         return instance.getLightOpacity(world, x, y, z);
+    }
+
+    private boolean is_translucent_for_relightBlock(int x, int y, int z) {
+        if (getBlock(x, y, z) instanceof BlockStainedGlass) {
+            return false;
+        }
+        return func_150808_b(x, y, z) == 0;
     }
 
     /***
@@ -156,7 +163,7 @@ public abstract class ChunkMixin {
         int j = i;
         if (y > i)
             j = y;
-        while (j > 0 && func_150808_b(x, j - 1, z) == 0)
+        while (j > 0 && is_translucent_for_relightBlock(x, j - 1, z))
             j--;
         if (j == i)
             return;
@@ -186,14 +193,22 @@ public abstract class ChunkMixin {
             int sun_r = (i3 >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
             int sun_g = (i3 >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
             int sun_b = (i3 >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
+            int min_opacity = 0;
             while (j > 0 && (sun_r > 0 || sun_g > 0 || sun_b > 0)) {
                 j--;
-                int i4 = func_150808_b(x, j, z);
-                if (i4 == 0)
-                    i4 = 1;
-                sun_r -= i4;
-                sun_g -= i4;
-                sun_b -= i4;
+                if (getBlock(x, j, z) instanceof BlockStainedGlass) {
+                    //sun_g = 0;
+                    //sun_b = 0;
+                }
+                int opacity = func_150808_b(x, j, z);
+                if (opacity != 0) {
+                    min_opacity = 1; // As soon as we hit something not 100% transparent, light decay starts.
+                } else {
+                    opacity = min_opacity;
+                }
+                sun_r -= opacity;
+                sun_g -= opacity;
+                sun_b -= opacity;
                 sun_r = Math.max(0, sun_r);
                 sun_g = Math.max(0, sun_g);
                 sun_b = Math.max(0, sun_b);
