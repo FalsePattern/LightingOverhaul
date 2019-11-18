@@ -11,6 +11,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.darkshadow44.lightoverhaul.helper.BlockHelper;
+import com.darkshadow44.lightoverhaul.interfaces.IChunkMixin;
+
 import coloredlightscore.src.api.CLApi;
 import coloredlightscore.src.asm.ColoredLightsCoreDummyContainer;
 import cpw.mods.fml.relauncher.Side;
@@ -259,8 +262,11 @@ public abstract class WorldMixin {
      */
     @Overwrite
     private int computeLightValue(int par_x, int par_y, int par_z, EnumSkyBlock par1Enu) {
-        if (par1Enu == EnumSkyBlock.Sky && this.canBlockSeeTheSky(par_x, par_y, par_z)) {
-            return (15 << CLApi.bitshift_sun_r) | (15 << CLApi.bitshift_sun_g) | (15 << CLApi.bitshift_sun_b);
+        Chunk chunk = getChunkFromChunkCoords(par_x >> 4, par_z >> 4);
+        IChunkMixin chunkMixin = (IChunkMixin) (Object) chunk;
+        if (par1Enu == EnumSkyBlock.Sky && chunkMixin.canReallySeeTheSky(par_x & 0xF, par_y, par_z & 0xF)) {
+            BlockHelper.test3();
+            return this.getSavedLightValue(EnumSkyBlock.Sky, par_x, par_y, par_z); /* Trust the sunlight spread algorithm */
         } else {
             Block block = this.getBlock(par_x, par_y, par_z);
 

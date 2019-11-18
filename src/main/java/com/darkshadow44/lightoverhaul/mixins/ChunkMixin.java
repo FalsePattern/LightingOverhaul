@@ -8,6 +8,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.darkshadow44.lightoverhaul.interfaces.IChunkMixin;
+
 import coloredlightscore.src.api.CLApi;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockStainedGlass;
@@ -18,17 +20,12 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
 @Mixin(Chunk.class)
-public abstract class ChunkMixin {
+public abstract class ChunkMixin implements IChunkMixin {
     @Shadow
     public World worldObj;
 
     @Shadow
     public ExtendedBlockStorage[] storageArrays;
-
-    @Shadow
-    private int func_150808_b(int x, int y, int z) {
-        return 0;
-    }
 
     @Shadow
     public int xPosition;
@@ -55,6 +52,28 @@ public abstract class ChunkMixin {
 
     @Shadow
     private void updateSkylightNeighborHeight(int paramInt1, int paramInt2, int paramInt3, int paramInt4) {
+    }
+
+    @Shadow
+    public Block getBlock(int paramInt1, int paramInt2, int paramInt3) {
+        return null;
+    }
+
+    @Shadow
+    public int func_150808_b(int paramInt1, int paramInt2, int paramInt3) {
+        return 0;
+    }
+
+    int[] heightMap2;
+
+    @Inject(method = "<init>*", at = @At("RETURN"))
+    private void construct(CallbackInfo callbackInfo) {
+        heightMap2 = new int[256];
+    }
+
+    @Override
+    public boolean canReallySeeTheSky(int x, int y, int z) {
+        return heightMap2[z << 4 | x] < y;
     }
 
     /***
@@ -90,6 +109,32 @@ public abstract class ChunkMixin {
      * @reason TODO
      */
     @Overwrite
+    public void generateHeightMap() {
+        int i = getTopFilledSegment();
+        this.heightMapMinimum = Integer.MAX_VALUE;
+        for (byte b = 0; b < 16; b++) {
+            for (byte b1 = 0; b1 < 16; b1++) {
+                this.precipitationHeightMap[b + (b1 << 4)] = -999;
+                for (int j = i + 16 - 1; j > 0; j--) {
+                    Block block = getBlock(b, j - 1, b1);
+                    if (block.getLightOpacity() != 0) {
+                        this.heightMap[b1 << 4 | b] = j;
+                        this.heightMap2[b1 << 4 | b] = j;
+                        if (j < this.heightMapMinimum)
+                            this.heightMapMinimum = j;
+                        break;
+                    }
+                }
+            }
+        }
+        this.isModified = true;
+    }
+
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
+    @Overwrite
     public void generateSkylightMap() {
         int i = this.getTopFilledSegment();
         this.heightMapMinimum = Integer.MAX_VALUE;
@@ -100,6 +145,7 @@ public abstract class ChunkMixin {
                 for (j = i + 16 - 1; j > 0; j--) {
                     if (func_150808_b(b, j - 1, b1) != 0) {
                         this.heightMap[b1 << 4 | b] = j;
+                        this.heightMap2[b1 << 4 | b] = j;
                         if (j < this.heightMapMinimum)
                             this.heightMapMinimum = j;
                         break;
@@ -136,7 +182,7 @@ public abstract class ChunkMixin {
 
     /***
      * @author darkshadow44
-     * @reason We need relightBlock to be called when glass is placed or removed...
+     * @reason We need relightBlock to be called when glass is placed...
      */
     @Redirect(method = "func_150807_a", at = @At(value = "INVOKE", target = "net.minecraft.block.Block.getLightOpacity(Lnet/minecraft/world/IBlockAccess;III)I"))
     private int func_150807_a_getLightOpacity(Block instance, IBlockAccess world, int x, int y, int z) {
@@ -167,6 +213,10 @@ public abstract class ChunkMixin {
             j--;
         if (j == i)
             return;
+        int realY = j;
+        while (realY > 0 && func_150808_b(x, realY - 1, z) == 0)
+            realY--;
+        this.heightMap2[z << 4 | x] = realY;
         this.worldObj.markBlocksDirtyVertical(x + this.xPosition * 16, z + this.zPosition * 16, j, i);
         this.heightMap[z << 4 | x] = j;
         int k = this.xPosition * 16 + x;
@@ -189,6 +239,7 @@ public abstract class ChunkMixin {
                     }
                 }
             }
+
             int i3 = EnumSkyBlock.Sky.defaultLightValue;
             int sun_r = (i3 >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
             int sun_g = (i3 >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
@@ -197,8 +248,8 @@ public abstract class ChunkMixin {
             while (j > 0 && (sun_r > 0 || sun_g > 0 || sun_b > 0)) {
                 j--;
                 if (getBlock(x, j, z) instanceof BlockStainedGlass) {
-                    //sun_g = 0;
-                    //sun_b = 0;
+                    sun_g = 0;
+                    sun_b = 0;
                 }
                 int opacity = func_150808_b(x, j, z);
                 if (opacity != 0) {
@@ -212,6 +263,7 @@ public abstract class ChunkMixin {
                 sun_r = Math.max(0, sun_r);
                 sun_g = Math.max(0, sun_g);
                 sun_b = Math.max(0, sun_b);
+
                 int sun_combined = (sun_r << CLApi.bitshift_sun_r) | (sun_g << CLApi.bitshift_sun_g) | (sun_b << CLApi.bitshift_sun_b);
                 ExtendedBlockStorage extendedBlockStorage = this.storageArrays[j >> 4];
                 if (extendedBlockStorage != null)
