@@ -11,7 +11,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.darkshadow44.lightoverhaul.helper.BlockHelper;
 import com.darkshadow44.lightoverhaul.interfaces.IChunkMixin;
 
 import coloredlightscore.src.api.CLApi;
@@ -264,9 +263,8 @@ public abstract class WorldMixin {
     private int computeLightValue(int par_x, int par_y, int par_z, EnumSkyBlock par1Enu) {
         Chunk chunk = getChunkFromChunkCoords(par_x >> 4, par_z >> 4);
         IChunkMixin chunkMixin = (IChunkMixin) (Object) chunk;
-        if (par1Enu == EnumSkyBlock.Sky && chunkMixin.canReallySeeTheSky(par_x & 0xF, par_y, par_z & 0xF)) {
-            BlockHelper.test3();
-            return this.getSavedLightValue(EnumSkyBlock.Sky, par_x, par_y, par_z); /* Trust the sunlight spread algorithm */
+        if (par1Enu == EnumSkyBlock.Sky && this.canBlockSeeTheSky(par_x, par_y, par_z)) {
+            return EnumSkyBlock.Sky.defaultLightValue;
         } else {
             Block block = this.getBlock(par_x, par_y, par_z);
 
@@ -294,6 +292,17 @@ public abstract class WorldMixin {
             int sun_r = (currentLight >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
             int sun_g = (currentLight >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
             int sun_b = (currentLight >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
+            
+            if (chunkMixin.canReallySeeTheSky(par_x & 0xF, par_y, par_z & 0xF))
+            {
+                int sun_precomputed = chunkMixin.getRealSunColor(par_x & 0xF, par_y, par_z & 0xF);
+                int sun_r2 = (sun_precomputed >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
+                int sun_g2 = (sun_precomputed >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
+                int sun_b2 = (sun_precomputed >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
+                sun_r = Math.max(sun_r, sun_r2);
+                sun_g = Math.max(sun_g, sun_g2);
+                sun_b = Math.max(sun_b, sun_b2);
+            }
 
             if (block_r > 15 || block_g > 15 || block_b > 15)
                 block_l = 15;
@@ -318,6 +327,15 @@ public abstract class WorldMixin {
                     int l1 = par_x + Facing.offsetsXForSide[faceIndex];
                     int i2 = par_y + Facing.offsetsYForSide[faceIndex];
                     int j2 = par_z + Facing.offsetsZForSide[faceIndex];
+                    
+                    if (faceIndex == 1)
+                    {
+                        if (getBlock(l1, i2, j2) instanceof BlockStainedGlass)
+                        {
+                            if (chunkMixin.canReallySeeTheSky(l1 & 0xF, i2, j2 & 0xF))
+                                continue;
+                        }
+                    }
 
                     int neighborLight = this.getSavedLightValue(par1Enu, l1, i2, j2);
 
@@ -438,19 +456,46 @@ public abstract class WorldMixin {
             // Format of lightAdditionBlockList word:
             // bbbbb.ggggg.rrrrr.LLLLzzzzzzzyyyyyyyxxxxxxx
             // x/y/z are relative offsets
-            if (comp_block_r > saved_block_r || comp_block_g > saved_block_g || comp_block_b > saved_block_b || comp_sun_r > saved_sun_r || comp_sun_g > saved_sun_g
-                    || comp_sun_b > saved_sun_b) { // compLightValue has components that are larger than
-                                                   // savedLightValue, the block at the current position is brighter
-                                                   // than the saved value at the current positon... it must have been
-                                                   // made brighter somehow
+            if (comp_block_r > saved_block_r || comp_block_g > saved_block_g || comp_block_b > saved_block_b || comp_sun_r > saved_sun_r || comp_sun_g > saved_sun_g || comp_sun_b > saved_sun_b) { // compLightValue
+                                                                                                                                                                                                    // has
+                                                                                                                                                                                                    // components
+                                                                                                                                                                                                    // that
+                                                                                                                                                                                                    // are
+                                                                                                                                                                                                    // larger
+                                                                                                                                                                                                    // than
+                                                                                                                                                                                                    // savedLightValue,
+                                                                                                                                                                                                    // the
+                                                                                                                                                                                                    // block
+                                                                                                                                                                                                    // at
+                                                                                                                                                                                                    // the
+                                                                                                                                                                                                    // current
+                                                                                                                                                                                                    // position
+                                                                                                                                                                                                    // is
+                                                                                                                                                                                                    // brighter
+                                                                                                                                                                                                    // than
+                                                                                                                                                                                                    // the
+                                                                                                                                                                                                    // saved
+                                                                                                                                                                                                    // value
+                                                                                                                                                                                                    // at
+                                                                                                                                                                                                    // the
+                                                                                                                                                                                                    // current
+                                                                                                                                                                                                    // positon...
+                                                                                                                                                                                                    // it
+                                                                                                                                                                                                    // must
+                                                                                                                                                                                                    // have
+                                                                                                                                                                                                    // been
+                                                                                                                                                                                                    // made
+                                                                                                                                                                                                    // brighter
+                                                                                                                                                                                                    // somehow
                 // Light Splat/Spread
 
                 this.lightAdditionNeeded[offset][offset][offset] = this.updateFlag; // Light needs
                                                                                     // processing processed
                 lightAdditionsCalled++;
                 if (DEBUG) {
-                    CLLog.warn("Spread Addition Original " + makePosStr(par_x, par_y, par_z) + " with comp " + makeLightStr(comp_block_r, comp_block_g, comp_block_b, comp_sun_r, comp_sun_g, comp_sun_b) + " and saved "
-                            + makeLightStr(saved_block_r, saved_block_g, saved_block_b, comp_sun_r, comp_sun_g, comp_sun_b));
+                    CLLog.warn(
+                            "Spread Addition Original " + makePosStr(par_x, par_y, par_z) + " with comp " + makeLightStr(comp_block_r, comp_block_g, comp_block_b, comp_sun_r, comp_sun_g, comp_sun_b)
+                                    + " and saved " + makeLightStr(saved_block_r, saved_block_g, saved_block_b, comp_sun_r, comp_sun_g, comp_sun_b));
                 }
                 this.lightAdditionBlockList[getter++] = startCoord | (compLightValue << (coord_size * 3));
 
@@ -491,9 +536,9 @@ public abstract class WorldMixin {
                         int edge_sun_g = (int) (neighborLightEntry >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
                         int edge_sun_b = (int) (neighborLightEntry >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
 
-                        if (queue_block_r > edge_block_r || queue_block_g > edge_block_g || queue_block_b > edge_block_b || queue_sun_r > edge_sun_r
-                                || queue_sun_g > edge_sun_g || queue_sun_b > edge_sun_b) { // Components in queueLightEntry are brighter than in
-                                                                                           // edgeLightEntry
+                        if (queue_block_r > edge_block_r || queue_block_g > edge_block_g || queue_block_b > edge_block_b || queue_sun_r > edge_sun_r || queue_sun_g > edge_sun_g
+                                || queue_sun_b > edge_sun_b) { // Components in queueLightEntry are brighter than in
+                                                               // edgeLightEntry
                             man_x = MathHelper.abs_int(queue_x - par_x);
                             man_y = MathHelper.abs_int(queue_y - par_y);
                             man_z = MathHelper.abs_int(queue_z - par_z);
@@ -501,9 +546,9 @@ public abstract class WorldMixin {
 
                             this.setLightValue(par1Enu, queue_x, queue_y, queue_z, queueLightEntry);
                             if (DEBUG) {
-                                CLLog.warn("Spread " + makePosStr(queue_x, queue_y, queue_z)
-                                + " with queue " + makeLightStr(queue_block_r, queue_block_g, queue_block_b, queue_sun_r, queue_sun_g, queue_sun_b)
-                                + " and edge " + makeLightStr(edge_block_r, edge_block_g, edge_block_b, edge_sun_r, edge_sun_g, edge_sun_b));
+                                CLLog.warn("Spread " + makePosStr(queue_x, queue_y, queue_z) + " with queue "
+                                        + makeLightStr(queue_block_r, queue_block_g, queue_block_b, queue_sun_r, queue_sun_g, queue_sun_b) + " and edge "
+                                        + makeLightStr(edge_block_r, edge_block_g, edge_block_b, edge_sun_r, edge_sun_g, edge_sun_b));
                             }
                             int limit_test = Math.max(Math.max(comp_block_r, comp_block_g), comp_block_b);
                             limit_test = Math.max(Math.max(Math.max(limit_test, comp_sun_r), comp_sun_g), comp_sun_b);
@@ -564,13 +609,11 @@ public abstract class WorldMixin {
                                             int final_sun_g = queue_sun_g > neighbor_sun_g ? Math.max(0, queue_filtered_sun_g) : neighbor_sun_g;
                                             int final_sun_b = queue_sun_b > neighbor_sun_b ? Math.max(0, queue_filtered_sun_b) : neighbor_sun_b;
 
-                                            long light_combine = (final_block_r << CLApi.bitshift_r) | (final_block_g << CLApi.bitshift_g)
-                                                    | (final_block_b << CLApi.bitshift_b) | (final_sun_r << CLApi.bitshift_sun_r) | (final_sun_g << CLApi.bitshift_sun_g)
-                                                    | (final_sun_b << CLApi.bitshift_sun_b);
+                                            long light_combine = (final_block_r << CLApi.bitshift_r) | (final_block_g << CLApi.bitshift_g) | (final_block_b << CLApi.bitshift_b)
+                                                    | (final_sun_r << CLApi.bitshift_sun_r) | (final_sun_g << CLApi.bitshift_sun_g) | (final_sun_b << CLApi.bitshift_sun_b);
 
-                                            if (((final_block_r > neighbor_block_r) || (final_block_g > neighbor_block_g) || (final_block_b > neighbor_block_b)
-                                                    || (final_sun_r > neighbor_sun_r) || (final_sun_g > neighbor_sun_g) || (final_sun_b > neighbor_sun_b))
-                                                    && (getter < this.lightAdditionBlockList.length)) {
+                                            if (((final_block_r > neighbor_block_r) || (final_block_g > neighbor_block_g) || (final_block_b > neighbor_block_b) || (final_sun_r > neighbor_sun_r)
+                                                    || (final_sun_g > neighbor_sun_g) || (final_sun_b > neighbor_sun_b)) && (getter < this.lightAdditionBlockList.length)) {
                                                 this.lightAdditionNeeded[neighbor_x - par_x + offset][neighbor_y - par_y + offset][neighbor_z - par_z + offset] = this.updateFlag; // Mark
                                                                                                                                                                                    // neighbor
                                                                                                                                                                                    // to
@@ -579,9 +622,8 @@ public abstract class WorldMixin {
                                                 this.lightAdditionBlockList[getter++] = ((long) neighbor_x - (long) par_x + size) | (((long) neighbor_y - (long) par_y + size) << coord_size)
                                                         | (((long) neighbor_z - (long) par_z + size) << (coord_size * 2)) | (light_combine << (coord_size * 3));
                                                 lightAdditionsCalled++;
-                                            } else if ((queue_block_r + opacity < neighbor_block_r) || (queue_block_g + opacity < neighbor_block_g)
-                                                    || (queue_block_b + opacity < neighbor_block_b) || (queue_sun_r + opacity < neighbor_sun_r) || (queue_sun_g + opacity < neighbor_sun_g)
-                                                    || (queue_sun_b + opacity < neighbor_sun_b)) {
+                                            } else if ((queue_block_r + opacity < neighbor_block_r) || (queue_block_g + opacity < neighbor_block_g) || (queue_block_b + opacity < neighbor_block_b)
+                                                    || (queue_sun_r + opacity < neighbor_sun_r) || (queue_sun_g + opacity < neighbor_sun_g) || (queue_sun_b + opacity < neighbor_sun_b)) {
                                                 if (Math.abs(queue_x - rel_x) < offset && Math.abs(queue_y - rel_y) < offset && Math.abs(queue_z - rel_z) < offset) {
                                                     this.lightBackfillNeeded[queue_x - rel_x + offset][queue_y - rel_y + offset][queue_z - rel_z + offset] = this.updateFlag; // Mark
                                                                                                                                                                               // queue
@@ -613,17 +655,21 @@ public abstract class WorldMixin {
                 filler = 0;
                 getter = 0;
 
-                if (saved_block_r > comp_block_r || saved_block_g > comp_block_g || saved_block_b > comp_block_b || saved_sun_r > comp_sun_r || saved_sun_g > comp_sun_g
-                        || saved_sun_b > comp_sun_b) { // savedLightValue has components that are larger than
-                                                       // compLightValue
+                if (saved_block_r > comp_block_r || saved_block_g > comp_block_g || saved_block_b > comp_block_b || saved_sun_r > comp_sun_r || saved_sun_g > comp_sun_g || saved_sun_b > comp_sun_b) { // savedLightValue
+                                                                                                                                                                                                        // has
+                                                                                                                                                                                                        // components
+                                                                                                                                                                                                        // that
+                                                                                                                                                                                                        // are
+                                                                                                                                                                                                        // larger
+                                                                                                                                                                                                        // than
+                                                                                                                                                                                                        // compLightValue
                     // Light Destruction
 
                     this.setLightValue(par1Enu, par_x, par_y, par_z, (int) compLightValue); // This kills the
                                                                                             // light
                     if (DEBUG) {
-                        CLLog.warn("Destruction1 " + makePosStr(par_x, par_y, par_z) + " with saved "
-                                + makeLightStr(saved_block_r, saved_block_g, saved_block_b, saved_sun_r, saved_sun_g, saved_sun_b) + " and comp "
-                                + makeLightStr(comp_block_r, comp_block_g, comp_block_b, comp_sun_r, comp_sun_g, comp_sun_b));
+                        CLLog.warn("Destruction1 " + makePosStr(par_x, par_y, par_z) + " with saved " + makeLightStr(saved_block_r, saved_block_g, saved_block_b, saved_sun_r, saved_sun_g, saved_sun_b)
+                                + " and comp " + makeLightStr(comp_block_r, comp_block_g, comp_block_b, comp_sun_r, comp_sun_g, comp_sun_b));
                     }
                     this.lightAdditionBlockList[getter++] = (startCoord | (savedLightValue << (coord_size * 3)));
 
@@ -706,9 +752,8 @@ public abstract class WorldMixin {
                                         sortValue = (int) final_sun_b;
                                     }
 
-                                    long light_combine = (final_block_r << CLApi.bitshift_r) | (final_block_g << CLApi.bitshift_g)
-                                            | (final_block_b << CLApi.bitshift_b) | (final_sun_r << CLApi.bitshift_sun_r) | (final_sun_g << CLApi.bitshift_sun_g)
-                                            | (final_sun_b << CLApi.bitshift_sun_b);
+                                    long light_combine = (final_block_r << CLApi.bitshift_r) | (final_block_g << CLApi.bitshift_g) | (final_block_b << CLApi.bitshift_b)
+                                            | (final_sun_r << CLApi.bitshift_sun_r) | (final_sun_g << CLApi.bitshift_sun_g) | (final_sun_b << CLApi.bitshift_sun_b);
                                     // If the light we are looking at on the edge is brighter or equal to the
                                     // current light in any way, then there must be a light over there that's doing
                                     // it, so we'll stop eating colors and lights in that direction
@@ -733,9 +778,8 @@ public abstract class WorldMixin {
                                             if (final_sun_b == sortValue) {
                                                 final_sun_b = 0;
                                             }
-                                            light_combine = (final_block_r << CLApi.bitshift_r) | (final_block_g << CLApi.bitshift_g)
-                                                    | (final_block_b << CLApi.bitshift_b) | (final_sun_r << CLApi.bitshift_sun_r) | (final_sun_g << CLApi.bitshift_sun_g)
-                                                    | (final_sun_b << CLApi.bitshift_sun_b);
+                                            light_combine = (final_block_r << CLApi.bitshift_r) | (final_block_g << CLApi.bitshift_g) | (final_block_b << CLApi.bitshift_b)
+                                                    | (final_sun_r << CLApi.bitshift_sun_r) | (final_sun_g << CLApi.bitshift_sun_g) | (final_sun_b << CLApi.bitshift_sun_b);
 
                                             this.lightBackfillNeeded[queue_x - par_x + offset][queue_y - par_y + offset][queue_z - par_z + offset] = this.updateFlag;
                                             this.lightBackfillBlockList[sortValue - 1][this.lightBackfillIndexes[sortValue - 1]++] = (neighbor_x - par_x + size)
@@ -746,9 +790,8 @@ public abstract class WorldMixin {
                                         }
                                         this.setLightValue(par1Enu, neighbor_x, neighbor_y, neighbor_z, (int) light_combine); // This kills the light
                                         if (DEBUG) {
-                                            CLLog.warn("Destruction2 at (X: " + neighbor_x + ", Y: " + neighbor_y + ", Z: " + neighbor_z + ") with (block_r: "
-                                                    + final_block_r + ", block_g: " + final_block_g + ", block_b: " + final_block_b + ", sun_r: " + final_sun_r + ", sun_g: " + final_sun_g
-                                                    + ", sun_b: " + final_sun_b + ")");
+                                            CLLog.warn("Destruction2 at (X: " + neighbor_x + ", Y: " + neighbor_y + ", Z: " + neighbor_z + ") with (block_r: " + final_block_r + ", block_g: "
+                                                    + final_block_g + ", block_b: " + final_block_b + ", sun_r: " + final_sun_r + ", sun_g: " + final_sun_g + ", sun_b: " + final_sun_b + ")");
                                         }
                                         this.lightAdditionBlockList[getter++] = ((long) neighbor_x - (long) par_x + size) | (((long) neighbor_y - (long) par_y + size) << coord_size)
                                                 | (((long) neighbor_z - (long) par_z + size) << (coord_size * 2)) | ((long) queueLightEntry << (coord_size * 3)); // this array keeps the
