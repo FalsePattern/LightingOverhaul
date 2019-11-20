@@ -95,10 +95,12 @@ public abstract class ChunkMixin implements IChunkMixin {
 
     int[] heightMap2;
     int[][][] lightMapSun;
+    int[] stainedglass_api_index;
 
     @Inject(method = "<init>*", at = @At("RETURN"))
     private void construct(CallbackInfo callbackInfo) {
         lightMapSun = new int[16][256][16];
+        stainedglass_api_index = new int[] { 15, 14, 13, 12, 11, 10, 9, 7, 8, 6, 5, 4, 3, 2, 1, 0 };
     }
 
     @Override
@@ -340,19 +342,28 @@ public abstract class ChunkMixin implements IChunkMixin {
                     extendedBlockStorage.setExtSkylightValue(x, pos & 0xF, z, sun_combined);
                 lightMapSun[x][pos][z] = sun_combined;
 
-                if (getBlock(x, pos, z) instanceof BlockStainedGlass) {
-                    sun_g = 0;
-                    sun_b = 0;
-                }
                 int opacity = func_150808_b(x, pos, z);
                 if (opacity != 0) {
                     min_opacity = 1; // As soon as we hit something not 100% transparent, light decay starts.
                 } else {
                     opacity = min_opacity;
                 }
-                sun_r -= opacity;
-                sun_g -= opacity;
-                sun_b -= opacity;
+
+                int r_opacity = opacity;
+                int g_opacity = opacity;
+                int b_opacity = opacity;
+
+                if (getBlock(x, pos, z) instanceof BlockStainedGlass) {
+                    int meta = this.getBlockMetadata(x, pos, z);
+                    int index = stainedglass_api_index[meta];
+                    r_opacity = (int) Math.round((15 - CLApi.r[index]) / 3.0f) + 1;
+                    g_opacity = (int) Math.round((15 - CLApi.g[index]) / 3.0f) + 1;
+                    b_opacity = (int) Math.round((15 - CLApi.b[index]) / 3.0f) + 1;
+                }
+
+                sun_r -= r_opacity;
+                sun_g -= g_opacity;
+                sun_b -= b_opacity;
                 sun_r = Math.max(0, sun_r);
                 sun_g = Math.max(0, sun_g);
                 sun_b = Math.max(0, sun_b);
