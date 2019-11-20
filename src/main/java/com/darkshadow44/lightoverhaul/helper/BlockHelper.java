@@ -42,4 +42,7 @@ public class BlockHelper {
     public static void test3() {
         int k = 0;
     }
+    public static void test5() {
+        int k = 0;
+    }
 }

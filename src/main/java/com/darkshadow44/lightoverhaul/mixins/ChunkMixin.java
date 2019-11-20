@@ -18,6 +18,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
 @Mixin(Chunk.class)
@@ -98,12 +99,18 @@ public abstract class ChunkMixin implements IChunkMixin {
 
     @Inject(method = "<init>*", at = @At("RETURN"))
     private void construct(CallbackInfo callbackInfo) {
-        heightMap2 = new int[256];
         lightMapSun = new int[16][256][16];
     }
 
     @Override
     public boolean canReallySeeTheSky(int x, int y, int z) {
+        if (((Object)this) instanceof EmptyChunk) {
+            return false;
+        }
+        if (heightMap2 == null) {
+            generateSkylightMap();
+        }
+
         return heightMap2[z << 4 | x] <= y;
     }
 
@@ -154,7 +161,6 @@ public abstract class ChunkMixin implements IChunkMixin {
                 for (int j = i + 16 - 1; j > 0; j--) {
                     if (!is_translucent_for_relightBlock(b, j - 1, b1)) {
                         this.heightMap[b1 << 4 | b] = j;
-                        this.heightMap2[b1 << 4 | b] = j;
                         if (j < this.heightMapMinimum)
                             this.heightMapMinimum = j;
                         break;
@@ -171,45 +177,36 @@ public abstract class ChunkMixin implements IChunkMixin {
      */
     @Overwrite
     public void generateSkylightMap() {
+        int xx = -349;
+        int zz = 1613;
+        if (heightMap2 == null) {
+            heightMap2 = new int[256];
+        }
         int i = this.getTopFilledSegment();
         this.heightMapMinimum = Integer.MAX_VALUE;
         for (byte b = 0; b < 16; b++) {
             for (byte b1 = 0; b1 < 16; b1++) {
+                if (b + xPosition * 16 == xx && b1 + zPosition * 16 == zz) {
+                    BlockHelper.test5();
+                }
                 this.precipitationHeightMap[b + (b1 << 4)] = -999;
                 int j;
+                boolean heightMapReached = false;
                 for (j = i + 16 - 1; j > 0; j--) {
-                    if (!is_translucent_for_relightBlock(b, j - 1, b1)) {
+                    if (!is_translucent_for_relightBlock(b, j - 1, b1) && !heightMapReached) {
                         this.heightMap[b1 << 4 | b] = j;
-                        this.heightMap2[b1 << 4 | b] = j;
                         if (j < this.heightMapMinimum)
                             this.heightMapMinimum = j;
+                        heightMapReached = true;
+                    }
+                    if (func_150808_b(b, j - 1, b1) != 0) {
+                        this.heightMap2[b1 << 4 | b] = j;
                         break;
                     }
                 }
-                if (!this.worldObj.provider.hasNoSky) {
-                    j = EnumSkyBlock.Sky.defaultLightValue;
-                    int sun_r = (j >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
-                    int sun_g = (j >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
-                    int sun_b = (j >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
-                    int k = i + 16 - 1;
-                    do {
-                        int m = func_150808_b(b, k, b1);
-                        if (m == 0 && sun_r != 15 && sun_g != 15 && sun_b != 15)
-                            m = 1;
-                        sun_r -= m;
-                        sun_g -= m;
-                        sun_b -= m;
-                        if (sun_r <= 0 && sun_g <= 0 && sun_b <= 0)
-                            continue;
-                        ExtendedBlockStorage extendedBlockStorage = this.storageArrays[k >> 4];
-                        if (extendedBlockStorage != null) {
-                            int sun_combined = (sun_r << CLApi.bitshift_sun_r) | (sun_g << CLApi.bitshift_sun_g) | (sun_b << CLApi.bitshift_sun_b);
-                            extendedBlockStorage.setExtSkylightValue(b, k & 0xF, b1, sun_combined);
-                            this.worldObj.func_147479_m((this.xPosition << 4) + b, k, (this.zPosition << 4) + b1);
-                        }
-                        --k;
-                    } while (k > 0 && (sun_r > 0 || sun_g > 0 || sun_b > 0));
-                }
+                int max_y = i + 16 - 1;
+                int min_y = j;
+                processLightDown(b, b1, min_y, max_y);
             }
         }
         this.isModified = true;
@@ -222,6 +219,10 @@ public abstract class ChunkMixin implements IChunkMixin {
     @Overwrite
     public boolean func_150807_a(int x, int y, int z, Block block_new, int meta_new) {
         int heightMapIndex = z << 4 | x;
+
+        if (heightMap2 == null) {
+            generateSkylightMap();
+        }
 
         if (y >= this.precipitationHeightMap[heightMapIndex] - 1) {
             this.precipitationHeightMap[heightMapIndex] = -999;
@@ -330,6 +331,45 @@ public abstract class ChunkMixin implements IChunkMixin {
         return func_150808_b(x, y, z) == 0;
     }
 
+    private void processLightDown(int x, int z, int y_min, int y_max) {
+        if (!this.worldObj.provider.hasNoSky) {
+            int i3 = EnumSkyBlock.Sky.defaultLightValue;
+            int sun_r = (i3 >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
+            int sun_g = (i3 >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
+            int sun_b = (i3 >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
+            int min_opacity = 0;
+            int pos = y_max;
+            while (pos >= y_min) {
+                int sun_combined = (sun_r << CLApi.bitshift_sun_r) | (sun_g << CLApi.bitshift_sun_g) | (sun_b << CLApi.bitshift_sun_b);
+                ExtendedBlockStorage extendedBlockStorage = this.storageArrays[pos >> 4];
+                if (extendedBlockStorage != null)
+                    extendedBlockStorage.setExtSkylightValue(x, pos & 0xF, z, sun_combined);
+                lightMapSun[x][pos][z] = sun_combined;
+
+                if (getBlock(x, pos, z) instanceof BlockStainedGlass) {
+                    sun_g = 0;
+                    sun_b = 0;
+                }
+                int opacity = func_150808_b(x, pos, z);
+                if (opacity != 0) {
+                    min_opacity = 1; // As soon as we hit something not 100% transparent, light decay starts.
+                } else {
+                    opacity = min_opacity;
+                }
+                sun_r -= opacity;
+                sun_g -= opacity;
+                sun_b -= opacity;
+                sun_r = Math.max(0, sun_r);
+                sun_g = Math.max(0, sun_g);
+                sun_b = Math.max(0, sun_b);
+
+                pos--;
+            }
+
+            this.worldObj.markBlocksDirtyVertical(x + this.xPosition * 16, z + this.zPosition * 16, y_min, y_max);
+        }
+    }
+
     /***
      * @author darkshadow44
      * @reason TODO
@@ -356,56 +396,20 @@ public abstract class ChunkMixin implements IChunkMixin {
         int toprocess_min = Math.min(heightMapMaxReal_old, heightMapMaxReal_new);
 
         this.heightMap2[z << 4 | x] = heightMapMaxReal_new;
-        BlockHelper.test();
-        this.worldObj.markBlocksDirtyVertical(x + this.xPosition * 16, z + this.zPosition * 16, toprocess_min, toprocess_max);
         this.heightMap[z << 4 | x] = heightMapMax_new;
         int k = this.xPosition * 16 + x;
         int m = this.zPosition * 16 + z;
         System.out.println("Remote: " + this.worldObj.isRemote + "," + "old (" + heightMapMaxReal_old + ", " + heightMapMax_old + "), new(" + heightMapMaxReal_new + ", " + heightMapMax_old + ")");
-        if (!this.worldObj.provider.hasNoSky) {
-            int i3 = EnumSkyBlock.Sky.defaultLightValue;
-            int sun_r = (i3 >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
-            int sun_g = (i3 >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
-            int sun_b = (i3 >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
-            int min_opacity = 0;
-            int pos = toprocess_max;
-            while (pos >= toprocess_min) {
-                int sun_combined = (sun_r << CLApi.bitshift_sun_r) | (sun_g << CLApi.bitshift_sun_g) | (sun_b << CLApi.bitshift_sun_b);
-                ExtendedBlockStorage extendedBlockStorage = this.storageArrays[pos >> 4];
-                if (extendedBlockStorage != null)
-                    extendedBlockStorage.setExtSkylightValue(x, pos & 0xF, z, sun_combined);
-                lightMapSun[x][pos][z] = sun_combined;
 
-                if (getBlock(x, pos, z) instanceof BlockStainedGlass) {
-                    sun_g = 0;
-                    sun_b = 0;
-                }
-                int opacity = func_150808_b(x, pos, z);
-                if (opacity != 0) {
-                    min_opacity = 1; // As soon as we hit something not 100% transparent, light decay starts.
-                } else {
-                    opacity = min_opacity;
-                }
-                sun_r -= opacity;
-                sun_g -= opacity;
-                sun_b -= opacity;
-                sun_r = Math.max(0, sun_r);
-                sun_g = Math.max(0, sun_g);
-                sun_b = Math.max(0, sun_b);
-
-                pos--;
-            }
-        }
+        processLightDown(x, z, toprocess_min, toprocess_max);
+        this.updateSkylightNeighborHeight(x - 1, z, toprocess_min, toprocess_max);
+        this.updateSkylightNeighborHeight(x + 1, z, toprocess_min, toprocess_max);
+        this.updateSkylightNeighborHeight(x, z - 1, toprocess_min, toprocess_max);
+        this.updateSkylightNeighborHeight(x, z + 1, toprocess_min, toprocess_max);
+        this.updateSkylightNeighborHeight(x, z, toprocess_min, toprocess_max);
 
         if (toprocess_min < this.heightMapMinimum)
             this.heightMapMinimum = toprocess_min;
-        if (!this.worldObj.provider.hasNoSky) {
-            this.updateSkylightNeighborHeight(k - 1, m, toprocess_min, toprocess_max);
-            this.updateSkylightNeighborHeight(k + 1, m, toprocess_min, toprocess_max);
-            this.updateSkylightNeighborHeight(k, m - 1, toprocess_min, toprocess_max);
-            this.updateSkylightNeighborHeight(k, m + 1, toprocess_min, toprocess_max);
-            this.updateSkylightNeighborHeight(k, m, toprocess_min, toprocess_max);
-        }
         this.isModified = true;
     }
 }
