@@ -293,7 +293,7 @@ public abstract class WorldMixin {
             int sun_g = (currentLight >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
             int sun_b = (currentLight >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
             
-            if (chunkMixin.canReallySeeTheSky(par_x & 0xF, par_y, par_z & 0xF))
+            if (par1Enu == EnumSkyBlock.Sky && chunkMixin.canReallySeeTheSky(par_x & 0xF, par_y, par_z & 0xF))
             {
                 int sun_precomputed = chunkMixin.getRealSunColor(par_x & 0xF, par_y, par_z & 0xF);
                 int sun_r2 = (sun_precomputed >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
@@ -332,7 +332,7 @@ public abstract class WorldMixin {
                     {
                         if (getBlock(l1, i2, j2) instanceof BlockStainedGlass)
                         {
-                            if (chunkMixin.canReallySeeTheSky(l1 & 0xF, i2, j2 & 0xF))
+                            if (par1Enu == EnumSkyBlock.Sky && chunkMixin.canReallySeeTheSky(l1 & 0xF, i2, j2 & 0xF))
                                 continue;
                         }
                     }
