@@ -339,7 +339,7 @@ public abstract class ChunkMixin implements IChunkMixin {
             int sun_b = (i3 >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
             int min_opacity = 0;
             int pos = y_max;
-            this.worldObj.markBlocksDirtyVertical(x + this.xPosition * 16, z + this.zPosition * 16, y_min, y_max);
+
             while (pos >= y_min) {
                 int sun_combined = (sun_r << CLApi.bitshift_sun_r) | (sun_g << CLApi.bitshift_sun_g) | (sun_b << CLApi.bitshift_sun_b);
                 ExtendedBlockStorage extendedBlockStorage = this.storageArrays[pos >> 4];
@@ -366,8 +366,6 @@ public abstract class ChunkMixin implements IChunkMixin {
 
                 pos--;
             }
-
-            this.worldObj.markBlocksDirtyVertical(x + this.xPosition * 16, z + this.zPosition * 16, y_min, y_max);
         }
     }
 
@@ -398,16 +396,15 @@ public abstract class ChunkMixin implements IChunkMixin {
 
         this.heightMap2[z << 4 | x] = heightMapMaxReal_new;
         this.heightMap[z << 4 | x] = heightMapMax_new;
-        int k = this.xPosition * 16 + x;
-        int m = this.zPosition * 16 + z;
-        System.out.println("Remote: " + this.worldObj.isRemote + "," + "old (" + heightMapMaxReal_old + ", " + heightMapMax_old + "), new(" + heightMapMaxReal_new + ", " + heightMapMax_old + ")");
-
+        int full_x = this.xPosition * 16 + x;
+        int full_z = this.zPosition * 16 + z;
+        this.worldObj.markBlocksDirtyVertical(x + this.xPosition * 16, z + this.zPosition * 16, toprocess_min, toprocess_max);
         processLightDown(x, z, toprocess_min, toprocess_max);
-        this.updateSkylightNeighborHeight(x - 1, z, toprocess_min, toprocess_max);
-        this.updateSkylightNeighborHeight(x + 1, z, toprocess_min, toprocess_max);
-        this.updateSkylightNeighborHeight(x, z - 1, toprocess_min, toprocess_max);
-        this.updateSkylightNeighborHeight(x, z + 1, toprocess_min, toprocess_max);
-        this.updateSkylightNeighborHeight(x, z, toprocess_min, toprocess_max);
+        this.updateSkylightNeighborHeight(full_x - 1, full_z, toprocess_min, toprocess_max);
+        this.updateSkylightNeighborHeight(full_x + 1, full_z, toprocess_min, toprocess_max);
+        this.updateSkylightNeighborHeight(full_x, full_z - 1, toprocess_min, toprocess_max);
+        this.updateSkylightNeighborHeight(full_x, full_z + 1, toprocess_min, toprocess_max);
+        this.updateSkylightNeighborHeight(full_x, full_z, toprocess_min, toprocess_max);
 
         if (toprocess_min < this.heightMapMinimum)
             this.heightMapMinimum = toprocess_min;
