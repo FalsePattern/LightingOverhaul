@@ -339,6 +339,7 @@ public abstract class ChunkMixin implements IChunkMixin {
             int sun_b = (i3 >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
             int min_opacity = 0;
             int pos = y_max;
+            this.worldObj.markBlocksDirtyVertical(x + this.xPosition * 16, z + this.zPosition * 16, y_min, y_max);
             while (pos >= y_min) {
                 int sun_combined = (sun_r << CLApi.bitshift_sun_r) | (sun_g << CLApi.bitshift_sun_g) | (sun_b << CLApi.bitshift_sun_b);
                 ExtendedBlockStorage extendedBlockStorage = this.storageArrays[pos >> 4];
