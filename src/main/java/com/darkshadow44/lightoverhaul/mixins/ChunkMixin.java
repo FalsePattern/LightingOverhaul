@@ -7,7 +7,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.darkshadow44.lightoverhaul.helper.BlockHelper;
 import com.darkshadow44.lightoverhaul.interfaces.IChunkMixin;
 
 import coloredlightscore.src.api.CLApi;
@@ -104,7 +103,7 @@ public abstract class ChunkMixin implements IChunkMixin {
 
     @Override
     public boolean canReallySeeTheSky(int x, int y, int z) {
-        if (((Object)this) instanceof EmptyChunk) {
+        if (((Object) this) instanceof EmptyChunk) {
             return false;
         }
         if (heightMap2 == null) {
@@ -177,8 +176,6 @@ public abstract class ChunkMixin implements IChunkMixin {
      */
     @Overwrite
     public void generateSkylightMap() {
-        int xx = -349;
-        int zz = 1613;
         if (heightMap2 == null) {
             heightMap2 = new int[256];
         }
@@ -186,9 +183,6 @@ public abstract class ChunkMixin implements IChunkMixin {
         this.heightMapMinimum = Integer.MAX_VALUE;
         for (byte b = 0; b < 16; b++) {
             for (byte b1 = 0; b1 < 16; b1++) {
-                if (b + xPosition * 16 == xx && b1 + zPosition * 16 == zz) {
-                    BlockHelper.test5();
-                }
                 this.precipitationHeightMap[b + (b1 << 4)] = -999;
                 int j;
                 boolean heightMapReached = false;
@@ -274,7 +268,6 @@ public abstract class ChunkMixin implements IChunkMixin {
                     this.worldObj.removeTileEntity(l1, y, i2);
                 }
             }
-            BlockHelper.test2();
 
             if (extendedblockstorage.getBlockByExtId(x, y & 15, z) != block_new) {
                 return false;

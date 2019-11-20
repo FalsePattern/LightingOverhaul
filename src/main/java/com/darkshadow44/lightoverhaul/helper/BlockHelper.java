@@ -30,19 +30,4 @@ public class BlockHelper {
             return l;
         }
     }
-
-    public static void test() {
-        int k = 0;
-    }
-
-    public static void test2() {
-        int k = 0;
-    }
-
-    public static void test3() {
-        int k = 0;
-    }
-    public static void test5() {
-        int k = 0;
-    }
 }
