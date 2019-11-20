@@ -28,7 +28,14 @@ public class ChunkCacheHelper {
         block_g = Math.max(block_g, light_g);
         block_b = Math.max(block_b, light_b);
 
-        return (sun_r << CLApi.bitshift_sun_r2) | (sun_g << CLApi.bitshift_sun_g2) | (sun_b << CLApi.bitshift_sun_b2) | block_l << CLApi.bitshift_l2 | block_r << CLApi.bitshift_r2
+        block_r = Math.min(15, block_r);
+        block_g = Math.min(15, block_g);
+        block_b = Math.min(15, block_b);
+
+        int detectAsRGB = 1 << 30; // Dummy value so tesselator doesn't treat pure blue as vanilla light... This
+                                   // will be ignored, except for in Tesselator.setBrightness
+
+        return detectAsRGB | (sun_r << CLApi.bitshift_sun_r2) | (sun_g << CLApi.bitshift_sun_g2) | (sun_b << CLApi.bitshift_sun_b2) | block_l << CLApi.bitshift_l2 | block_r << CLApi.bitshift_r2
                 | block_g << CLApi.bitshift_g2 | block_b << CLApi.bitshift_b2;
     }
 }

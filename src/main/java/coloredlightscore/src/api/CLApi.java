@@ -24,10 +24,10 @@ public class CLApi {
 
     public static int bitshift_l2 = 4;
     public static int bitshift_r2 = 8;
-    public static int bitshift_g2 = 13;
-    public static int bitshift_b2 = 18;
-    public static int bitshift_sun_r2 = 23;
-    public static int bitshift_sun_g2 = 27;
+    public static int bitshift_g2 = 12;
+    public static int bitshift_b2 = 16;
+    public static int bitshift_sun_r2 = 20;
+    public static int bitshift_sun_g2 = 24;
     public static int bitshift_sun_b2 = 0;
 
     public static int bitmask = 0x1F;

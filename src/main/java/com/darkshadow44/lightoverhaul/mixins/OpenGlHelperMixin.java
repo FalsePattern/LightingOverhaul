@@ -28,17 +28,13 @@ public abstract class OpenGlHelperMixin {
              * brightness is of the form 0000 0000 SSSS BBBB GGGG RRRR LLLL 0000 and needs
              * to be decomposed.
              */
-            int block_b = (brightness >> CLApi.bitshift_b2) & CLApi.bitmask;
-            int block_g = (brightness >> CLApi.bitshift_g2) & CLApi.bitmask;
-            int block_r = (brightness >> CLApi.bitshift_r2) & CLApi.bitmask;
+            int block_b = (brightness >> CLApi.bitshift_b2) & 0xF;
+            int block_g = (brightness >> CLApi.bitshift_g2) & 0xF;
+            int block_r = (brightness >> CLApi.bitshift_r2) & 0xF;
             int l = (brightness >> CLApi.bitshift_l2) & 0xF;
             if (l > block_r && l > block_g && l > block_b) {
                 block_r = block_g = block_b = l;
             }
-
-            block_r = Math.min(15, block_r);
-            block_g = Math.min(15, block_g);
-            block_b = Math.min(15, block_b);
 
             int sun_r = (brightness >> CLApi.bitshift_sun_r2) & CLApi.bitmask_sun;
             int sun_g = (brightness >> CLApi.bitshift_sun_g2) & CLApi.bitmask_sun;

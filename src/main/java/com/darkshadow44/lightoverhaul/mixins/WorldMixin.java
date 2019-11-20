@@ -247,11 +247,18 @@ public abstract class WorldMixin {
         block_g = Math.max(block_g, light_g);
         block_b = Math.max(block_b, light_b);
 
+        block_r = Math.min(15, block_r);
+        block_g = Math.min(15, block_g);
+        block_b = Math.min(15, block_b);
+
         int sun_r = (skyBrightness >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
         int sun_g = (skyBrightness >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
         int sun_b = (skyBrightness >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
 
-        return (sun_r << CLApi.bitshift_sun_r2) | (sun_g << CLApi.bitshift_sun_g2) | (sun_b << CLApi.bitshift_sun_b2) | (block_l << CLApi.bitshift_l2) | (block_r << CLApi.bitshift_r2)
+        int detectAsRGB = 1 << 30; // Dummy value so tesselator doesn't treat pure blue as vanilla light... This
+        // will be ignored, except for in Tesselator.setBrightness
+
+        return detectAsRGB | (sun_r << CLApi.bitshift_sun_r2) | (sun_g << CLApi.bitshift_sun_g2) | (sun_b << CLApi.bitshift_sun_b2) | (block_l << CLApi.bitshift_l2) | (block_r << CLApi.bitshift_r2)
                 | (block_g << CLApi.bitshift_g2) | (block_b << CLApi.bitshift_b2);
     }
 
@@ -292,9 +299,8 @@ public abstract class WorldMixin {
             int sun_r = (currentLight >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
             int sun_g = (currentLight >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
             int sun_b = (currentLight >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
-            
-            if (par1Enu == EnumSkyBlock.Sky && chunkMixin.canReallySeeTheSky(par_x & 0xF, par_y, par_z & 0xF))
-            {
+
+            if (par1Enu == EnumSkyBlock.Sky && chunkMixin.canReallySeeTheSky(par_x & 0xF, par_y, par_z & 0xF)) {
                 int sun_precomputed = chunkMixin.getRealSunColor(par_x & 0xF, par_y, par_z & 0xF);
                 int sun_r2 = (sun_precomputed >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
                 int sun_g2 = (sun_precomputed >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
@@ -327,11 +333,9 @@ public abstract class WorldMixin {
                     int l1 = par_x + Facing.offsetsXForSide[faceIndex];
                     int i2 = par_y + Facing.offsetsYForSide[faceIndex];
                     int j2 = par_z + Facing.offsetsZForSide[faceIndex];
-                    
-                    if (faceIndex == 1)
-                    {
-                        if (getBlock(l1, i2, j2) instanceof BlockStainedGlass)
-                        {
+
+                    if (faceIndex == 1) {
+                        if (getBlock(l1, i2, j2) instanceof BlockStainedGlass) {
                             if (par1Enu == EnumSkyBlock.Sky && chunkMixin.canReallySeeTheSky(l1 & 0xF, i2, j2 & 0xF))
                                 continue;
                         }

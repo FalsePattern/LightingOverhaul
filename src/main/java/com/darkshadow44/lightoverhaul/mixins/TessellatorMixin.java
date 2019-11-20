@@ -324,16 +324,12 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
              * << and >> take precedence over & Incoming: 0000 0000 SSSS BBBB GGGG RRRR LLLL
              * 0000
              */
-            int block_r = (this.brightness >> CLApi.bitshift_r2) & CLApi.bitmask;
-            int block_g = (this.brightness >> CLApi.bitshift_g2) & CLApi.bitmask;
-            int block_b = (this.brightness >> CLApi.bitshift_b2) & CLApi.bitmask;
+            int block_r = (this.brightness >> CLApi.bitshift_r2) & 0xF;
+            int block_g = (this.brightness >> CLApi.bitshift_g2) & 0xF;
+            int block_b = (this.brightness >> CLApi.bitshift_b2) & 0xF;
             int sun_r = (this.brightness >> CLApi.bitshift_sun_r2) & CLApi.bitmask_sun;
             int sun_g = (this.brightness >> CLApi.bitshift_sun_g2) & CLApi.bitmask_sun;
             int sun_b = (this.brightness >> CLApi.bitshift_sun_b2) & CLApi.bitmask_sun;
-
-            block_r = Math.min(15, block_r);
-            block_g = Math.min(15, block_g);
-            block_b = Math.min(15, block_b);
 
             /* 0000 SSSS 0000 BBBB 0000 GGGG 0000 RRRR */
             this.rawBuffer[this.rawBufferIndex + 7] = (block_r << 0) | (block_g << 4) | (block_b << 8) | (sun_r << 16) | (sun_g << 20) | (sun_b << 24);
