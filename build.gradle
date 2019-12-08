@@ -19,7 +19,7 @@ repositories {
 
 apply plugin: "forge"
 
-ext.baseVersion = "2.0.0"
+ext.baseVersion = "2.1.0"
 version = baseVersion
 group = "com.darkshadow44"
 archivesBaseName = "lightoverhaul"
@@ -39,9 +39,8 @@ configurations {
 }
 
 dependencies {
-	shade group: "org.spongepowered", name: "mixin", version: "0.8-SNAPSHOT", changing: true
-	shadeClient group: "org.spongepowered", name: "mixin", version: "0.8-SNAPSHOT", changing: true
-	shade group: "com.google.guava", name: "guava", version: "24.0-jre", changing: true
+	shade group: "org.spongepowered", name: "mixin", version: "0.7-SNAPSHOT", changing: true
+	shadeClient group: "org.spongepowered", name: "mixin", version: "0.7-SNAPSHOT", changing: true
 }
 
 def refMap = "${tasks.compileJava.temporaryDir}" + File.separator + "mixins.lightoverhaul.refmap.json"

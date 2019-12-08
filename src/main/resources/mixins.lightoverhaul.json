@@ -2,7 +2,7 @@
   "package": "com.darkshadow44.lightoverhaul.mixins",
   "refmap": "mixins.lightoverhaul.refmap.json",
   "target": "@env(DEFAULT)",
-  "minVersion": "0.8",
+  "minVersion": "0.7",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
 	  "ChunkMixin",
