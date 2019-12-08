@@ -17,7 +17,7 @@ import net.minecraft.world.IBlockAccess;
 @Mixin(RenderingRegistry.class)
 public abstract class RenderingRegistryMixin {
 
-    @Shadow
+    @Shadow(remap = false)
     private Map<Integer, ISimpleBlockRenderingHandler> blockRenderers;
 
     public boolean renderWorldBlock(RenderBlocks renderer, IBlockAccess world, int x, int y, int z, Block block, int modelId) {

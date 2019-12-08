@@ -74,7 +74,7 @@ public abstract class ChunkMixin implements IChunkMixin {
     public void removeTileEntity(int p_150805_1_, int p_150805_2_, int p_150805_3_) {
     }
 
-    @Shadow
+    @Shadow(remap = false)
     public TileEntity getTileEntityUnsafe(int x, int y, int z) {
         return null;
     }
