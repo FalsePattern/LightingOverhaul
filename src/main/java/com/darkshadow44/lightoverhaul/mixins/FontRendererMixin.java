@@ -37,6 +37,9 @@ public abstract class FontRendererMixin {
 
     private static boolean optifineUpInThisFontRenderer = false;
 
+    @Shadow
+    protected abstract void bindTexture(ResourceLocation location);
+
     /***
      * @author darkshadow44
      * @reason TODO
@@ -49,7 +52,7 @@ public abstract class FontRendererMixin {
 
         // Assuming that if the RenderEngine is null, we are in the loading screen
         if (this.renderEngine == null) {
-            return 0;
+            bindTexture(this.locationFontTexture);
         } else {
             this.renderEngine.bindTexture(this.locationFontTexture); // Avoid using previous method for compatibility
         }
