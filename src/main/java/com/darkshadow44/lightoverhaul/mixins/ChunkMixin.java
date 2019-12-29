@@ -207,25 +207,20 @@ public abstract class ChunkMixin implements IChunkMixin {
             }
         }
 
-        for (byte b = 0; b < 16; b++) {
-            for (byte b1 = 0; b1 < 16; b1++) {
-                int j;
-                boolean heightMapReached = false;
-                for (j = i + 16 - 1; j > 0; j--) {
-                    if (!is_translucent_for_relightBlock(b, j - 1, b1) && !heightMapReached) {
-                        heightMapReached = true;
-                    }
-                    if (func_150808_b(b, j - 1, b1) != 0) {
-                        break;
-                    }
-                }
-                int max_y = i + 16 - 1;
-                int min_y = j;
+        this.isModified = true;
+    }
 
-                this.updateSkylightNeighborHeight(this.xPosition * 16 + b, this.zPosition * 16 + b1, min_y, max_y);
+    boolean initialized = false;
+
+    public void init() {
+        if (initialized)
+            return;
+        initialized = true;
+        for (byte x = 0; x < 16; x++) {
+            for (byte z = 0; z < 16; z++) {
+                this.updateSkylightNeighborHeight(this.xPosition * 16 + x, this.zPosition * 16 + z, 0, 255);
             }
         }
-        this.isModified = true;
     }
 
     /***
