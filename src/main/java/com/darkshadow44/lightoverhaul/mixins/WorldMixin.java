@@ -82,6 +82,7 @@ public abstract class WorldMixin {
 
     public long[] lightAdditionBlockList;
     public int[][][] lightAdditionNeeded;
+    public int[][][] lightAdditionNeededOpacity;
     public int[] lightBackfillIndexes;
     public int[][] lightBackfillBlockList;
     public int[][][] lightBackfillNeeded;
@@ -100,6 +101,7 @@ public abstract class WorldMixin {
     public void init(CallbackInfo callbackInfo) {
         lightAdditionBlockList = new long[32768 * 8];
         lightAdditionNeeded = new int[64][64][64];
+        lightAdditionNeededOpacity = new int[64][64][64];
         lightBackfillIndexes = new int[32];
         lightBackfillBlockList = new int[32][5000 * 8];
         lightBackfillNeeded = new int[64][64][64];
@@ -514,6 +516,10 @@ public abstract class WorldMixin {
                     if (this.lightAdditionNeeded[queue_x - par_x + offset][queue_y - par_y + offset][queue_z - par_z + offset] == this.updateFlag) { // Light has been marked for a later update
 
                         queueLightEntry = (int) (queueEntry >>> (coord_size * 3)); // Get Entry's saved Light
+                        int oldOpacity = this.lightAdditionNeededOpacity[queue_x - par_x + offset][queue_y - par_y + offset][queue_z - par_z + offset];
+                        if (oldOpacity > 1) {
+                            queueLightEntry = this.computeLightValue(queue_x, queue_y, queue_z, par1Enu);
+                        }
                         neighborLightEntry = this.getSavedLightValue(par1Enu, queue_x, queue_y, queue_z); // Getthe savedLight Level at the entry's location - Instead of comparing
                                                                                                           // against the value saved on disk every iteration, and checking to see if it's
                                                                                                           // been updated already... Consider storing values in a temp 3D array as they
@@ -571,6 +577,7 @@ public abstract class WorldMixin {
                                         continue;
 
                                     lightEntry = this.lightAdditionNeeded[neighbor_x - par_x + offset][neighbor_y - par_y + offset][neighbor_z - par_z + offset];
+                                    int myOpacity = Math.max(1, this.getBlock(queue_x, queue_y, queue_z).getLightOpacity((World) (Object) this, queue_x, queue_y, queue_z));
                                     if (lightEntry != this.updateFlag && (lightEntry != this.updateFlag + 1 || !shouldIncrement)) { // on
                                                                                                                                     // recursive
                                                                                                                                     // calls,
@@ -581,7 +588,6 @@ public abstract class WorldMixin {
                                                                                                                                     // being
                                                                                                                                     // flag
                                                                                                                                     // + 1
-
                                         Block neighborBlock = this.getBlock(neighbor_x, neighbor_y, neighbor_z);
                                         opacity = Math.max(1, neighborBlock.getLightOpacity((World) (Object) this, neighbor_x, neighbor_y, neighbor_z));
 
@@ -624,6 +630,7 @@ public abstract class WorldMixin {
                                                                                                                                                                                    // to
                                                                                                                                                                                    // be
                                                                                                                                                                                    // processed
+                                                this.lightAdditionNeededOpacity[neighbor_x - par_x + offset][neighbor_y - par_y + offset][neighbor_z - par_z + offset] = myOpacity;
                                                 this.lightAdditionBlockList[getter++] = ((long) neighbor_x - (long) par_x + size) | (((long) neighbor_y - (long) par_y + size) << coord_size)
                                                         | (((long) neighbor_z - (long) par_z + size) << (coord_size * 2)) | (light_combine << (coord_size * 3));
                                                 lightAdditionsCalled++;
