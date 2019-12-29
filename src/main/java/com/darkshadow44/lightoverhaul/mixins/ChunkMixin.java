@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.darkshadow44.lightoverhaul.helper.BlockHelper;
 import com.darkshadow44.lightoverhaul.interfaces.IChunkMixin;
 
 import coloredlightscore.src.api.CLApi;
@@ -203,6 +204,25 @@ public abstract class ChunkMixin implements IChunkMixin {
                 int max_y = i + 16 - 1;
                 int min_y = j;
                 processLightDown(b, b1, min_y, max_y);
+            }
+        }
+
+        for (byte b = 0; b < 16; b++) {
+            for (byte b1 = 0; b1 < 16; b1++) {
+                int j;
+                boolean heightMapReached = false;
+                for (j = i + 16 - 1; j > 0; j--) {
+                    if (!is_translucent_for_relightBlock(b, j - 1, b1) && !heightMapReached) {
+                        heightMapReached = true;
+                    }
+                    if (func_150808_b(b, j - 1, b1) != 0) {
+                        break;
+                    }
+                }
+                int max_y = i + 16 - 1;
+                int min_y = j;
+
+                this.updateSkylightNeighborHeight(this.xPosition * 16 + b, this.zPosition * 16 + b1, min_y, max_y);
             }
         }
         this.isModified = true;
