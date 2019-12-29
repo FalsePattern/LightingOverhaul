@@ -211,7 +211,8 @@ public abstract class ChunkMixin implements IChunkMixin {
 
     boolean initialized = false;
 
-    public void init() {
+    @Inject(method = "enqueueRelightChecks", at = @At("HEAD"))
+    public void enqueueRelightChecks_init(CallbackInfo callback) {
         if (initialized)
             return;
         initialized = true;
