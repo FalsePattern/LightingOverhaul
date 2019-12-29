@@ -7,7 +7,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.darkshadow44.lightoverhaul.helper.BlockHelper;
 import com.darkshadow44.lightoverhaul.interfaces.IChunkMixin;
 
 import coloredlightscore.src.api.CLApi;

@@ -37,7 +37,7 @@ public abstract class FontRendererMixin {
 
     private static boolean optifineUpInThisFontRenderer = false;
 
-    @Shadow
+    @Shadow(remap = false)
     protected abstract void bindTexture(ResourceLocation location);
 
     /***
