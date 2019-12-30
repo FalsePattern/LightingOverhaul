@@ -18,6 +18,7 @@
 	  "EntityMobMixin",
 	  "WorldMixin",
 	  "BlockMixin",
-	  "RendererLivingEntityMixin"
+	  "RendererLivingEntityMixin",
+	  "ItemRendererMixin"
   ]
 }
