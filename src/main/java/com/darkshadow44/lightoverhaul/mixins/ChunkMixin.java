@@ -129,7 +129,8 @@ public abstract class ChunkMixin implements IChunkMixin {
         ExtendedBlockStorage extendedblockstorage = this.storageArrays[y >> 4];
 
         if (extendedblockstorage == null) {
-            return !this.worldObj.provider.hasNoSky && value < EnumSkyBlock.Sky.defaultLightValue ? EnumSkyBlock.Sky.defaultLightValue - value : 0;
+            int defaultLightValue = EnumSkyBlock.Sky.defaultLightValue & 0xF;
+            return !this.worldObj.provider.hasNoSky && value < defaultLightValue ? defaultLightValue - value : 0;
         } else {
             int skyLight = this.worldObj.provider.hasNoSky ? 0 : extendedblockstorage.getExtSkylightValue(x, y & 15, z) & 0xf;
 
