@@ -359,23 +359,6 @@ public abstract class ChunkMixin implements IChunkMixin {
             int pos = y_max;
 
             while (pos >= y_min) {
-                int sun_combined = (sun_r << CLApi.bitshift_sun_r) | (sun_g << CLApi.bitshift_sun_g) | (sun_b << CLApi.bitshift_sun_b);
-                ExtendedBlockStorage extendedBlockStorage = this.storageArrays[pos >> 4];
-                if (extendedBlockStorage != null) {
-
-                    int oldLight = extendedBlockStorage.getExtSkylightValue(x, pos & 0xF, z);
-                    int old_r = (oldLight >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
-                    int old_g = (oldLight >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
-                    int old_b = (oldLight >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
-                    int mixed_r = Math.max(old_r, sun_r);
-                    int mixed_g = Math.max(old_g, sun_g);
-                    int mixed_b = Math.max(old_b, sun_b);
-                    int sun_combined_real = (mixed_r << CLApi.bitshift_sun_r) | (mixed_g << CLApi.bitshift_sun_g) | (mixed_b << CLApi.bitshift_sun_b);
-
-                    extendedBlockStorage.setExtSkylightValue(x, pos & 0xF, z, sun_combined_real);
-                }
-                lightMapSun[x][pos][z] = sun_combined;
-
                 int opacity = func_150808_b(x, pos, z);
                 if (opacity != 0) {
                     min_opacity = 1; // As soon as we hit something not 100% transparent, light decay starts.
@@ -404,6 +387,23 @@ public abstract class ChunkMixin implements IChunkMixin {
                 sun_r = Math.max(0, sun_r);
                 sun_g = Math.max(0, sun_g);
                 sun_b = Math.max(0, sun_b);
+
+                int sun_combined = (sun_r << CLApi.bitshift_sun_r) | (sun_g << CLApi.bitshift_sun_g) | (sun_b << CLApi.bitshift_sun_b);
+                ExtendedBlockStorage extendedBlockStorage = this.storageArrays[pos >> 4];
+                if (extendedBlockStorage != null) {
+
+                    int oldLight = extendedBlockStorage.getExtSkylightValue(x, pos & 0xF, z);
+                    int old_r = (oldLight >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
+                    int old_g = (oldLight >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
+                    int old_b = (oldLight >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
+                    int mixed_r = Math.max(old_r, sun_r);
+                    int mixed_g = Math.max(old_g, sun_g);
+                    int mixed_b = Math.max(old_b, sun_b);
+                    int sun_combined_real = (mixed_r << CLApi.bitshift_sun_r) | (mixed_g << CLApi.bitshift_sun_g) | (mixed_b << CLApi.bitshift_sun_b);
+
+                    extendedBlockStorage.setExtSkylightValue(x, pos & 0xF, z, sun_combined_real);
+                }
+                lightMapSun[x][pos][z] = sun_combined;
 
                 pos--;
             }
