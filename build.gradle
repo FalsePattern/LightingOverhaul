@@ -48,7 +48,9 @@ def refMap = "${tasks.compileJava.temporaryDir}" + File.separator + "mixins.ligh
 jar {
 	appendix = minecraft.version
 
-	from refMap
+	from(refMap) {
+		 filter { String line -> line.replace("doRender (Lnet/minecraft/entity/EntityLivingBase;DDDFF)V", "doRender") }
+	}
 
 	configurations.shade.copyRecursive().setTransitive(false).each { artifact ->
 		from (zipTree(artifact))
