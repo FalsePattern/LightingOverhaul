@@ -25,7 +25,7 @@ public abstract class RenderBlocksMixin {
      */
     @Redirect(at = @At(value = "INVOKE", target = "net.minecraft.block.Block.getMixedBrightnessForBlock(Lnet/minecraft/world/IBlockAccess;III)I"), method = { "renderBlockLiquid" })
     public int renderBlockLiquid_inject(Block block, IBlockAccess blockAccess, int x, int y, int z) {
-        return BlockHelper.getMixedBrightnessForBlockWithColor(blockAccess, x, y, z);
+        return BlockHelper.getMixedBrightnessForBlockWithColor(blockAccess, x, y + 1, z);
     }
 
     /***
