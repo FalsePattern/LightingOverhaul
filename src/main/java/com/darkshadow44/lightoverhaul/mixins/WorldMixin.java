@@ -272,7 +272,6 @@ public abstract class WorldMixin {
     private int computeLightValue(int par_x, int par_y, int par_z, EnumSkyBlock par1Enu) {
         Chunk chunk = getChunkFromChunkCoords(par_x >> 4, par_z >> 4);
         IChunkMixin chunkMixin = (IChunkMixin) (Object) chunk;
-        chunkMixin.init();
         if (par1Enu == EnumSkyBlock.Sky && this.canBlockSeeTheSky(par_x, par_y, par_z)) {
             return EnumSkyBlock.Sky.defaultLightValue;
         } else {
