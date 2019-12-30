@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.darkshadow44.lightoverhaul.interfaces.ITessellatorMixin;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.entity.EntityLivingBase;
@@ -19,12 +20,8 @@ public class RendererLivingEntityMixin {
 	 * @reason Handle overlay textures of entities, for example on hit
 	 */
 	@Inject(method = "doRender (Lnet/minecraft/entity/EntityLivingBase;DDDFF)V", at = @At(value = "INVOKE", target = "net.minecraft.client.renderer.OpenGlHelper.setActiveTexture(I)V", ordinal = 1))
-	public void doRenderInject1(EntityLivingBase instance, double d1, double d2, double d3, float f1, float f2, CallbackInfo callback) {
-		ITessellatorMixin tessellatorMixin = (ITessellatorMixin) Tessellator.instance;
-
-		if (tessellatorMixin.isProgramInUse()) {
-			tessellatorMixin.disableShader();
-		}
+	public void doRender_start(EntityLivingBase instance, double d1, double d2, double d3, float f1, float f2, CallbackInfo callback) {
+	    Minecraft.getMinecraft().entityRenderer.disableLightmap(0);
 	}
 
 	/***
@@ -32,9 +29,7 @@ public class RendererLivingEntityMixin {
 	 * @reason Handle overlay textures of entities, for example on hit
 	 */
 	@Inject(method = "doRender (Lnet/minecraft/entity/EntityLivingBase;DDDFF)V", at = @At(value = "INVOKE", target = "net.minecraft.client.renderer.OpenGlHelper.setActiveTexture(I)V", ordinal = 3))
-	public void doRenderInject2(EntityLivingBase instance, double d1, double d2, double d3, float f1, float f2, CallbackInfo callback) {
-		ITessellatorMixin tessellatorMixin = (ITessellatorMixin) Tessellator.instance;
-
-		tessellatorMixin.enableShader();
+	public void doRender_end(EntityLivingBase instance, double d1, double d2, double d3, float f1, float f2, CallbackInfo callback) {
+	    Minecraft.getMinecraft().entityRenderer.enableLightmap(0);
 	}
 }
