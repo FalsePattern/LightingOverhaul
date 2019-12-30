@@ -200,28 +200,32 @@ public abstract class ChunkMixin implements IChunkMixin {
                         break;
                     }
                 }
-                int max_y = i + 16 - 1;
-                int min_y = j;
-                processLightDown(b, b1, min_y, max_y);
+                if (!this.worldObj.provider.hasNoSky) {
+                    int max_y = i + 16 - 1;
+
+                    processLightDown(b, b1, 0, max_y);
+                }
             }
         }
 
-        for (byte b = 0; b < 16; b++) {
-            for (byte b1 = 0; b1 < 16; b1++) {
-                int j;
-                boolean heightMapReached = false;
-                for (j = i + 16 - 1; j > 0; j--) {
-                    if (!is_translucent_for_relightBlock(b, j - 1, b1) && !heightMapReached) {
-                        heightMapReached = true;
+        if (!this.worldObj.provider.hasNoSky) {
+            for (byte b = 0; b < 16; b++) {
+                for (byte b1 = 0; b1 < 16; b1++) {
+                    int j;
+                    boolean heightMapReached = false;
+                    for (j = i + 16 - 1; j > 0; j--) {
+                        if (!is_translucent_for_relightBlock(b, j - 1, b1) && !heightMapReached) {
+                            heightMapReached = true;
+                        }
+                        if (func_150808_b(b, j - 1, b1) != 0) {
+                            break;
+                        }
                     }
-                    if (func_150808_b(b, j - 1, b1) != 0) {
-                        break;
-                    }
-                }
-                int max_y = i + 16 - 1;
-                int min_y = j;
+                    int max_y = i + 16 - 1;
+                    int min_y = j;
 
-                this.updateSkylightNeighborHeight(this.xPosition * 16 + b, this.zPosition * 16 + b1, min_y, max_y);
+                    this.updateSkylightNeighborHeight(this.xPosition * 16 + b, this.zPosition * 16 + b1, min_y, max_y);
+                }
             }
         }
         this.isModified = true;
@@ -357,8 +361,19 @@ public abstract class ChunkMixin implements IChunkMixin {
             while (pos >= y_min) {
                 int sun_combined = (sun_r << CLApi.bitshift_sun_r) | (sun_g << CLApi.bitshift_sun_g) | (sun_b << CLApi.bitshift_sun_b);
                 ExtendedBlockStorage extendedBlockStorage = this.storageArrays[pos >> 4];
-                if (extendedBlockStorage != null)
-                    extendedBlockStorage.setExtSkylightValue(x, pos & 0xF, z, sun_combined);
+                if (extendedBlockStorage != null) {
+
+                    int oldLight = extendedBlockStorage.getExtSkylightValue(x, pos & 0xF, z);
+                    int old_r = (oldLight >> CLApi.bitshift_sun_r) & CLApi.bitmask_sun;
+                    int old_g = (oldLight >> CLApi.bitshift_sun_g) & CLApi.bitmask_sun;
+                    int old_b = (oldLight >> CLApi.bitshift_sun_b) & CLApi.bitmask_sun;
+                    int mixed_r = Math.max(old_r, sun_r);
+                    int mixed_g = Math.max(old_g, sun_g);
+                    int mixed_b = Math.max(old_b, sun_b);
+                    int sun_combined_real = (mixed_r << CLApi.bitshift_sun_r) | (mixed_g << CLApi.bitshift_sun_g) | (mixed_b << CLApi.bitshift_sun_b);
+
+                    extendedBlockStorage.setExtSkylightValue(x, pos & 0xF, z, sun_combined_real);
+                }
                 lightMapSun[x][pos][z] = sun_combined;
 
                 int opacity = func_150808_b(x, pos, z);
@@ -367,6 +382,9 @@ public abstract class ChunkMixin implements IChunkMixin {
                 } else {
                     opacity = min_opacity;
                 }
+
+                if (opacity == 15)
+                    return;
 
                 int r_opacity = opacity;
                 int g_opacity = opacity;
@@ -432,5 +450,53 @@ public abstract class ChunkMixin implements IChunkMixin {
         if (toprocess_min < this.heightMapMinimum)
             this.heightMapMinimum = toprocess_min;
         this.isModified = true;
+    }
+
+    @Shadow
+    public boolean isTerrainPopulated;
+    @Shadow
+    public boolean isLightPopulated;
+
+    @Shadow
+    public abstract void func_150801_a(int p_150801_1_);
+
+    @Shadow
+    abstract boolean func_150811_f(int p_150811_1_, int p_150811_2_);
+
+    /***
+     * @author darkshadow44
+     * @reason TODO
+     */
+    @Overwrite
+    public void func_150809_p() {
+        this.isTerrainPopulated = true;
+        this.isLightPopulated = true;
+
+        // CHANGED if (!this.worldObj.provider.hasNoSky)
+        {
+            if (this.worldObj.checkChunksExist(this.xPosition * 16 - 1, 0, this.zPosition * 16 - 1, this.xPosition * 16 + 1, 63, this.zPosition * 16 + 1)) {
+                for (int i = 0; i < 16; ++i) {
+                    for (int j = 0; j < 16; ++j) {
+                        if (!this.func_150811_f(i, j)) {
+                            this.isLightPopulated = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (this.isLightPopulated) {
+                    Chunk chunk = this.worldObj.getChunkFromBlockCoords(this.xPosition * 16 - 1, this.zPosition * 16);
+                    chunk.func_150801_a(3);
+                    chunk = this.worldObj.getChunkFromBlockCoords(this.xPosition * 16 + 16, this.zPosition * 16);
+                    chunk.func_150801_a(1);
+                    chunk = this.worldObj.getChunkFromBlockCoords(this.xPosition * 16, this.zPosition * 16 - 1);
+                    chunk.func_150801_a(0);
+                    chunk = this.worldObj.getChunkFromBlockCoords(this.xPosition * 16, this.zPosition * 16 + 16);
+                    chunk.func_150801_a(2);
+                }
+            } else {
+                this.isLightPopulated = false;
+            }
+        }
     }
 }
