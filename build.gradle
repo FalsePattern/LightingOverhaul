@@ -19,7 +19,7 @@ repositories {
 
 apply plugin: "forge"
 
-ext.baseVersion = "2.1.1"
+ext.baseVersion = "2.1.2"
 version = baseVersion
 group = "com.darkshadow44"
 archivesBaseName = "lightoverhaul"
