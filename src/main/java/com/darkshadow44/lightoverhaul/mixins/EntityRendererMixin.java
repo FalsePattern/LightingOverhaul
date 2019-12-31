@@ -40,10 +40,138 @@ public abstract class EntityRendererMixin {
     @Shadow
     private DynamicTexture lightmapTexture;
 
+    @Shadow
+    public float torchFlickerX;
+    @Shadow
+    public float bossColorModifier;
+    @Shadow
+    public float bossColorModifierPrev;
+
+    @Shadow
+    public int[] lightmapColors;
+
     private static final float f = (1.0F / 4096.0F);
     private static final float t = 8.0f;
-    private static final float nightVisionMinBrightness = 0.7f;
     private static boolean ignoreNextEnableLightmap;
+
+    private void updateLightmap_orig(float p_78472_1_) {
+        WorldClient worldclient = this.mc.theWorld;
+
+        if (worldclient != null) {
+            for (int i = 0; i < 256; ++i) {
+                float f1 = worldclient.getSunBrightness(1.0F) * 0.95F + 0.05F;
+                float f2 = worldclient.provider.lightBrightnessTable[i / 16] * f1;
+                float f3 = worldclient.provider.lightBrightnessTable[i % 16] * (this.torchFlickerX * 0.1F + 1.5F);
+
+                if (worldclient.lastLightningBolt > 0) {
+                    f2 = worldclient.provider.lightBrightnessTable[i / 16];
+                }
+
+                float f4 = f2 * (worldclient.getSunBrightness(1.0F) * 0.65F + 0.35F);
+                float f5 = f2 * (worldclient.getSunBrightness(1.0F) * 0.65F + 0.35F);
+                float f6 = f3 * ((f3 * 0.6F + 0.4F) * 0.6F + 0.4F);
+                float f7 = f3 * (f3 * f3 * 0.6F + 0.4F);
+                float f8 = f4 + f3;
+                float f9 = f5 + f6;
+                float f10 = f2 + f7;
+                f8 = f8 * 0.96F + 0.03F;
+                f9 = f9 * 0.96F + 0.03F;
+                f10 = f10 * 0.96F + 0.03F;
+                float f11;
+
+                if (this.bossColorModifier > 0.0F) {
+                    f11 = this.bossColorModifierPrev + (this.bossColorModifier - this.bossColorModifierPrev) * p_78472_1_;
+                    f8 = f8 * (1.0F - f11) + f8 * 0.7F * f11;
+                    f9 = f9 * (1.0F - f11) + f9 * 0.6F * f11;
+                    f10 = f10 * (1.0F - f11) + f10 * 0.6F * f11;
+                }
+
+                if (worldclient.provider.dimensionId == 1) {
+                    f8 = 0.22F + f3 * 0.75F;
+                    f9 = 0.28F + f6 * 0.75F;
+                    f10 = 0.25F + f7 * 0.75F;
+                }
+
+                float f12;
+
+                if (this.mc.thePlayer.isPotionActive(Potion.nightVision)) {
+                    f11 = this.getNightVisionBrightness(this.mc.thePlayer, p_78472_1_);
+                    f12 = 1.0F / f8;
+
+                    if (f12 > 1.0F / f9) {
+                        f12 = 1.0F / f9;
+                    }
+
+                    if (f12 > 1.0F / f10) {
+                        f12 = 1.0F / f10;
+                    }
+
+                    f8 = f8 * (1.0F - f11) + f8 * f12 * f11;
+                    f9 = f9 * (1.0F - f11) + f9 * f12 * f11;
+                    f10 = f10 * (1.0F - f11) + f10 * f12 * f11;
+                }
+
+                if (f8 > 1.0F) {
+                    f8 = 1.0F;
+                }
+
+                if (f9 > 1.0F) {
+                    f9 = 1.0F;
+                }
+
+                if (f10 > 1.0F) {
+                    f10 = 1.0F;
+                }
+
+                f11 = this.mc.gameSettings.gammaSetting;
+                f12 = 1.0F - f8;
+                float f13 = 1.0F - f9;
+                float f14 = 1.0F - f10;
+                f12 = 1.0F - f12 * f12 * f12 * f12;
+                f13 = 1.0F - f13 * f13 * f13 * f13;
+                f14 = 1.0F - f14 * f14 * f14 * f14;
+                f8 = f8 * (1.0F - f11) + f12 * f11;
+                f9 = f9 * (1.0F - f11) + f13 * f11;
+                f10 = f10 * (1.0F - f11) + f14 * f11;
+                f8 = f8 * 0.96F + 0.03F;
+                f9 = f9 * 0.96F + 0.03F;
+                f10 = f10 * 0.96F + 0.03F;
+
+                if (f8 > 1.0F) {
+                    f8 = 1.0F;
+                }
+
+                if (f9 > 1.0F) {
+                    f9 = 1.0F;
+                }
+
+                if (f10 > 1.0F) {
+                    f10 = 1.0F;
+                }
+
+                if (f8 < 0.0F) {
+                    f8 = 0.0F;
+                }
+
+                if (f9 < 0.0F) {
+                    f9 = 0.0F;
+                }
+
+                if (f10 < 0.0F) {
+                    f10 = 0.0F;
+                }
+
+                short short1 = 255;
+                int j = (int) (f8 * 255.0F);
+                int k = (int) (f9 * 255.0F);
+                int l = (int) (f10 * 255.0F);
+                this.lightmapColors[i] = short1 << 24 | j << 16 | k << 8 | l;
+            }
+
+            this.lightmapTexture.updateDynamicTexture();
+            this.lightmapUpdateNeeded = false;
+        }
+    }
 
     /***
      * @author darkshadow44
@@ -54,75 +182,23 @@ public abstract class EntityRendererMixin {
         WorldClient worldclient = this.mc.theWorld;
         ITessellatorMixin tessellatorMixin = (ITessellatorMixin) Tessellator.instance;
 
-        float min = 0.05F;
-        float max = 1.0F;
         float nightVisionWeight = 0;
         if (this.mc.thePlayer.isPotionActive(Potion.nightVision)) {
             nightVisionWeight = this.getNightVisionBrightness(this.mc.thePlayer, partialTickTime);
-            min = min * (1.0f - nightVisionWeight) + nightVisionMinBrightness * nightVisionWeight;
         }
 
         if (worldclient != null) {
-            int[] map = new int[16 * 16 * 16 * 16];
             float sunlightBase = worldclient.getSunBrightness(partialTickTime);
             if (worldclient.lastLightningBolt > 0) {
                 sunlightBase = 1.0f;
             }
-            float sunlight, bSunlight, gSunlight, rSunlight, bLight, gLight, rLight, gamma;
+            float gamma;
 
             gamma = this.mc.gameSettings.gammaSetting;
             tessellatorMixin.updateShaders(gamma, sunlightBase, nightVisionWeight);
-            for (int s = 0; s < 16; s++) {
-                sunlight = sunlightBase * worldclient.provider.lightBrightnessTable[s];
-                if (worldclient.lastLightningBolt > 0) {
-                    sunlight = worldclient.provider.lightBrightnessTable[s];
-                }
-                rSunlight = sunlight;
-                gSunlight = sunlight;
-                bSunlight = sunlight;
-
-                for (int b = 0; b < 16; b++) {
-                    bLight = worldclient.provider.lightBrightnessTable[b] + bSunlight;
-                    bLight = applyGamma(bLight, gamma) * (max - min) + min;
-                    for (int g = 0; g < 16; g++) {
-                        gLight = worldclient.provider.lightBrightnessTable[g] + gSunlight;
-                        gLight = applyGamma(gLight, gamma) * (max - min) + min;
-                        for (int r = 0; r < 16; r++) {
-                            rLight = worldclient.provider.lightBrightnessTable[r] + rSunlight;
-                            rLight = applyGamma(rLight, gamma) * (max - min) + min;
-                            map[g << 12 | s << 8 | r << 4 | b] = 255 << 24 | (int) (rLight * 255) << 16 | (int) (gLight * 255) << 8 | (int) (bLight * 255);
-                        }
-                    }
-                }
-            }
-            this.lightmapTexture.dynamicTextureData = map;
-
-            this.lightmapTexture.updateDynamicTexture();
-            this.lightmapUpdateNeeded = false;
         }
-    }
 
-    private static float applyGamma(float light, float gamma) {
-        float lightC;
-        light = clamp(light, 0.0f, 1.0f);
-        lightC = 1 - light;
-        light = light * (1 - gamma) + (1 - lightC * lightC * lightC * lightC) * gamma;
-        light = 0.96f * light + 0.03f;
-        light = clamp(light, 0.0f, 1.0f);
-        return light;
-    }
-
-    private static float clamp(float x, float lower, float upper) {
-        if (lower > upper) {
-            throw new IllegalArgumentException("Lower bound cannot be greater than upper bound!");
-        }
-        if (x < lower) {
-            x = lower;
-        }
-        if (x > upper) {
-            x = upper;
-        }
-        return x;
+        updateLightmap_orig(partialTickTime);
     }
 
     /***
