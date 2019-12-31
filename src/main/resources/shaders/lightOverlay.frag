@@ -1,7 +1,6 @@
 #version 120
 
 uniform sampler2D Texture;
-uniform sampler2D LightMap;
 varying vec2 p_TexCoord;
 varying vec4 p_Color;
 varying vec4 p_LightCoord;

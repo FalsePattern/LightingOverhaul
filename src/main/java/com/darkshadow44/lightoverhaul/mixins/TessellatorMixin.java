@@ -242,8 +242,6 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
         programInUse = true;
         int textureUniform = GL20.glGetUniformLocation(clProgram, "Texture");
         GL20.glUniform1i(textureUniform, OpenGlHelper.defaultTexUnit - GL13.GL_TEXTURE0);
-        int lightmapUniform = GL20.glGetUniformLocation(clProgram, "LightMap");
-        GL20.glUniform1i(lightmapUniform, OpenGlHelper.lightmapTexUnit - GL13.GL_TEXTURE0);
         GL20.glUniform1f(gammaUniform, gamma);
         GL20.glUniform1f(sunlevelUniform, sunlevel);
         GL20.glUniform1f(nightVisionWeightUniform, nightVisionWeight);

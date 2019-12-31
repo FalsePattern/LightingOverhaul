@@ -1,7 +1,6 @@
 #version 130
 
 uniform sampler2D Texture;
-uniform sampler2D LightMap;
 uniform ivec4 u_LightCoord;
 uniform ivec4 u_LightCoordSun;
 attribute vec2 TexCoord;
