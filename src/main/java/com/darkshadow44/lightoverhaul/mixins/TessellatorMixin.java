@@ -462,4 +462,8 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
     public void disableTexture() {
         GL20.glUniform1i(enableTextureUniform, 0);
     }
+
+    public void setTextureCoords(float x, float y) {
+        GL20.glVertexAttrib2f(texCoordParam, x, y);
+    }
 }

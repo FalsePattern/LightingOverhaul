@@ -13,7 +13,6 @@ import org.objectweb.asm.tree.MethodNode;
 import net.minecraft.launchwrapper.IClassTransformer;
 
 public class TextureTransformer implements IClassTransformer {
-
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytes) {
         ClassReader classReader = new ClassReader(bytes);
@@ -44,6 +43,14 @@ public class TextureTransformer implements IClassTransformer {
                         }
                         AbstractInsnNode hook = new MethodInsnNode(Opcodes.INVOKESTATIC, helperName, isEnable ? "enableTexture" : "disableTexture", "()V", false);
                         methodNode.instructions.insert(instruction, hook);
+                        changed = true;
+                    }
+
+                    boolean isTexCoord = call.name.equals("glTexCoord2f");
+                    if (isTexCoord) {
+                        AbstractInsnNode hook = new MethodInsnNode(Opcodes.INVOKESTATIC, helperName, "setTexCoord", "(FF)V", false);
+                        methodNode.instructions.insert(instruction, hook);
+                        methodNode.instructions.remove(instruction);
                         changed = true;
                     }
                 }

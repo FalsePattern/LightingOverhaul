@@ -19,4 +19,6 @@ public interface ITessellatorMixin {
     void disableTexture();
 
     void enableTexture();
+
+    void setTextureCoords(float x, float y);
 }

@@ -15,4 +15,9 @@ public class TextureHelper {
         ITessellatorMixin tessellatorMixin = (ITessellatorMixin) Tessellator.instance;
         tessellatorMixin.disableTexture();
     }
+
+    public static void setTexCoord(float x, float y) {
+        ITessellatorMixin tessellatorMixin = (ITessellatorMixin) Tessellator.instance;
+        tessellatorMixin.setTextureCoords(x, y);
+    }
 }
