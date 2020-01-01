@@ -464,6 +464,10 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
     }
 
     public void setTextureCoords(float x, float y) {
-        GL20.glVertexAttrib2f(texCoordParam, x, y);
+        if (isProgramInUse()) {
+            GL20.glVertexAttrib2f(texCoordParam, x, y);
+        } else {
+            GL11.glTexCoord2f(x, y);
+        }
     }
 }

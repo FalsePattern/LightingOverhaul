@@ -22,6 +22,10 @@ public class TextureTransformer implements IClassTransformer {
 
         String helperName = "com/darkshadow44/lightoverhaul/helper/TextureHelper";
 
+        if (transformedName.startsWith("com.darkshadow44")) {
+            return bytes; // Don't transform our own classes, we know what we're doing.
+        }
+
         boolean changed = false;
         for (MethodNode methodNode : classNode.methods) {
             for (int i = 0; i < methodNode.instructions.size(); i++) {
