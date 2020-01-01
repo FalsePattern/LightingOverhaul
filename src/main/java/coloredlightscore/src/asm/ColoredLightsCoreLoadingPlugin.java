@@ -36,6 +36,6 @@ public class ColoredLightsCoreLoadingPlugin implements IFMLLoadingPlugin {
 
     @Override
     public String[] getASMTransformerClass() {
-        return null;
+        return new String[] { TextureTransformer.class.getName() };
     }
 }

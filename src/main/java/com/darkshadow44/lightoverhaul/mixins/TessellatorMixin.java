@@ -100,6 +100,7 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
     private static float gamma;
     private static float sunlevel;
     private static float nightVisionWeight;
+    private static int enableTextureUniform;
 
     static {
         cachedLightCoord = ByteBuffer.allocateDirect(16).asIntBuffer();
@@ -196,6 +197,7 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
         gammaUniform = GL20.glGetUniformLocation(clProgram, "gamma");
         sunlevelUniform = GL20.glGetUniformLocation(clProgram, "sunlevel");
         nightVisionWeightUniform = GL20.glGetUniformLocation(clProgram, "nightVisionWeight");
+        enableTextureUniform = GL20.glGetUniformLocation(clProgram, "enableTexture");
 
         if (texCoordParam <= 0) {
             CLLog.error("texCoordParam attribute location returned: " + texCoordParam);
@@ -217,6 +219,9 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
         }
         if (nightVisionWeight <= 0) {
             CLLog.error("nightVisionWeight attribute location returned: " + nightVisionWeight);
+        }
+        if (enableTextureUniform <= 0) {
+            CLLog.error("enableTextureUniform attribute location returned: " + enableTextureUniform);
         }
     }
 
@@ -245,6 +250,7 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
         GL20.glUniform1f(gammaUniform, gamma);
         GL20.glUniform1f(sunlevelUniform, sunlevel);
         GL20.glUniform1f(nightVisionWeightUniform, nightVisionWeight);
+        GL20.glUniform1i(enableTextureUniform, 1);
     }
 
     public void disableShader() {
@@ -447,5 +453,13 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
         int i = this.rawBufferIndex * 4;
         reset();
         return i;
+    }
+
+    public void enableTexture() {
+        GL20.glUniform1i(enableTextureUniform, 1);
+    }
+
+    public void disableTexture() {
+        GL20.glUniform1i(enableTextureUniform, 0);
     }
 }

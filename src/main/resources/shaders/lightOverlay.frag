@@ -8,6 +8,7 @@ varying vec4 p_LightCoordSun;
 uniform float gamma;
 uniform float sunlevel;
 uniform float nightVisionWeight;
+uniform int enableTexture;
 
 float getBrightness(float lightlevel)
 {
@@ -64,5 +65,12 @@ void main() {
     float mixed_b = doColor(block_b, block_percent, sun_b, sun_percent);
 
     vec4 color = vec4(mixed_r, mixed_g, mixed_b, 1);
-    gl_FragColor = texture2D(Texture, p_TexCoord) * p_Color * (color);
+    if (enableTexture == 1)
+    {
+        gl_FragColor = texture2D(Texture, p_TexCoord) * p_Color * (color);
+    }
+    else
+    {
+        gl_FragColor = p_Color * (color);
+    }
 }

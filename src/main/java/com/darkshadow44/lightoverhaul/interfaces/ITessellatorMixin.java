@@ -15,4 +15,8 @@ public interface ITessellatorMixin {
     void enableShader();
 
     void setLockedBrightness(boolean locked);
+
+    void disableTexture();
+
+    void enableTexture();
 }

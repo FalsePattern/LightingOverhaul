@@ -17,8 +17,6 @@
 	  "EntityPlayerMPMixin",
 	  "EntityMobMixin",
 	  "WorldMixin",
-	  "BlockMixin",
-	  "RendererLivingEntityMixin",
-	  "ItemRendererMixin"
+	  "BlockMixin"
   ]
 }
