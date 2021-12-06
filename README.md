@@ -3,9 +3,6 @@ Light Overhaul is an open source Forge Core-Mod that aims to replace Minecraft's
 
 ![splash](http://i.imgur.com/JszmQ0h.png "Minecraft Forge 1.7.10")
 
-## Downloads
-For downloads please see [CurseForge](https://www.curseforge.com/minecraft/mc-mods/light-overhaul/)
-
 ## Features
 - Colored glowstone
 - Light gets colored when it passes through stained glass (even sunlight!)
