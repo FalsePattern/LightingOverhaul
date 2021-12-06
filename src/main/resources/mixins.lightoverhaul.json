@@ -1,22 +1,10 @@
 {
+  "required": true,
+  "minVersion": "0.7.11",
   "package": "com.darkshadow44.lightoverhaul.mixins",
+  "plugin": "com.darkshadow44.lightoverhaul.mixinplugin.MixinPlugin",
   "refmap": "mixins.lightoverhaul.refmap.json",
   "target": "@env(DEFAULT)",
-  "minVersion": "0.7",
-  "compatibilityLevel": "JAVA_8",
-  "mixins": [
-	  "ChunkMixin",
-	  "TessellatorMixin",
-	  "ChunkCacheMixin",
-	  "FontRendererMixin",
-	  "EntityRendererMixin",
-	  "RenderingRegistryMixin",
-	  "OpenGlHelperMixin",
-	  "RenderBlocksMixin",
-	  "ExtendedBlockStorageMixin",
-	  "EntityPlayerMPMixin",
-	  "EntityMobMixin",
-	  "WorldMixin",
-	  "BlockMixin"
-  ]
+  "compatibilityLevel": "JAVA_8"
 }
+
