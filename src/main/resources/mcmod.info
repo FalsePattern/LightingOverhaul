@@ -4,8 +4,8 @@
   "name": "${modName}",
   "description": "This mod adds various blocks with colored light",
   "version": "${modVersion}",
-  "mcversion": "${minecraftVersion}"
-  "url": "https://github.com/FalsePattern/CptsModdingLight",
+  "mcversion": "${minecraftVersion}",
+  "url": "https://github.com/FalsePattern/LightingOverhaul",
   "authorList": ["heaton84", "Murray65536", "Kovu", "Biggerfisch", "CptSpaceToaster", "DarkShadow44", "FalsePattern"],
   "parent": "mod_ColoredLightCore",
   "dependencies": ["mod_MinecraftForge", "mod_ColoredLightCore" ],

@@ -77,6 +77,8 @@ checkPropertyExists("gradleTokenModId")
 checkPropertyExists("gradleTokenModName")
 checkPropertyExists("gradleTokenVersion")
 checkPropertyExists("gradleTokenGroupName")
+checkPropertyExists("gradleTokenModIdCapitalized")
+checkPropertyExists("gradleTokenCurrentMaintainer")
 checkPropertyExists("apiPackage")
 checkPropertyExists("accessTransformersFile")
 checkPropertyExists("usesMixins")
@@ -189,6 +191,12 @@ minecraft {
         }
         if(gradleTokenGroupName) {
             replace gradleTokenGroupName, modGroup
+        }
+        if(gradleTokenModIdCapitalized) {
+            replace gradleTokenModIdCapitalized, modIdCapitalized
+        }
+        if (gradleTokenCurrentMaintainer) {
+            replace gradleTokenCurrentMaintainer, currentMaintainerGithub
         }
     }
 }
