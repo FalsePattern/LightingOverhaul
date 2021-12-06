@@ -1,10 +1,12 @@
 [
 {
-  "modid": "lightoverhaullights",
-  "name": "Easy Colored Lights",
+  "modid": "${modId}",
+  "name": "${modName}",
   "description": "This mod adds various blocks with colored light",
-  "url": "https://www.minecraftforum.net/forums/mapping-and-modding-java-edition/minecraft-mods/wip-mods/2993392-colored-light-continuation",
-  "authorList": ["heaton84", "Murray65536", "Kovu", "Biggerfisch", "CptSpaceToaster", "DarkShadow44"],
+  "version": "${modVersion}",
+  "mcversion": "${minecraftVersion}"
+  "url": "https://github.com/FalsePattern/CptsModdingLight",
+  "authorList": ["heaton84", "Murray65536", "Kovu", "Biggerfisch", "CptSpaceToaster", "DarkShadow44", "FalsePattern"],
   "parent": "mod_ColoredLightCore",
   "dependencies": ["mod_MinecraftForge", "mod_ColoredLightCore" ],
   "useDependencyInformation": true
