@@ -12,6 +12,8 @@ import java.util.Arrays;
 
 import com.lightingoverhaul.coremod.api.LightingApi;
 import com.lightingoverhaul.coremod.asm.CoreLoadingPlugin;
+import com.lightingoverhaul.mixinmod.helper.ShaderException;
+import com.lightingoverhaul.mixinmod.helper.ShaderHelper;
 import com.lightingoverhaul.mixinmod.interfaces.ITessellatorMixin;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -127,65 +129,13 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
     }
 
     public void setupShaders() {
-        int vertShader = GL20.glCreateShader(GL20.GL_VERTEX_SHADER);
-        int fragShader = GL20.glCreateShader(GL20.GL_FRAGMENT_SHADER);
-
         String vertSource = readResourceAsString("/shaders/lightOverlay.vert");
         String fragSource = readResourceAsString("/shaders/lightOverlay.frag");
 
-        GL20.glShaderSource(vertShader, vertSource);
-        GL20.glShaderSource(fragShader, fragSource);
-
-        GL20.glCompileShader(vertShader);
-        infoStr = GL20.glGetShaderInfoLog(vertShader, 2000);
-        if (GL11.glGetError() != GL11.GL_NO_ERROR) {
-            CoreLoadingPlugin.CLLog.error(vertSource);
-            CoreLoadingPlugin.CLLog.error("Compiling vertShader");
-            CoreLoadingPlugin.CLLog.error(infoStr);
-        } else if (infoStr != "") {
-            CoreLoadingPlugin.CLLog.info(vertSource);
-            CoreLoadingPlugin.CLLog.info("Compiling vertShader");
-            CoreLoadingPlugin.CLLog.info(infoStr);
-        }
-
-        GL20.glCompileShader(fragShader);
-        infoStr = GL20.glGetShaderInfoLog(fragShader, 2000);
-        if (GL11.glGetError() != GL11.GL_NO_ERROR) {
-            CoreLoadingPlugin.CLLog.error(fragSource);
-            CoreLoadingPlugin.CLLog.error("Compiling fragShader");
-            CoreLoadingPlugin.CLLog.error(infoStr);
-        } else if (infoStr != "") {
-            CoreLoadingPlugin.CLLog.info(fragSource);
-            CoreLoadingPlugin.CLLog.info("Compiling fragShader");
-            CoreLoadingPlugin.CLLog.info(infoStr);
-        }
-
-        clProgram = GL20.glCreateProgram();
-        GL20.glAttachShader(clProgram, vertShader);
-        GL20.glAttachShader(clProgram, fragShader);
-        if (GL11.glGetError() != GL11.GL_NO_ERROR) {
-            CoreLoadingPlugin.CLLog.error("Error attaching shaders");
-        }
-
-        GL20.glLinkProgram(clProgram);
-        infoStr = GL20.glGetProgramInfoLog(clProgram, 2000);
-        if (GL11.glGetError() != GL11.GL_NO_ERROR) {
-            CoreLoadingPlugin.CLLog.error("Linking Program");
-            CoreLoadingPlugin.CLLog.error(infoStr);
-        } else if (infoStr != "") {
-            CoreLoadingPlugin.CLLog.info("Linking Program");
-            CoreLoadingPlugin.CLLog.info(infoStr);
-        }
-        GL20.glDetachShader(clProgram, vertShader);
-        GL20.glDetachShader(clProgram, fragShader);
-        if (GL11.glGetError() != GL11.GL_NO_ERROR) {
-            CoreLoadingPlugin.CLLog.error("Error detaching shaders");
-        }
-
-        GL20.glDeleteShader(vertShader);
-        GL20.glDeleteShader(fragShader);
-        if (GL11.glGetError() != GL11.GL_NO_ERROR) {
-            CoreLoadingPlugin.CLLog.error("Error deleting shaders (WHAT DID YOU DO?!?)");
+        try {
+            clProgram = ShaderHelper.createShader(vertSource, fragSource);
+        } catch (ShaderException e) {
+            CoreLoadingPlugin.CLLog.error(e.getMessage());
         }
 
         texCoordParam = GL20.glGetAttribLocation(clProgram, "TexCoord");
