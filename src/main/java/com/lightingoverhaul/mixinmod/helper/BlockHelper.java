@@ -13,7 +13,7 @@ public class BlockHelper {
         if (blockAccess instanceof World)
             l = ((World) blockAccess).getLightBrightnessForSkyBlocks(x, y, z, block.getLightValue(blockAccess, x, y, z));
         else if (blockAccess instanceof ChunkCache)
-            l = ChunkCacheHelper.getLightBrightnessForSkyBlocks((ChunkCache) blockAccess, x, y, z, block.getLightValue(blockAccess, x, y, z));
+            l = RGBHelper.getLightBrightnessForSkyBlocks((ChunkCache) blockAccess, x, y, z, block.getLightValue(blockAccess, x, y, z));
         else
             l = 0;
 
@@ -23,7 +23,7 @@ public class BlockHelper {
             if (blockAccess instanceof World)
                 return ((World) blockAccess).getLightBrightnessForSkyBlocks(x, y, z, block.getLightValue(blockAccess, x, y, z));
             else if (blockAccess instanceof ChunkCache)
-                return ChunkCacheHelper.getLightBrightnessForSkyBlocks((ChunkCache) blockAccess, x, y, z, block.getLightValue(blockAccess, x, y, z));
+                return RGBHelper.getLightBrightnessForSkyBlocks((ChunkCache) blockAccess, x, y, z, block.getLightValue(blockAccess, x, y, z));
             else
                 return 0;
         } else {

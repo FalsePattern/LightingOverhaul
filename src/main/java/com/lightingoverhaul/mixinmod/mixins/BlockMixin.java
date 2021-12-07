@@ -16,13 +16,16 @@ import net.minecraft.world.IBlockAccess;
 @Mixin(Block.class)
 public abstract class BlockMixin {
     @Shadow
-    protected int lightValue;
+    public int lightValue;
 
     /***
      * @author darkshadow44
      * @reason TODO
      */
-    @Inject(at = @At("RETURN"), method = { "setLightLevel" })
+    @Inject(method = "setLightLevel",
+            at = @At(value="RETURN"),
+            require = 1
+    )
     public void setLightLevel(float par1, CallbackInfoReturnable<?> callback) {
         // Clamp negative values
         if (par1 < 0.0F) {
@@ -39,12 +42,12 @@ public abstract class BlockMixin {
         }
     }
 
-    /***
-     * @author darkshadow44
-     * @reason TODO
-     */
-    @Overwrite
-    public int getMixedBrightnessForBlock(IBlockAccess blockAccess, int x, int y, int z) {
-        return BlockHelper.getMixedBrightnessForBlockWithColor(blockAccess, x, y, z);
+    @Inject(method="getMixedBrightnessForBlock",
+            at = @At("HEAD"),
+            cancellable = true)
+    public void getMixedBrightnessForBlock(IBlockAccess blockAccess, int x, int y, int z, CallbackInfoReturnable<Integer> cir) {
+        cir.setReturnValue(BlockHelper.getMixedBrightnessForBlockWithColor(blockAccess, x, y, z));
     }
+
+
 }

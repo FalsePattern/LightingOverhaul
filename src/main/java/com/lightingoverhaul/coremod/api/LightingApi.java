@@ -1,5 +1,7 @@
 package com.lightingoverhaul.coremod.api;
 
+import com.google.common.primitives.Ints;
+
 /**
  * Public API for ColoredLightsCore
  * 
@@ -97,5 +99,41 @@ public class LightingApi {
 
         int brightness = Math.max(Math.max(r, g), b);
         return brightness | ((b << bitshift_b) + (g << bitshift_g) + (r << bitshift_r));
+    }
+
+    public static int extractL(int light) {
+        return (light >>> LightingApi.bitshift_l) & 0xF;
+    }
+
+    public static int extractR(int light) {
+        return (light >>> LightingApi.bitshift_r) & LightingApi.bitmask;
+    }
+
+    public static int extractG(int light) {
+        return (light >>> LightingApi.bitshift_g) & LightingApi.bitmask;
+    }
+
+    public static int extractB(int light) {
+        return (light >>> LightingApi.bitshift_b) & LightingApi.bitmask;
+    }
+
+    public static int getMaxChannel(int light) {
+        return Ints.max(extractR(light), extractG(light), extractB(light), extractL(light));
+    }
+
+    public static int extractSunR(int light) {
+        return (light >>> LightingApi.bitshift_sun_r) & LightingApi.bitmask_sun;
+    }
+
+    public static int extractSunG(int light) {
+        return (light >>> LightingApi.bitshift_sun_g) & LightingApi.bitmask_sun;
+    }
+
+    public static int extractSunB(int light) {
+        return (light >>> LightingApi.bitshift_sun_b) & LightingApi.bitmask_sun;
+    }
+
+    public static int getMaxChannelSun(int light) {
+        return Ints.max(extractSunR(light), extractSunG(light), extractSunB(light));
     }
 }

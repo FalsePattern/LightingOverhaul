@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import com.lightingoverhaul.coremod.api.LightingApi;
 import com.lightingoverhaul.coremod.asm.CoreDummyContainer;
 import com.lightingoverhaul.coremod.asm.CoreLoadingPlugin;
+import com.lightingoverhaul.mixinmod.helper.RGBHelper;
 import com.lightingoverhaul.mixinmod.interfaces.IChunkMixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -23,6 +24,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(World.class)
 public abstract class WorldMixin {
@@ -221,45 +223,53 @@ public abstract class WorldMixin {
         return getBrightness(lightlevel);
     }
 
-    // Use this one if you want color
-    /***
-     * @author darkshadow44
-     * @reason TODO
-     */
+//    // Use this one if you want color
+//    /***
+//     * @author darkshadow44
+//     * @reason TODO
+//     */
+//    @SideOnly(Side.CLIENT)
+//    @Overwrite
+//    public int getLightBrightnessForSkyBlocks(int x, int y, int z, int lightValue) {
+//        int skyBrightness = this.getSkyBlockTypeBrightness(EnumSkyBlock.Sky, x, y, z);
+//        int blockBrightness = this.getSkyBlockTypeBrightness(EnumSkyBlock.Block, x, y, z);
+//
+//        int light_l = (lightValue >> LightingApi.bitshift_l) & 0xF;
+//        int light_r = (lightValue >> LightingApi.bitshift_r) & LightingApi.bitmask;
+//        int light_g = (lightValue >> LightingApi.bitshift_g) & LightingApi.bitmask;
+//        int light_b = (lightValue >> LightingApi.bitshift_b) & LightingApi.bitmask;
+//
+//        int block_l = (blockBrightness >> LightingApi.bitshift_l) & 0xF;
+//        int block_r = (blockBrightness >> LightingApi.bitshift_r) & LightingApi.bitmask;
+//        int block_g = (blockBrightness >> LightingApi.bitshift_g) & LightingApi.bitmask;
+//        int block_b = (blockBrightness >> LightingApi.bitshift_b) & LightingApi.bitmask;
+//
+//        block_l = Math.max(block_l, light_l);
+//        block_r = Math.max(block_r, light_r);
+//        block_g = Math.max(block_g, light_g);
+//        block_b = Math.max(block_b, light_b);
+//
+//        block_r = Math.min(15, block_r);
+//        block_g = Math.min(15, block_g);
+//        block_b = Math.min(15, block_b);
+//
+//        int sun_r = (skyBrightness >> LightingApi.bitshift_sun_r) & LightingApi.bitmask_sun;
+//        int sun_g = (skyBrightness >> LightingApi.bitshift_sun_g) & LightingApi.bitmask_sun;
+//        int sun_b = (skyBrightness >> LightingApi.bitshift_sun_b) & LightingApi.bitmask_sun;
+//
+//        int detectAsRGB = 1 << 30; // Dummy value so tesselator doesn't treat pure blue as vanilla light... This
+//        // will be ignored, except for in Tesselator.setBrightness
+//
+//        return detectAsRGB | (sun_r << LightingApi.bitshift_sun_r2) | (sun_g << LightingApi.bitshift_sun_g2) | (sun_b << LightingApi.bitshift_sun_b2) | (block_l << LightingApi.bitshift_l2) | (block_r << LightingApi.bitshift_r2)
+//                | (block_g << LightingApi.bitshift_g2) | (block_b << LightingApi.bitshift_b2);
+//    }
+
     @SideOnly(Side.CLIENT)
-    @Overwrite
-    public int getLightBrightnessForSkyBlocks(int x, int y, int z, int lightValue) {
+    @Inject(at = @At(value = "HEAD"), method = "getLightBrightnessForSkyBlocks", cancellable = true)
+    public void getLightBrightnessForSkyBlocks(int x, int y, int z, int lightValue, CallbackInfoReturnable<Integer> cir) {
         int skyBrightness = this.getSkyBlockTypeBrightness(EnumSkyBlock.Sky, x, y, z);
         int blockBrightness = this.getSkyBlockTypeBrightness(EnumSkyBlock.Block, x, y, z);
-
-        int light_l = (lightValue >> LightingApi.bitshift_l) & 0xF;
-        int light_r = (lightValue >> LightingApi.bitshift_r) & LightingApi.bitmask;
-        int light_g = (lightValue >> LightingApi.bitshift_g) & LightingApi.bitmask;
-        int light_b = (lightValue >> LightingApi.bitshift_b) & LightingApi.bitmask;
-
-        int block_l = (blockBrightness >> LightingApi.bitshift_l) & 0xF;
-        int block_r = (blockBrightness >> LightingApi.bitshift_r) & LightingApi.bitmask;
-        int block_g = (blockBrightness >> LightingApi.bitshift_g) & LightingApi.bitmask;
-        int block_b = (blockBrightness >> LightingApi.bitshift_b) & LightingApi.bitmask;
-
-        block_l = Math.max(block_l, light_l);
-        block_r = Math.max(block_r, light_r);
-        block_g = Math.max(block_g, light_g);
-        block_b = Math.max(block_b, light_b);
-
-        block_r = Math.min(15, block_r);
-        block_g = Math.min(15, block_g);
-        block_b = Math.min(15, block_b);
-
-        int sun_r = (skyBrightness >> LightingApi.bitshift_sun_r) & LightingApi.bitmask_sun;
-        int sun_g = (skyBrightness >> LightingApi.bitshift_sun_g) & LightingApi.bitmask_sun;
-        int sun_b = (skyBrightness >> LightingApi.bitshift_sun_b) & LightingApi.bitmask_sun;
-
-        int detectAsRGB = 1 << 30; // Dummy value so tesselator doesn't treat pure blue as vanilla light... This
-        // will be ignored, except for in Tesselator.setBrightness
-
-        return detectAsRGB | (sun_r << LightingApi.bitshift_sun_r2) | (sun_g << LightingApi.bitshift_sun_g2) | (sun_b << LightingApi.bitshift_sun_b2) | (block_l << LightingApi.bitshift_l2) | (block_r << LightingApi.bitshift_r2)
-                | (block_g << LightingApi.bitshift_g2) | (block_b << LightingApi.bitshift_b2);
+        cir.setReturnValue(RGBHelper.computeLightBrightnessForSkyBlocks(skyBrightness, blockBrightness, lightValue));
     }
 
     /***

@@ -1,11 +1,15 @@
 package com.lightingoverhaul.mixinmod.mixins;
 
 import com.lightingoverhaul.mixinmod.interfaces.IChunkMixin;
+import net.minecraft.world.WorldProvider;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.lightingoverhaul.coremod.api.LightingApi;
@@ -18,6 +22,10 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+import scala.reflect.NameTransformer;
+import scala.tools.asm.Opcodes;
 
 @Mixin(Chunk.class)
 public abstract class ChunkMixin implements IChunkMixin {
@@ -27,9 +35,11 @@ public abstract class ChunkMixin implements IChunkMixin {
     @Shadow
     public ExtendedBlockStorage[] storageArrays;
 
+    @Final
     @Shadow
     public int xPosition;
 
+    @Final
     @Shadow
     public int zPosition;
 
@@ -51,7 +61,7 @@ public abstract class ChunkMixin implements IChunkMixin {
     public int[] precipitationHeightMap;
 
     @Shadow
-    private void updateSkylightNeighborHeight(int paramInt1, int paramInt2, int paramInt3, int paramInt4) {
+    public void updateSkylightNeighborHeight(int paramInt1, int paramInt2, int paramInt3, int paramInt4) {
     }
 
     @Shadow
@@ -92,6 +102,14 @@ public abstract class ChunkMixin implements IChunkMixin {
         return null;
     }
 
+    @Shadow
+    public void generateSkylightMap() {
+    }
+
+    @Shadow
+    private void relightBlock(int x, int y, int z) {
+    }
+
     int[] heightMap2;
     int[][][] lightMapSun;
     int[] stainedglass_api_index;
@@ -123,13 +141,13 @@ public abstract class ChunkMixin implements IChunkMixin {
      * @author darkshadow44
      * @reason TODO
      */
-    @Overwrite
-    public int getBlockLightValue(int x, int y, int z, int value) {
+    @Inject(at=@At("HEAD"), method = "getBlockLightValue", cancellable = true)
+    public void getBlockLightValue(int x, int y, int z, int value, CallbackInfoReturnable<Integer> cir) {
         ExtendedBlockStorage extendedblockstorage = this.storageArrays[y >> 4];
 
         if (extendedblockstorage == null) {
             int defaultLightValue = EnumSkyBlock.Sky.defaultLightValue & 0xF;
-            return !this.worldObj.provider.hasNoSky && value < defaultLightValue ? defaultLightValue - value : 0;
+            cir.setReturnValue(!this.worldObj.provider.hasNoSky && value < defaultLightValue ? defaultLightValue - value : 0);
         } else {
             int skyLight = this.worldObj.provider.hasNoSky ? 0 : extendedblockstorage.getExtSkylightValue(x, y & 15, z) & 0xf;
 
@@ -144,7 +162,7 @@ public abstract class ChunkMixin implements IChunkMixin {
                 blockLight = skyLight;
             }
 
-            return blockLight;
+            cir.setReturnValue(blockLight);
         }
     }
 
@@ -152,8 +170,9 @@ public abstract class ChunkMixin implements IChunkMixin {
      * @author darkshadow44
      * @reason TODO
      */
-    @Overwrite
-    public void generateHeightMap() {
+    @Inject(at=@At("HEAD"), method = "generateHeightMap", cancellable = true)
+    public void generateHeightMap(CallbackInfo ci) {
+        ci.cancel();
         int i = getTopFilledSegment();
         this.heightMapMinimum = Integer.MAX_VALUE;
         for (byte b = 0; b < 16; b++) {
@@ -176,8 +195,9 @@ public abstract class ChunkMixin implements IChunkMixin {
      * @author darkshadow44
      * @reason TODO
      */
-    @Overwrite
-    public void generateSkylightMap() {
+    @Inject(at=@At("HEAD"), method = "generateSkylightMap", cancellable = true)
+    public void generateSkylightMapInjection(CallbackInfo ci) {
+        ci.cancel();
         if (heightMap2 == null) {
             heightMap2 = new int[256];
         }
@@ -231,115 +251,121 @@ public abstract class ChunkMixin implements IChunkMixin {
         this.isModified = true;
     }
 
-    /***
-     * @author darkshadow44
-     * @reason We need to handle relightBlock differently with colored light.
-     */
-    @Overwrite
-    public boolean func_150807_a(int x, int y, int z, Block block_new, int meta_new) {
-        int heightMapIndex = z << 4 | x;
+    private int j1;
+    private boolean flag;
+    private int l1;
+    private int i2;
+    private int k2;
 
+    @Inject(method="func_150807_a",
+            at = @At(value = "HEAD"),
+            require = 1
+    )
+    private void func_150807_a_p0(CallbackInfoReturnable<Boolean> cir) {
         if (heightMap2 == null) {
             generateSkylightMap();
         }
+    }
 
-        if (y >= this.precipitationHeightMap[heightMapIndex] - 1) {
-            this.precipitationHeightMap[heightMapIndex] = -999;
-        }
+    @Redirect(method="func_150807_a",
+            at = @At(value = "FIELD",
+                    target = "Lnet/minecraft/world/chunk/Chunk;heightMap:[I"
+            ),
+            require = 1
+    )
+    private int[] func_150807_a_p1(Chunk instance) {
+        return heightMap2;
+    }
 
-        int realHeightmapMax = this.heightMap2[heightMapIndex];
-        Block block_old = this.getBlock(x, y, z);
-        int meta_old = this.getBlockMetadata(x, y, z);
+    @ModifyVariable(method="func_150807_a",
+            at = @At(value = "STORE"),
+            name = "j1",
+            require = 1
+    )
+    private int func_150807_a_p2(int value) {
+        j1 = value;
+        return value;
+    }
 
-        if (block_old == block_new && meta_old == meta_new) {
-            return false;
+    @ModifyVariable(method="func_150807_a",
+            at = @At(value = "STORE"),
+            name = "flag",
+            require = 1
+    )
+    private boolean func_150807_a_p3(boolean value) {
+        flag = value;
+        return true;
+    }
+
+    @ModifyVariable(method="func_150807_a",
+            at = @At(value = "STORE"),
+            name = "l1",
+            require = 1
+    )
+    private int func_150807_a_p4(int value) {
+        l1 = value;
+        return value;
+    }
+
+    @ModifyVariable(method="func_150807_a",
+            at = @At(value = "STORE"),
+            name = "i2",
+            require = 1
+    )
+    private int func_150807_a_p5(int value) {
+        i2 = value;
+        return value;
+    }
+
+    @ModifyVariable(method="func_150807_a",
+            at = @At(value = "STORE"),
+            name = "k2",
+            require = 1
+    )
+    private int func_150807_a_p6(int value) {
+        k2 = value;
+        return value;
+    }
+
+    @Inject(method="func_150807_a",
+            at = @At(value = "INVOKE",
+                    shift = At.Shift.BEFORE,
+                    target = "Lnet/minecraft/world/chunk/Chunk;generateSkylightMap()V"
+            ),
+            require = 1
+    )
+    private void func_150807_a_p7(int x, int y, int z, Block block_new, int meta_new, CallbackInfoReturnable<Boolean> cir) {
+        if (flag) {
+            this.generateSkylightMap();
         } else {
-            ExtendedBlockStorage extendedblockstorage = this.storageArrays[y >> 4];
-            boolean flag = false;
+            int opacity_new = block_new.getLightOpacity(this.worldObj, l1, y, i2);
 
-            if (extendedblockstorage == null) {
-                if (block_new == Blocks.air) {
-                    return false;
-                }
+            boolean isColoredGlas = block_new instanceof BlockStainedGlass;
 
-                extendedblockstorage = this.storageArrays[y >> 4] = new ExtendedBlockStorage(y >> 4 << 4, !this.worldObj.provider.hasNoSky);
-                flag = y >= realHeightmapMax;
-            }
+            boolean is_addition = (opacity_new > 0) || isColoredGlas;
 
-            int l1 = this.xPosition * 16 + x;
-            int i2 = this.zPosition * 16 + z;
-
-            int opacity_old = block_old.getLightOpacity(this.worldObj, l1, y, i2);
-
-            if (!this.worldObj.isRemote) {
-                block_old.onBlockPreDestroy(this.worldObj, l1, y, i2, meta_old);
-            }
-
-            extendedblockstorage.func_150818_a(x, y & 15, z, block_new);
-            extendedblockstorage.setExtBlockMetadata(x, y & 15, z, meta_new); // This line duplicates the one below, so breakBlock fires with valid worldstate
-
-            if (!this.worldObj.isRemote) {
-                block_old.breakBlock(this.worldObj, l1, y, i2, block_old, meta_old);
-                // After breakBlock a phantom TE might have been created with incorrect meta.
-                // This attempts to kill that phantom TE so the normal one can be create
-                // properly later
-                TileEntity te = this.getTileEntityUnsafe(x & 0x0F, y, z & 0x0F);
-                if (te != null && te.shouldRefresh(block_old, getBlock(x & 0x0F, y, z & 0x0F), meta_old, getBlockMetadata(x & 0x0F, y, z & 0x0F), worldObj, l1, y, i2)) {
-                    this.removeTileEntity(x & 0x0F, y, z & 0x0F);
-                }
-            } else if (block_old.hasTileEntity(meta_old)) {
-                TileEntity te = this.getTileEntityUnsafe(x & 0x0F, y, z & 0x0F);
-                if (te != null && te.shouldRefresh(block_old, block_new, meta_old, meta_new, worldObj, l1, y, i2)) {
-                    this.worldObj.removeTileEntity(l1, y, i2);
-                }
-            }
-
-            if (extendedblockstorage.getBlockByExtId(x, y & 15, z) != block_new) {
-                return false;
-            } else {
-                extendedblockstorage.setExtBlockMetadata(x, y & 15, z, meta_new);
-
-                if (flag) {
-                    this.generateSkylightMap();
+            if (y >= j1 - 1) {
+                if (is_addition) {
+                    this.relightBlock(x, y + 1, z);
                 } else {
-                    int opacity_new = block_new.getLightOpacity(this.worldObj, l1, y, i2);
-                    boolean isColoredGlas = block_new instanceof BlockStainedGlass;
-
-                    boolean is_addition = (opacity_new > 0) || isColoredGlas;
-
-                    if (y >= realHeightmapMax - 1) {
-                        if (is_addition) {
-                            this.relightBlock(x, y + 1, z);
-                        } else {
-                            this.relightBlock(x, y, z);
-                        }
-                    }
-
-                    if ((opacity_new != opacity_old || isColoredGlas)
-                            && (opacity_new < opacity_old || this.getSavedLightValue(EnumSkyBlock.Sky, x, y, z) > 0 || this.getSavedLightValue(EnumSkyBlock.Block, x, y, z) > 0)) {
-                        this.propagateSkylightOcclusion(x, z);
-                    }
+                    this.relightBlock(x, y, z);
                 }
+            }
 
-                TileEntity tileentity;
-
-                if (!this.worldObj.isRemote) {
-                    block_new.onBlockAdded(this.worldObj, l1, y, i2);
-                }
-
-                if (block_new.hasTileEntity(meta_new)) {
-                    tileentity = this.func_150806_e(x, y, z);
-
-                    if (tileentity != null) {
-                        tileentity.updateContainingBlockInfo();
-                        tileentity.blockMetadata = meta_new;
-                    }
-                }
-
-                this.isModified = true;
-                return true;
+            if ((opacity_new != k2 || isColoredGlas)
+                    && (opacity_new < k2 || this.getSavedLightValue(EnumSkyBlock.Sky, x, y, z) > 0 || this.getSavedLightValue(EnumSkyBlock.Block, x, y, z) > 0)) {
+                this.propagateSkylightOcclusion(x, z);
             }
         }
+    }
+
+    @Redirect(method = "func_150807_a",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/world/chunk/Chunk;generateSkylightMap()V"
+            ),
+            require = 1)
+    private void func_150807_a_p10(Chunk instance) {
+        //noop
     }
 
     private boolean is_translucent_for_relightBlock(int x, int y, int z) {
@@ -414,8 +440,9 @@ public abstract class ChunkMixin implements IChunkMixin {
      * @author darkshadow44
      * @reason TODO
      */
-    @Overwrite
-    private void relightBlock(int x, int y, int z) {
+    @Inject(at=@At("HEAD"), method = "relightBlock", cancellable = true)
+    private void relightBlock(int x, int y, int z, CallbackInfo ci) {
+        ci.cancel();
         int heightMapMax_old = this.heightMap[z << 4 | x] & 0xFF;
         int heightMapMaxReal_old = this.heightMap2[z << 4 | x] & 0xFF;
         int heightMapMax_new = heightMapMax_old;
@@ -461,42 +488,14 @@ public abstract class ChunkMixin implements IChunkMixin {
     public abstract void func_150801_a(int p_150801_1_);
 
     @Shadow
-    abstract boolean func_150811_f(int p_150811_1_, int p_150811_2_);
+    protected abstract boolean func_150811_f(int p_150811_1_, int p_150811_2_);
 
-    /***
-     * @author darkshadow44
-     * @reason TODO
-     */
-    @Overwrite
-    public void func_150809_p() {
-        this.isTerrainPopulated = true;
-        this.isLightPopulated = true;
 
-        // CHANGED if (!this.worldObj.provider.hasNoSky)
-        {
-            if (this.worldObj.checkChunksExist(this.xPosition * 16 - 1, 0, this.zPosition * 16 - 1, this.xPosition * 16 + 1, 63, this.zPosition * 16 + 1)) {
-                for (int i = 0; i < 16; ++i) {
-                    for (int j = 0; j < 16; ++j) {
-                        if (!this.func_150811_f(i, j)) {
-                            this.isLightPopulated = false;
-                            break;
-                        }
-                    }
-                }
+    @Shadow public long inhabitedTime;
 
-                if (this.isLightPopulated) {
-                    Chunk chunk = this.worldObj.getChunkFromBlockCoords(this.xPosition * 16 - 1, this.zPosition * 16);
-                    chunk.func_150801_a(3);
-                    chunk = this.worldObj.getChunkFromBlockCoords(this.xPosition * 16 + 16, this.zPosition * 16);
-                    chunk.func_150801_a(1);
-                    chunk = this.worldObj.getChunkFromBlockCoords(this.xPosition * 16, this.zPosition * 16 - 1);
-                    chunk.func_150801_a(0);
-                    chunk = this.worldObj.getChunkFromBlockCoords(this.xPosition * 16, this.zPosition * 16 + 16);
-                    chunk.func_150801_a(2);
-                }
-            } else {
-                this.isLightPopulated = false;
-            }
-        }
+    @Redirect(method="func_150809_p", at=@At(value  = "FIELD", target="Lnet/minecraft/world/WorldProvider;hasNoSky:Z", opcode = Opcodes.GETFIELD))
+    private boolean fixNoSky(WorldProvider instance) {
+        return false;
     }
+
 }
