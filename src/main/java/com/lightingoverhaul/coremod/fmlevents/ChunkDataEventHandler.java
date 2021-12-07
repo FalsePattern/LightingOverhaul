@@ -20,8 +20,8 @@ public class ChunkDataEventHandler {
         NBTTagCompound data = event.getData();
 
         if (!ChunkStorageRGB.loadColorData(chunk, data)) {
-            // CLLog.warn("Failed to load color data for chunk at ({}, {})",
-            // chunk.xPosition, chunk.zPosition);
+            CLLog.warn("Failed to load color data for chunk at ({}, {})",
+            chunk.xPosition, chunk.zPosition);
         }
     }
 

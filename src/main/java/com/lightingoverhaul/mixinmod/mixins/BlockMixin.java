@@ -1,17 +1,13 @@
 package com.lightingoverhaul.mixinmod.mixins;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.lightingoverhaul.mixinmod.helper.BlockHelper;
-
 import com.lightingoverhaul.coremod.api.LightingApi;
 import net.minecraft.block.Block;
-import net.minecraft.world.IBlockAccess;
 
 @Mixin(Block.class)
 public abstract class BlockMixin {
@@ -40,13 +36,6 @@ public abstract class BlockMixin {
             // Otherwise, let whatever it is through
             this.lightValue = (int) (15.0F * par1);
         }
-    }
-
-    @Inject(method="getMixedBrightnessForBlock",
-            at = @At("HEAD"),
-            cancellable = true)
-    public void getMixedBrightnessForBlock(IBlockAccess blockAccess, int x, int y, int z, CallbackInfoReturnable<Integer> cir) {
-        cir.setReturnValue(BlockHelper.getMixedBrightnessForBlockWithColor(blockAccess, x, y, z));
     }
 
 

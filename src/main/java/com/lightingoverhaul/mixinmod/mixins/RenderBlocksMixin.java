@@ -4,6 +4,7 @@ import com.lightingoverhaul.coremod.api.LightingApi;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import com.lightingoverhaul.mixinmod.helper.BlockHelper;
@@ -15,6 +16,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(RenderBlocks.class)
 public abstract class RenderBlocksMixin {
@@ -855,40 +857,31 @@ public abstract class RenderBlocksMixin {
 
         return flag;
     }
-
-    /***
-     * Get ambient occlusion brightness
-     * @author darkshadow44
-     * @reason TODO
-     */
-    @Overwrite
-    public int getAoBrightness(int p_147778_1_, int p_147778_2_, int p_147778_3_, int p_147778_4_) {
+    @Inject(method = "getAoBrightness",
+            at = @At(value = "RETURN"),
+            cancellable = true,
+            require = 1
+    )
+    public void getAoBrightness(int r, int g, int b, int l, CallbackInfoReturnable<Integer> cir) {
         // SSSS BBBB GGGG RRRR LLLL 0000
         // 1111 0000 0000 0000 1111 0000 = 15728880
 
-        if (p_147778_1_ == 0) {
-            p_147778_1_ = p_147778_4_;
-        }
+        r = Math.max(r, l);
+        g = Math.max(g, l);
+        b = Math.max(b, l);
 
-        if (p_147778_2_ == 0) {
-            p_147778_2_ = p_147778_4_;
-        }
-
-        if (p_147778_3_ == 0) {
-            p_147778_3_ = p_147778_4_;
-        }
-
-        // return (p_147778_1_ & 15728880) + (p_147778_2_ & 15728880) + (p_147778_3_ &
-        // 15728880) + (p_147778_4_ & 15728880) >> 2 & 15728880;
+        // return (r & 15728880) + (g & 15728880) + (b &
+        // 15728880) + (l & 15728880) >> 2 & 15728880;
 
         // Must mix all 5 channels now
-        return mixColorChannel(LightingApi.bitshift_sun_r2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // SSSS
-                mixColorChannel(LightingApi.bitshift_sun_g2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // SSSS
-                mixColorChannel(LightingApi.bitshift_sun_b2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // SSSS
-                mixColorChannel(LightingApi.bitshift_b2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // BBBB
-                mixColorChannel(LightingApi.bitshift_g2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // GGGG this is the problem child
-                mixColorChannel(LightingApi.bitshift_r2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_) | // RRRR
-                mixColorChannel(LightingApi.bitshift_l2, p_147778_1_, p_147778_2_, p_147778_3_, p_147778_4_); // LLLL
+        cir.setReturnValue(mixColorChannel(LightingApi.bitshift_sun_r2, r, g, b, l) | // SSSS
+                mixColorChannel(LightingApi.bitshift_sun_g2, r, g, b, l) | // SSSS
+                mixColorChannel(LightingApi.bitshift_sun_b2, r, g, b, l) | // SSSS
+                mixColorChannel(LightingApi.bitshift_b2, r, g, b, l) | // BBBB
+                mixColorChannel(LightingApi.bitshift_g2, r, g, b, l) | // GGGG this is the problem child
+                mixColorChannel(LightingApi.bitshift_r2, r, g, b, l) | // RRRR
+                mixColorChannel(LightingApi.bitshift_l2, r, g, b, l) // LLLL
+        );
     }
 
     public int mixColorChannel(int startBit, int p1, int p2, int p3, int p4) {

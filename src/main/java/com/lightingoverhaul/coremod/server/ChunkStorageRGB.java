@@ -93,9 +93,9 @@ public class ChunkStorageRGB {
                     // CLLog.info("Loaded nibble array for {} {} {}", chunk.xPosition,
                     // chunk.zPosition, k);
                 }
-                // else
-                // CLLog.warning("NO NIBBLE ARRAY EXISTS FOR {} {} {}", chunk.xPosition,
-                // chunk.zPosition, k);
+                else
+                CLLog.warn("NO NIBBLE ARRAY EXISTS FOR {} {} {}", chunk.xPosition,
+                chunk.zPosition, k);
             }
         }
 

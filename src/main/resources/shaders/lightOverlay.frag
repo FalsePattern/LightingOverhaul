@@ -33,17 +33,17 @@ float normalize(float f)
 	/* return (f - 0.2) * 1.25; */
 }
 
-float doColor(float blockpart, float block_percent, float sunpart, float sun_percent)
+float doColor(float blockpart, float sunpart)
 {
-    float min = 0.05;
-    float max = 1.0;
+    float Min = 0.05;
+    float Max = 1.0;
     float nightVisionMinBrightness = 0.7;
-    min = min * (1.0 - nightVisionWeight) + nightVisionMinBrightness * nightVisionWeight;
+    Min = Min * (1.0 - nightVisionWeight) + nightVisionMinBrightness * nightVisionWeight;
 
     float block_brightness = getBrightness(blockpart);
     float sun_brightness = normalize(sunlevel) * getBrightness(sunpart);
-    float brightness = block_brightness * block_percent + sun_brightness * sun_percent;
-    return applyGamma(brightness) * (max - min) + min;
+    float brightness = max(block_brightness, sun_brightness);
+    return applyGamma(brightness) * (Max - Min) + Min;
 }
 
 void main() {
@@ -54,15 +54,9 @@ void main() {
     float sun_g = p_LightCoordSun.y;
     float sun_b = p_LightCoordSun.z;
 
-    float block_strength = getBrightness(max(max(block_r, block_g), block_b));
-    float sun_strength = getBrightness(max(max(sun_r, sun_g), sun_b)) * sunlevel;
-    float total_strength = block_strength + sun_strength;
-    float block_percent = block_strength / total_strength;
-    float sun_percent = sun_strength / total_strength;
-
-    float mixed_r = doColor(block_r, block_percent, sun_r, sun_percent);
-    float mixed_g = doColor(block_g, block_percent, sun_g, sun_percent);
-    float mixed_b = doColor(block_b, block_percent, sun_b, sun_percent);
+    float mixed_r = doColor(block_r, sun_r);
+    float mixed_g = doColor(block_g, sun_g);
+    float mixed_b = doColor(block_b, sun_b);
 
     vec4 color = vec4(mixed_r, mixed_g, mixed_b, 1);
     if (enableTexture == 1)
