@@ -32,52 +32,52 @@ import net.minecraft.client.renderer.Tessellator;
 public abstract class TessellatorMixin implements ITessellatorMixin {
 
     @Shadow
-    private boolean hasColor;
+    public boolean hasColor;
 
     @Shadow
-    private int brightness;
+    public int brightness;
 
     @Shadow
-    private boolean hasTexture;
+    public boolean hasTexture;
 
     @Shadow
-    private boolean hasBrightness;
+    public boolean hasBrightness;
 
     @Shadow
-    private boolean hasNormals;
+    public boolean hasNormals;
 
     @Shadow
-    private int color;
+    public int color;
 
     @Shadow
-    private double xOffset;
+    public double xOffset;
 
     @Shadow
-    private double yOffset;
+    public double yOffset;
 
     @Shadow
-    private double zOffset;
+    public double zOffset;
 
     @Shadow
-    private int normal;
+    public int normal;
 
     @Shadow
-    private int[] rawBuffer;
+    public int[] rawBuffer;
 
     @Shadow
-    private int rawBufferIndex;
+    public int rawBufferIndex;
 
     @Shadow
-    private int addedVertices;
+    public int addedVertices;
 
     @Shadow
-    private int vertexCount;
+    public int vertexCount;
 
     @Shadow
-    private double textureU;
+    public double textureU;
 
     @Shadow
-    private double textureV;
+    public double textureV;
 
     private int rawBufferSize;
 
@@ -90,12 +90,10 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
     private static int gammaUniform;
     private static int sunlevelUniform;
     private static int nightVisionWeightUniform;
-    private static IntBuffer cachedLightCoord;
-    private static IntBuffer cachedLightCoordSun;
+    private static final IntBuffer cachedLightCoord;
+    private static final IntBuffer cachedLightCoordSun;
     private static int cachedShader;
     private static boolean hasFlaggedOpenglError;
-    private static int lastGLErrorCode = GL11.GL_NO_ERROR;
-    private static String infoStr;
     private static boolean lockedBrightness;
     private static float gamma;
     private static float sunlevel;
@@ -175,12 +173,13 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
 
     private String readResourceAsString(String path) {
         InputStream is = ITessellatorMixin.class.getResourceAsStream(path);
+        if (is == null) return null;
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
         StringBuilder source = new StringBuilder();
         String line;
         try {
             while ((line = br.readLine()) != null) {
-                source.append(line + "\n");
+                source.append(line).append("\n");
             }
             br.close();
         } catch (IOException e) {
@@ -207,8 +206,8 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
     }
 
     public void setTextureCoord(FloatBuffer buffer) {
-        lastGLErrorCode = GL11.glGetError();
-        if (lastGLErrorCode != GL11.GL_NO_ERROR) {
+        int lastGLErrorCode;
+        if ((lastGLErrorCode = GL11.glGetError()) != GL11.GL_NO_ERROR) {
             if (!hasFlaggedOpenglError) {
                 CoreLoadingPlugin.CLLog.warn("Render error entering CLTessellatorHelper.setTextureCoord()! Error Code: " + lastGLErrorCode + ". Trying to proceed anyway...");
                 hasFlaggedOpenglError = true;
@@ -243,8 +242,8 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
         GL20.glUniform4(lightCoordSunUniform, cachedLightCoordSun);
     }
 
-    public int makeBrightness(int lightlevel) {
-        return lightlevel << LightingApi.bitshift_l2 | lightlevel << LightingApi.bitshift_r2 | lightlevel << LightingApi.bitshift_g2 | lightlevel << LightingApi.bitshift_b2;
+    public int makeBrightness(int lightLevel) {
+        return lightLevel << LightingApi.bitshift_l2 | lightLevel << LightingApi.bitshift_r2 | lightLevel << LightingApi.bitshift_g2 | lightLevel << LightingApi.bitshift_b2;
     }
 
     /***
@@ -284,7 +283,7 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
             int sun_b = (this.brightness >> LightingApi.bitshift_sun_b2) & LightingApi.bitmask_sun;
 
             /* 0000 SSSS 0000 BBBB 0000 GGGG 0000 RRRR */
-            this.rawBuffer[this.rawBufferIndex + 7] = (block_r << 0) | (block_g << 4) | (block_b << 8) | (sun_r << 16) | (sun_g << 20) | (sun_b << 24);
+            this.rawBuffer[this.rawBufferIndex + 7] = block_r | (block_g << 4) | (block_b << 8) | (sun_r << 16) | (sun_g << 20) | (sun_b << 24);
         }
 
         if (this.hasColor) {
@@ -295,13 +294,11 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
             this.rawBuffer[this.rawBufferIndex + 6] = this.normal;
         }
 
-        this.rawBuffer[this.rawBufferIndex + 0] = Float.floatToRawIntBits((float) (par1 + this.xOffset));
+        this.rawBuffer[this.rawBufferIndex] = Float.floatToRawIntBits((float) (par1 + this.xOffset));
         this.rawBuffer[this.rawBufferIndex + 1] = Float.floatToRawIntBits((float) (par3 + this.yOffset));
         this.rawBuffer[this.rawBufferIndex + 2] = Float.floatToRawIntBits((float) (par5 + this.zOffset));
         this.rawBufferIndex += 8;
         ++this.vertexCount;
-
-        return;
 
     }
 
@@ -328,12 +325,12 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
     @Shadow
     private static FloatBuffer floatBuffer;
     @Shadow
-    private boolean isDrawing;
+    public boolean isDrawing;
     @Shadow
     private static ShortBuffer shortBuffer;
 
     @Shadow
-    private int drawMode;
+    public int drawMode;
 
     @Shadow
     private void reset() {
