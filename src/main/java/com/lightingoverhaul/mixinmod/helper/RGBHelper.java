@@ -38,8 +38,8 @@ public class RGBHelper {
         int detectAsRGB = 1 << 30; // Dummy value so tesselator doesn't treat pure blue as vanilla light... This
         // will be ignored, except for in Tesselator.setBrightness
 
-        return detectAsRGB | (sun_r << LightingApi.bitshift_sun_r2) | (sun_g << LightingApi.bitshift_sun_g2) | (sun_b << LightingApi.bitshift_sun_b2) | block_l << LightingApi.bitshift_l2 | block_r << LightingApi.bitshift_r2
-                | block_g << LightingApi.bitshift_g2 | block_b << LightingApi.bitshift_b2;
+        return detectAsRGB | (sun_r << LightingApi._bitshift_sun_r2) | (sun_g << LightingApi._bitshift_sun_g2) | (sun_b << LightingApi._bitshift_sun_b2) | block_l << LightingApi._bitshift_l2 | block_r << LightingApi._bitshift_r2
+                | block_g << LightingApi._bitshift_g2 | block_b << LightingApi._bitshift_b2;
 
     }
 }

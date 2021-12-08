@@ -243,7 +243,7 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
     }
 
     public int makeBrightness(int lightLevel) {
-        return lightLevel << LightingApi.bitshift_l2 | lightLevel << LightingApi.bitshift_r2 | lightLevel << LightingApi.bitshift_g2 | lightLevel << LightingApi.bitshift_b2;
+        return lightLevel << LightingApi._bitshift_l2 | lightLevel << LightingApi._bitshift_r2 | lightLevel << LightingApi._bitshift_g2 | lightLevel << LightingApi._bitshift_b2;
     }
 
     /***
@@ -275,12 +275,12 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
              * << and >> take precedence over & Incoming: 0000 0000 SSSS BBBB GGGG RRRR LLLL
              * 0000
              */
-            int block_r = (this.brightness >> LightingApi.bitshift_r2) & 0xF;
-            int block_g = (this.brightness >> LightingApi.bitshift_g2) & 0xF;
-            int block_b = (this.brightness >> LightingApi.bitshift_b2) & 0xF;
-            int sun_r = (this.brightness >> LightingApi.bitshift_sun_r2) & LightingApi.bitmask_sun;
-            int sun_g = (this.brightness >> LightingApi.bitshift_sun_g2) & LightingApi.bitmask_sun;
-            int sun_b = (this.brightness >> LightingApi.bitshift_sun_b2) & LightingApi.bitmask_sun;
+            int block_r = (this.brightness >> LightingApi._bitshift_r2) & 0xF;
+            int block_g = (this.brightness >> LightingApi._bitshift_g2) & 0xF;
+            int block_b = (this.brightness >> LightingApi._bitshift_b2) & 0xF;
+            int sun_r = (this.brightness >> LightingApi._bitshift_sun_r2) & LightingApi._bitmask_sun;
+            int sun_g = (this.brightness >> LightingApi._bitshift_sun_g2) & LightingApi._bitmask_sun;
+            int sun_b = (this.brightness >> LightingApi._bitshift_sun_b2) & LightingApi._bitmask_sun;
 
             /* 0000 SSSS 0000 BBBB 0000 GGGG 0000 RRRR */
             this.rawBuffer[this.rawBufferIndex + 7] = block_r | (block_g << 4) | (block_b << 8) | (sun_r << 16) | (sun_g << 20) | (sun_b << 24);

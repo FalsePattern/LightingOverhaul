@@ -4,7 +4,6 @@ import com.lightingoverhaul.mixinmod.interfaces.IChunkMixin;
 import net.minecraft.world.WorldProvider;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -15,7 +14,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.lightingoverhaul.coremod.api.LightingApi;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockStainedGlass;
-import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
@@ -23,8 +21,6 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import scala.reflect.NameTransformer;
 import scala.tools.asm.Opcodes;
 
 @Mixin(Chunk.class)
@@ -378,9 +374,9 @@ public abstract class ChunkMixin implements IChunkMixin {
     private void processLightDown(int x, int z, int y_min, int y_max) {
         if (!this.worldObj.provider.hasNoSky) {
             int i3 = EnumSkyBlock.Sky.defaultLightValue;
-            int sun_r = (i3 >> LightingApi.bitshift_sun_r) & LightingApi.bitmask_sun;
-            int sun_g = (i3 >> LightingApi.bitshift_sun_g) & LightingApi.bitmask_sun;
-            int sun_b = (i3 >> LightingApi.bitshift_sun_b) & LightingApi.bitmask_sun;
+            int sun_r = (i3 >> LightingApi._bitshift_sun_r) & LightingApi._bitmask_sun;
+            int sun_g = (i3 >> LightingApi._bitshift_sun_g) & LightingApi._bitmask_sun;
+            int sun_b = (i3 >> LightingApi._bitshift_sun_b) & LightingApi._bitmask_sun;
             int min_opacity = 0;
             int pos = y_max;
 
@@ -414,18 +410,18 @@ public abstract class ChunkMixin implements IChunkMixin {
                 sun_g = Math.max(0, sun_g);
                 sun_b = Math.max(0, sun_b);
 
-                int sun_combined = (sun_r << LightingApi.bitshift_sun_r) | (sun_g << LightingApi.bitshift_sun_g) | (sun_b << LightingApi.bitshift_sun_b);
+                int sun_combined = (sun_r << LightingApi._bitshift_sun_r) | (sun_g << LightingApi._bitshift_sun_g) | (sun_b << LightingApi._bitshift_sun_b);
                 ExtendedBlockStorage extendedBlockStorage = this.storageArrays[pos >> 4];
                 if (extendedBlockStorage != null) {
 
                     int oldLight = extendedBlockStorage.getExtSkylightValue(x, pos & 0xF, z);
-                    int old_r = (oldLight >> LightingApi.bitshift_sun_r) & LightingApi.bitmask_sun;
-                    int old_g = (oldLight >> LightingApi.bitshift_sun_g) & LightingApi.bitmask_sun;
-                    int old_b = (oldLight >> LightingApi.bitshift_sun_b) & LightingApi.bitmask_sun;
+                    int old_r = (oldLight >> LightingApi._bitshift_sun_r) & LightingApi._bitmask_sun;
+                    int old_g = (oldLight >> LightingApi._bitshift_sun_g) & LightingApi._bitmask_sun;
+                    int old_b = (oldLight >> LightingApi._bitshift_sun_b) & LightingApi._bitmask_sun;
                     int mixed_r = Math.max(old_r, sun_r);
                     int mixed_g = Math.max(old_g, sun_g);
                     int mixed_b = Math.max(old_b, sun_b);
-                    int sun_combined_real = (mixed_r << LightingApi.bitshift_sun_r) | (mixed_g << LightingApi.bitshift_sun_g) | (mixed_b << LightingApi.bitshift_sun_b);
+                    int sun_combined_real = (mixed_r << LightingApi._bitshift_sun_r) | (mixed_g << LightingApi._bitshift_sun_g) | (mixed_b << LightingApi._bitshift_sun_b);
 
                     extendedBlockStorage.setExtSkylightValue(x, pos & 0xF, z, sun_combined_real);
                 }

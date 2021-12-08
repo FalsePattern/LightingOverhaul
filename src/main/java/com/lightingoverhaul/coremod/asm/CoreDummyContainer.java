@@ -69,7 +69,7 @@ public class CoreDummyContainer extends DummyModContainer {
 
             modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
 
-            int color = (15 << LightingApi.bitshift_sun_r) | (15 << LightingApi.bitshift_sun_g) | (15 << LightingApi.bitshift_sun_b) | 15;
+            int color = (15 << LightingApi._bitshift_sun_r) | (15 << LightingApi._bitshift_sun_g) | (15 << LightingApi._bitshift_sun_b) | 15;
             field.set(EnumSkyBlock.Sky, color);
         } catch (Exception e) {
             e.printStackTrace();

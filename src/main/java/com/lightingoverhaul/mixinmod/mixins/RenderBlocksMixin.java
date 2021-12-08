@@ -874,13 +874,13 @@ public abstract class RenderBlocksMixin {
         // 15728880) + (l & 15728880) >> 2 & 15728880;
 
         // Must mix all 5 channels now
-        cir.setReturnValue(mixColorChannel(LightingApi.bitshift_sun_r2, r, g, b, l) | // SSSS
-                mixColorChannel(LightingApi.bitshift_sun_g2, r, g, b, l) | // SSSS
-                mixColorChannel(LightingApi.bitshift_sun_b2, r, g, b, l) | // SSSS
-                mixColorChannel(LightingApi.bitshift_b2, r, g, b, l) | // BBBB
-                mixColorChannel(LightingApi.bitshift_g2, r, g, b, l) | // GGGG this is the problem child
-                mixColorChannel(LightingApi.bitshift_r2, r, g, b, l) | // RRRR
-                mixColorChannel(LightingApi.bitshift_l2, r, g, b, l) // LLLL
+        cir.setReturnValue(mixColorChannel(LightingApi._bitshift_sun_r2, r, g, b, l) | // SSSS
+                mixColorChannel(LightingApi._bitshift_sun_g2, r, g, b, l) | // SSSS
+                mixColorChannel(LightingApi._bitshift_sun_b2, r, g, b, l) | // SSSS
+                mixColorChannel(LightingApi._bitshift_b2, r, g, b, l) | // BBBB
+                mixColorChannel(LightingApi._bitshift_g2, r, g, b, l) | // GGGG this is the problem child
+                mixColorChannel(LightingApi._bitshift_r2, r, g, b, l) | // RRRR
+                mixColorChannel(LightingApi._bitshift_l2, r, g, b, l) // LLLL
         );
     }
 

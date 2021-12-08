@@ -2,11 +2,16 @@ package com.lightingoverhaul.mixinmod.mixins;
 
 import java.lang.reflect.InvocationTargetException;
 
+import com.lightingoverhaul.coremod.util.Light;
 import com.lightingoverhaul.coremod.api.LightingApi;
+import com.lightingoverhaul.coremod.util.LightBuffer;
+import com.lightingoverhaul.coremod.util.RGB;
+import com.lightingoverhaul.coremod.util.operators.BinaryOperator;
 import com.lightingoverhaul.coremod.asm.CoreDummyContainer;
 import com.lightingoverhaul.coremod.asm.CoreLoadingPlugin;
 import com.lightingoverhaul.mixinmod.helper.RGBHelper;
 import com.lightingoverhaul.mixinmod.interfaces.IChunkMixin;
+import lombok.Cleanup;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -166,46 +171,36 @@ public abstract class WorldMixin {
         }
     }
 
-    private int calculateOpacity(int light, int opacity, Block block, int x, int y, int z) {
-        int l = (light >> LightingApi.bitshift_l) & 0xF;
-        int r = (light >> LightingApi.bitshift_r) & LightingApi.bitmask;
-        int g = (light >> LightingApi.bitshift_g) & LightingApi.bitmask;
-        int b = (light >> LightingApi.bitshift_b) & LightingApi.bitmask;
-        int sun_r = (light >> LightingApi.bitshift_sun_r) & LightingApi.bitmask_sun;
-        int sun_g = (light >> LightingApi.bitshift_sun_g) & LightingApi.bitmask_sun;
-        int sun_b = (light >> LightingApi.bitshift_sun_b) & LightingApi.bitmask_sun;
+    private int calculateOpacity(int lightIn, int opacityIn, Block block, int x, int y, int z) {
+        @Cleanup Light light = LightBuffer.getLight();
+        @Cleanup RGB opacity = LightBuffer.getRGB();
+        RGB color = light.color;
+        RGB sun = light.sun;
 
-        boolean hasColor = r > 0 || g > 0 || b > 0;
+        light.fromLight(lightIn);
 
-        int r_opacity = opacity;
-        int g_opacity = opacity;
-        int b_opacity = opacity;
+        boolean hasColor = color.r > 0 || color.g > 0 || color.b > 0;
+
+        opacity.set(opacityIn);
 
         if (block instanceof BlockStainedGlass) {
             int meta = this.getBlockMetadata(x, y, z);
             int index = stainedglass_api_index[meta];
-            r_opacity = (int) Math.round((15 - LightingApi.r[index]) / 3.0f) + 1;
-            g_opacity = (int) Math.round((15 - LightingApi.g[index]) / 3.0f) + 1;
-            b_opacity = (int) Math.round((15 - LightingApi.b[index]) / 3.0f) + 1;
+
+            opacity.apply(LightingApi.colors[index], (a) -> (int) Math.round((15 - a) / 3.0F) + 1);
         }
+        BinaryOperator oper = (a, b) -> Math.max(0, a - b);
+        light.l = oper.apply(light.l, opacityIn);
+        color.applySelf(opacity, oper);
+        sun.applySelf(opacity, oper);
 
-        l = Math.max(0, l - opacity);
-        r = Math.max(0, r - r_opacity);
-        g = Math.max(0, g - g_opacity);
-        b = Math.max(0, b - b_opacity);
+        if (hasColor && color.r + color.g + color.b == 0)
+            light.l = 0;
 
-        sun_r = Math.max(0, sun_r - r_opacity);
-        sun_g = Math.max(0, sun_g - g_opacity);
-        sun_b = Math.max(0, sun_b - b_opacity);
+        if (color.r > 15 || color.g > 15 || color.b > 15)
+            light.l = 15;
 
-        if (hasColor && r + g + b == 0)
-            l = 0;
-
-        if (r > 15 || g > 15 || b > 15)
-            l = 15;
-
-        return (sun_r << LightingApi.bitshift_sun_r) | (sun_g << LightingApi.bitshift_sun_g) | (sun_b << LightingApi.bitshift_sun_b) | (l << LightingApi.bitshift_l) | (r << LightingApi.bitshift_r) | (g << LightingApi.bitshift_g)
-                | (b << LightingApi.bitshift_b);
+        return light.toLight();
     }
 
     private static float getBrightness(float lightlevel) {
@@ -272,60 +267,48 @@ public abstract class WorldMixin {
         cir.setReturnValue(RGBHelper.computeLightBrightnessForSkyBlocks(skyBrightness, blockBrightness, lightValue));
     }
 
+
+
+
     /***
      * @author darkshadow44
      * @reason TODO
      */
     @Overwrite
-    private int computeLightValue(int par_x, int par_y, int par_z, EnumSkyBlock par1Enu) {
-        Chunk chunk = getChunkFromChunkCoords(par_x >> 4, par_z >> 4);
-        IChunkMixin chunkMixin = (IChunkMixin) (Object) chunk;
-        if (par1Enu == EnumSkyBlock.Sky && this.canBlockSeeTheSky(par_x, par_y, par_z)) {
+    private int computeLightValue(int x, int y, int z, EnumSkyBlock par1Enu) {
+        Chunk chunk = getChunkFromChunkCoords(x >> 4, z >> 4);
+        IChunkMixin chunkMixin = (IChunkMixin) chunk;
+        if (par1Enu == EnumSkyBlock.Sky && this.canBlockSeeTheSky(x, y, z)) {
             return EnumSkyBlock.Sky.defaultLightValue;
         } else {
-            Block block = this.getBlock(par_x, par_y, par_z);
+            Block block = this.getBlock(x, y, z);
 
             int currentLight = 0;
             if (par1Enu != EnumSkyBlock.Sky) {
-                currentLight = (block == null ? 0 : this.getLightValueSomehow(block, (World) (Object) this, par_x, par_y, par_z));
+                currentLight = (block == null ? 0 : this.getLightValueSomehow(block, (World) (Object) this, x, y, z));
                 if ((currentLight > 0) && (currentLight <= 0xF)) {
-                    currentLight = (currentLight << LightingApi.bitshift_r) | (currentLight << LightingApi.bitshift_g) | (currentLight << LightingApi.bitshift_b) | (currentLight << LightingApi.bitshift_l); // copy vanilla
-                                                                                                                                                                                      // brightness
-                                                                                                                                                                                      // into each
-                                                                                                                                                                                      // color
-                                                                                                                                                                                      // component to
-                                                                                                                                                                                      // make it
-                                                                                                                                                                                      // white/grey if
-                                                                                                                                                                                      // it is
-                                                                                                                                                                                      // uncolored.
+                    // copy vanilla brightness into each color component to make it white/grey if it is uncolored.
+                    currentLight = (currentLight << LightingApi._bitshift_r) | (currentLight << LightingApi._bitshift_g) | (currentLight << LightingApi._bitshift_b) | (currentLight << LightingApi._bitshift_l);
                 }
             }
 
-            int block_l = (currentLight >> LightingApi.bitshift_l) & 0xF;
-            int block_r = (currentLight >> LightingApi.bitshift_r) & LightingApi.bitmask;
-            int block_g = (currentLight >> LightingApi.bitshift_g) & LightingApi.bitmask;
-            int block_b = (currentLight >> LightingApi.bitshift_b) & LightingApi.bitmask;
+            @Cleanup Light current = LightBuffer.getLight();
+            current.fromLight(currentLight);
 
-            int sun_r = (currentLight >> LightingApi.bitshift_sun_r) & LightingApi.bitmask_sun;
-            int sun_g = (currentLight >> LightingApi.bitshift_sun_g) & LightingApi.bitmask_sun;
-            int sun_b = (currentLight >> LightingApi.bitshift_sun_b) & LightingApi.bitmask_sun;
+            if (par1Enu == EnumSkyBlock.Sky && chunkMixin.canReallySeeTheSky(x & 0xF, y, z & 0xF)) {
+                int sun_precomputed = chunkMixin.getRealSunColor(x & 0xF, y, z & 0xF);
+                @Cleanup RGB sun2 = LightBuffer.getRGB();
+                sun2.apply(LightingApi.bitshift_sun, (shift) -> (sun_precomputed >> shift) & LightingApi._bitmask_sun);
 
-            if (par1Enu == EnumSkyBlock.Sky && chunkMixin.canReallySeeTheSky(par_x & 0xF, par_y, par_z & 0xF)) {
-                int sun_precomputed = chunkMixin.getRealSunColor(par_x & 0xF, par_y, par_z & 0xF);
-                int sun_r2 = (sun_precomputed >> LightingApi.bitshift_sun_r) & LightingApi.bitmask_sun;
-                int sun_g2 = (sun_precomputed >> LightingApi.bitshift_sun_g) & LightingApi.bitmask_sun;
-                int sun_b2 = (sun_precomputed >> LightingApi.bitshift_sun_b) & LightingApi.bitmask_sun;
-                sun_r = Math.max(sun_r, sun_r2);
-                sun_g = Math.max(sun_g, sun_g2);
-                sun_b = Math.max(sun_b, sun_b2);
+                current.sun.applySelf(sun2, Math::max);
             }
 
-            if (block_r > 15 || block_g > 15 || block_b > 15)
-                block_l = 15;
+            if (current.color.r > 15 || current.color.g > 15 || current.color.b > 15)
+                current.l = 15;
 
-            currentLight |= (block_l << LightingApi.bitshift_l);
+            currentLight |= (current.l << LightingApi._bitshift_l);
 
-            int opacity = (block == null ? 0 : block.getLightOpacity((World) (Object) this, par_x, par_y, par_z));
+            int opacity = (block == null ? 0 : block.getLightOpacity((World) (Object) this, x, y, z));
 
             if (opacity >= 15 && currentLight > 0) {
                 opacity = 1;
@@ -340,9 +323,9 @@ public abstract class WorldMixin {
             } else {
 
                 for (int faceIndex = 0; faceIndex < 6; ++faceIndex) {
-                    int l1 = par_x + Facing.offsetsXForSide[faceIndex];
-                    int i2 = par_y + Facing.offsetsYForSide[faceIndex];
-                    int j2 = par_z + Facing.offsetsZForSide[faceIndex];
+                    int l1 = x + Facing.offsetsXForSide[faceIndex];
+                    int i2 = y + Facing.offsetsYForSide[faceIndex];
+                    int j2 = z + Facing.offsetsZForSide[faceIndex];
 
                     if (faceIndex == 1) {
                         if (getBlock(l1, i2, j2) instanceof BlockStainedGlass) {
@@ -353,29 +336,13 @@ public abstract class WorldMixin {
 
                     int neighborLight = this.getSavedLightValue(par1Enu, l1, i2, j2);
 
-                    int light = calculateOpacity(neighborLight, opacity, block, par_x, par_y, par_z);
+                    int light = calculateOpacity(neighborLight, opacity, block, x, y, z);
 
-                    int block_l2 = (light >> LightingApi.bitshift_l) & 0xF;
-                    int block_r2 = (light >> LightingApi.bitshift_r) & LightingApi.bitmask;
-                    int block_g2 = (light >> LightingApi.bitshift_g) & LightingApi.bitmask;
-                    int block_b2 = (light >> LightingApi.bitshift_b) & LightingApi.bitmask;
-
-                    int sun_r2 = (light >> LightingApi.bitshift_sun_r) & LightingApi.bitmask_sun;
-                    int sun_g2 = (light >> LightingApi.bitshift_sun_g) & LightingApi.bitmask_sun;
-                    int sun_b2 = (light >> LightingApi.bitshift_sun_b) & LightingApi.bitmask_sun;
-
-                    block_l = Math.max(block_l, block_l2);
-                    block_r = Math.max(block_r, block_r2);
-                    block_g = Math.max(block_g, block_g2);
-                    block_b = Math.max(block_b, block_b2);
-
-                    sun_r = Math.max(sun_r, sun_r2);
-                    sun_g = Math.max(sun_g, sun_g2);
-                    sun_b = Math.max(sun_b, sun_b2);
+                    @Cleanup Light neighbor = LightBuffer.getLight();
+                    neighbor.fromLight(light);
+                    current.applySelf(neighbor, Math::max);
                 }
-
-                return (sun_r << LightingApi.bitshift_sun_r) | (sun_g << LightingApi.bitshift_sun_g) | (sun_b << LightingApi.bitshift_sun_b) | (block_l << LightingApi.bitshift_l) | (block_r << LightingApi.bitshift_r)
-                        | (block_g << LightingApi.bitshift_g) | (block_b << LightingApi.bitshift_b);
+                return current.toLight();
             }
         }
     }
@@ -389,8 +356,8 @@ public abstract class WorldMixin {
         return this.updateLightByType_withIncrement(par1Enu, par_x, par_y, par_z, true, par_x, par_y, par_z);
     }
 
-    private String makeLightStr(int block_r, int block_g, int block_b, int sun_r, int sun_g, int sun_b) {
-        return "(block_r : " + block_r + ", block_g: " + block_g + ", block_b: " + block_b + ", sun_r: " + sun_r + ", sun_g: " + sun_g + ", sun_b: " + sun_b + ")";
+    private String makeLightStr(Light light) {
+        return "(block_r : " + light.color.r + ", block_g: " + light.color.r + ", block_b: " + light.color.b + ", sun_r: " + light.sun.r + ", sun_g: " + light.sun.g + ", sun_b: " + light.sun.b + ")";
     }
 
     private String makePosStr(int x, int y, int z) {
@@ -446,19 +413,15 @@ public abstract class WorldMixin {
 
             this.theProfiler.endStartSection("lightAddition");
 
-            int saved_block_r = (int) (savedLightValue >> LightingApi.bitshift_r) & LightingApi.bitmask;
-            int saved_block_g = (int) (savedLightValue >> LightingApi.bitshift_g) & LightingApi.bitmask;
-            int saved_block_b = (int) (savedLightValue >> LightingApi.bitshift_b) & LightingApi.bitmask;
-            int saved_sun_r = (int) (savedLightValue >> LightingApi.bitshift_sun_r) & LightingApi.bitmask_sun;
-            int saved_sun_g = (int) (savedLightValue >> LightingApi.bitshift_sun_g) & LightingApi.bitmask_sun;
-            int saved_sun_b = (int) (savedLightValue >> LightingApi.bitshift_sun_b) & LightingApi.bitmask_sun;
+            @Cleanup Light tmp = LightBuffer.getLight();
 
-            int comp_block_r = (int) (compLightValue >> LightingApi.bitshift_r) & LightingApi.bitmask;
-            int comp_block_g = (int) (compLightValue >> LightingApi.bitshift_g) & LightingApi.bitmask;
-            int comp_block_b = (int) (compLightValue >> LightingApi.bitshift_b) & LightingApi.bitmask;
-            int comp_sun_r = (int) (compLightValue >> LightingApi.bitshift_sun_r) & LightingApi.bitmask_sun;
-            int comp_sun_g = (int) (compLightValue >> LightingApi.bitshift_sun_g) & LightingApi.bitmask_sun;
-            int comp_sun_b = (int) (compLightValue >> LightingApi.bitshift_sun_b) & LightingApi.bitmask_sun;
+            @Cleanup Light saved = LightBuffer.getLight();
+
+            saved.fromLight((int) savedLightValue);
+
+            @Cleanup Light comp = LightBuffer.getLight();
+
+            comp.fromLight((int) compLightValue);
 
             final int offset = 31; // Offset for the start block
             final int size = 64; // Number or blocks in one directon
@@ -470,46 +433,19 @@ public abstract class WorldMixin {
             // Format of lightAdditionBlockList word:
             // bbbbb.ggggg.rrrrr.LLLLzzzzzzzyyyyyyyxxxxxxx
             // x/y/z are relative offsets
-            if (comp_block_r > saved_block_r || comp_block_g > saved_block_g || comp_block_b > saved_block_b || comp_sun_r > saved_sun_r || comp_sun_g > saved_sun_g || comp_sun_b > saved_sun_b) { // compLightValue
-                                                                                                                                                                                                    // has
-                                                                                                                                                                                                    // components
-                                                                                                                                                                                                    // that
-                                                                                                                                                                                                    // are
-                                                                                                                                                                                                    // larger
-                                                                                                                                                                                                    // than
-                                                                                                                                                                                                    // savedLightValue,
-                                                                                                                                                                                                    // the
-                                                                                                                                                                                                    // block
-                                                                                                                                                                                                    // at
-                                                                                                                                                                                                    // the
-                                                                                                                                                                                                    // current
-                                                                                                                                                                                                    // position
-                                                                                                                                                                                                    // is
-                                                                                                                                                                                                    // brighter
-                                                                                                                                                                                                    // than
-                                                                                                                                                                                                    // the
-                                                                                                                                                                                                    // saved
-                                                                                                                                                                                                    // value
-                                                                                                                                                                                                    // at
-                                                                                                                                                                                                    // the
-                                                                                                                                                                                                    // current
-                                                                                                                                                                                                    // positon...
-                                                                                                                                                                                                    // it
-                                                                                                                                                                                                    // must
-                                                                                                                                                                                                    // have
-                                                                                                                                                                                                    // been
-                                                                                                                                                                                                    // made
-                                                                                                                                                                                                    // brighter
-                                                                                                                                                                                                    // somehow
+            if (
+                    comp.color.r > saved.color.r | comp.color.g > saved.color.g | comp.color.b > saved.color.b |
+                    comp.sun.r > saved.sun.r | comp.sun.g > saved.sun.g | comp.sun.b > saved.sun.b
+            ) {
+                // compLightValue has components that are larger than savedLightValue, the block at the current position is brighter than the saved value at the current positon... it must have been made brighter somehow
                 // Light Splat/Spread
 
-                this.lightAdditionNeeded[offset][offset][offset] = this.updateFlag; // Light needs
-                                                                                    // processing processed
+                this.lightAdditionNeeded[offset][offset][offset] = this.updateFlag; // Light needs processing processed
                 lightAdditionsCalled++;
                 if (DEBUG) {
                     CoreLoadingPlugin.CLLog.warn(
-                            "Spread Addition Original " + makePosStr(par_x, par_y, par_z) + " with comp " + makeLightStr(comp_block_r, comp_block_g, comp_block_b, comp_sun_r, comp_sun_g, comp_sun_b)
-                                    + " and saved " + makeLightStr(saved_block_r, saved_block_g, saved_block_b, comp_sun_r, comp_sun_g, comp_sun_b));
+                            "Spread Addition Original " + makePosStr(par_x, par_y, par_z) + " with comp " + makeLightStr(comp)
+                                    + " and saved " + makeLightStr(saved));
                 }
                 this.lightAdditionBlockList[getter++] = startCoord | (compLightValue << (coord_size * 3));
 
@@ -539,24 +475,17 @@ public abstract class WorldMixin {
                         this.lightAdditionNeeded[queue_x - par_x + offset][queue_y - par_y + offset][queue_z - par_z + offset] = this.updateFlag + 1; // Light has been visited and processed
 
                         lightAdditionsSatisfied++;
+                        
+                        @Cleanup Light queue = LightBuffer.getLight();
+                        
+                        queue.fromLight(queueLightEntry);
+                        
+                        @Cleanup Light edge = LightBuffer.getLight();
+                        
+                        edge.fromLight(neighborLightEntry);
 
-                        int queue_block_r = (queueLightEntry >> LightingApi.bitshift_r) & LightingApi.bitmask;
-                        int queue_block_g = (queueLightEntry >> LightingApi.bitshift_g) & LightingApi.bitmask;
-                        int queue_block_b = (queueLightEntry >> LightingApi.bitshift_b) & LightingApi.bitmask;
-                        int queue_sun_r = (queueLightEntry >> LightingApi.bitshift_sun_r) & LightingApi.bitmask_sun;
-                        int queue_sun_g = (queueLightEntry >> LightingApi.bitshift_sun_g) & LightingApi.bitmask_sun;
-                        int queue_sun_b = (queueLightEntry >> LightingApi.bitshift_sun_b) & LightingApi.bitmask_sun;
-
-                        int edge_block_r = (int) (neighborLightEntry >> LightingApi.bitshift_r) & LightingApi.bitmask;
-                        int edge_block_g = (int) (neighborLightEntry >> LightingApi.bitshift_g) & LightingApi.bitmask;
-                        int edge_block_b = (int) (neighborLightEntry >> LightingApi.bitshift_b) & LightingApi.bitmask;
-                        int edge_sun_r = (int) (neighborLightEntry >> LightingApi.bitshift_sun_r) & LightingApi.bitmask_sun;
-                        int edge_sun_g = (int) (neighborLightEntry >> LightingApi.bitshift_sun_g) & LightingApi.bitmask_sun;
-                        int edge_sun_b = (int) (neighborLightEntry >> LightingApi.bitshift_sun_b) & LightingApi.bitmask_sun;
-
-                        if (queue_block_r > edge_block_r || queue_block_g > edge_block_g || queue_block_b > edge_block_b || queue_sun_r > edge_sun_r || queue_sun_g > edge_sun_g
-                                || queue_sun_b > edge_sun_b) { // Components in queueLightEntry are brighter than in
-                                                               // edgeLightEntry
+                        if (tmp.noL.apply(queue.noL, edge.noL, (a, b) -> a > b ? 1 : 0).reduce(0, (a, b) -> a | b) == 1) {
+                            // Components in queueLightEntry are brighter than in edgeLightEntry
                             man_x = MathHelper.abs_int(queue_x - par_x);
                             man_y = MathHelper.abs_int(queue_y - par_y);
                             man_z = MathHelper.abs_int(queue_z - par_z);
@@ -565,11 +494,11 @@ public abstract class WorldMixin {
                             this.setLightValue(par1Enu, queue_x, queue_y, queue_z, queueLightEntry);
                             if (DEBUG) {
                                 CoreLoadingPlugin.CLLog.warn("Spread " + makePosStr(queue_x, queue_y, queue_z) + " with queue "
-                                        + makeLightStr(queue_block_r, queue_block_g, queue_block_b, queue_sun_r, queue_sun_g, queue_sun_b) + " and edge "
-                                        + makeLightStr(edge_block_r, edge_block_g, edge_block_b, edge_sun_r, edge_sun_g, edge_sun_b));
+                                        + makeLightStr(queue) + " and edge "
+                                        + makeLightStr(edge));
                             }
-                            int limit_test = Math.max(Math.max(comp_block_r, comp_block_g), comp_block_b);
-                            limit_test = Math.max(Math.max(Math.max(limit_test, comp_sun_r), comp_sun_g), comp_sun_b);
+                            int limit_test = Math.max(Math.max(comp.color.r, comp.color.g), comp.color.b);
+                            limit_test = Math.max(Math.max(Math.max(limit_test, comp.sun.r), comp.sun.g), comp.sun.b);
 
                             // if ((manhattan_distance < ((compLightValue & 0x0000F) - 1)) || (par1Enu ==
                             // EnumSkyBlock.Sky && (man_x<14) && (man_y<14) && (man_z<14))) { //Limits the
@@ -606,50 +535,37 @@ public abstract class WorldMixin {
 
                                             int queueLightEntryFiltered = calculateOpacity(queueLightEntry, opacity, neighborBlock, neighbor_x, neighbor_y, neighbor_z);
 
-                                            int queue_filtered_block_r = (queueLightEntryFiltered >> LightingApi.bitshift_r) & LightingApi.bitmask;
-                                            int queue_filtered_block_g = (queueLightEntryFiltered >> LightingApi.bitshift_g) & LightingApi.bitmask;
-                                            int queue_filtered_block_b = (queueLightEntryFiltered >> LightingApi.bitshift_b) & LightingApi.bitmask;
-                                            int queue_filtered_sun_r = (queueLightEntryFiltered >> LightingApi.bitshift_sun_r) & LightingApi.bitmask_sun;
-                                            int queue_filtered_sun_g = (queueLightEntryFiltered >> LightingApi.bitshift_sun_g) & LightingApi.bitmask_sun;
-                                            int queue_filtered_sun_b = (queueLightEntryFiltered >> LightingApi.bitshift_sun_b) & LightingApi.bitmask_sun;
+                                            @Cleanup Light queueFiltered = LightBuffer.getLight();
 
-                                            int neighbor_block_r = (neighborLightEntry >> LightingApi.bitshift_r) & LightingApi.bitmask;
-                                            int neighbor_block_g = (neighborLightEntry >> LightingApi.bitshift_g) & LightingApi.bitmask;
-                                            int neighbor_block_b = (neighborLightEntry >> LightingApi.bitshift_b) & LightingApi.bitmask;
-                                            int neighbor_sun_r = (neighborLightEntry >> LightingApi.bitshift_sun_r) & LightingApi.bitmask_sun;
-                                            int neighbor_sun_g = (neighborLightEntry >> LightingApi.bitshift_sun_g) & LightingApi.bitmask_sun;
-                                            int neighbor_sun_b = (neighborLightEntry >> LightingApi.bitshift_sun_b) & LightingApi.bitmask_sun;
+                                            queueFiltered.fromLight(queueLightEntryFiltered);
 
-                                            int final_block_r = queue_block_r > neighbor_block_r ? Math.max(0, queue_filtered_block_r) : neighbor_block_r;
-                                            int final_block_g = queue_block_g > neighbor_block_g ? Math.max(0, queue_filtered_block_g) : neighbor_block_g;
-                                            int final_block_b = queue_block_b > neighbor_block_b ? Math.max(0, queue_filtered_block_b) : neighbor_block_b;
-                                            int final_sun_r = queue_sun_r > neighbor_sun_r ? Math.max(0, queue_filtered_sun_r) : neighbor_sun_r;
-                                            int final_sun_g = queue_sun_g > neighbor_sun_g ? Math.max(0, queue_filtered_sun_g) : neighbor_sun_g;
-                                            int final_sun_b = queue_sun_b > neighbor_sun_b ? Math.max(0, queue_filtered_sun_b) : neighbor_sun_b;
+                                            @Cleanup Light neighbor = LightBuffer.getLight();
 
-                                            long light_combine = (final_block_r << LightingApi.bitshift_r) | (final_block_g << LightingApi.bitshift_g) | (final_block_b << LightingApi.bitshift_b)
-                                                    | (final_sun_r << LightingApi.bitshift_sun_r) | (final_sun_g << LightingApi.bitshift_sun_g) | (final_sun_b << LightingApi.bitshift_sun_b);
+                                            neighbor.fromLight(neighborLightEntry);
 
-                                            if (((final_block_r > neighbor_block_r) || (final_block_g > neighbor_block_g) || (final_block_b > neighbor_block_b) || (final_sun_r > neighbor_sun_r)
-                                                    || (final_sun_g > neighbor_sun_g) || (final_sun_b > neighbor_sun_b)) && (getter < this.lightAdditionBlockList.length)) {
-                                                this.lightAdditionNeeded[neighbor_x - par_x + offset][neighbor_y - par_y + offset][neighbor_z - par_z + offset] = this.updateFlag; // Mark
-                                                                                                                                                                                   // neighbor
-                                                                                                                                                                                   // to
-                                                                                                                                                                                   // be
-                                                                                                                                                                                   // processed
+                                            @Cleanup Light finalLight = LightBuffer.getLight();
+
+                                            finalLight.noL.apply(queue.noL, neighbor.noL, queueFiltered.noL, (q, n, f) -> q > n ? Math.max(0, f) : n);
+
+                                            finalLight.l = 0;
+
+                                            long light_combine = finalLight.toLight();
+
+
+                                            if ((tmp.noL.apply(finalLight.noL, neighbor.noL, (a, b) -> a > b ? 1 : 0).reduce(0, (a, b) -> a | b) == 1) && (getter < this.lightAdditionBlockList.length)) {
+                                                // Mark neighbor to be processed
+                                                this.lightAdditionNeeded[neighbor_x - par_x + offset][neighbor_y - par_y + offset][neighbor_z - par_z + offset] = this.updateFlag;
                                                 this.lightAdditionNeededOpacity[neighbor_x - par_x + offset][neighbor_y - par_y + offset][neighbor_z - par_z + offset] = myOpacity;
                                                 this.lightAdditionBlockList[getter++] = ((long) neighbor_x - (long) par_x + size) | (((long) neighbor_y - (long) par_y + size) << coord_size)
                                                         | (((long) neighbor_z - (long) par_z + size) << (coord_size * 2)) | (light_combine << (coord_size * 3));
                                                 lightAdditionsCalled++;
-                                            } else if ((queue_block_r + opacity < neighbor_block_r) || (queue_block_g + opacity < neighbor_block_g) || (queue_block_b + opacity < neighbor_block_b)
-                                                    || (queue_sun_r + opacity < neighbor_sun_r) || (queue_sun_g + opacity < neighbor_sun_g) || (queue_sun_b + opacity < neighbor_sun_b)) {
-                                                if (Math.abs(queue_x - rel_x) < offset && Math.abs(queue_y - rel_y) < offset && Math.abs(queue_z - rel_z) < offset) {
-                                                    this.lightBackfillNeeded[queue_x - rel_x + offset][queue_y - rel_y + offset][queue_z - rel_z + offset] = this.updateFlag; // Mark
-                                                                                                                                                                              // queue
-                                                                                                                                                                              // location
-                                                                                                                                                                              // to
-                                                                                                                                                                              // be
-                                                                                                                                                                              // re-processed
+                                            } else {
+                                                int finalOpacity = opacity;
+                                                if (tmp.noL.apply(queue.noL, neighbor.noL, (a, b) -> a + finalOpacity < b ? 1 : 0).reduce(0, (a, b) -> a | b) == 1) {
+                                                    if (Math.abs(queue_x - rel_x) < offset && Math.abs(queue_y - rel_y) < offset && Math.abs(queue_z - rel_z) < offset) {
+                                                        // Mark queue location to be re-processed
+                                                        this.lightBackfillNeeded[queue_x - rel_x + offset][queue_y - rel_y + offset][queue_z - rel_z + offset] = this.updateFlag;
+                                                    }
                                                 }
                                             }
                                         }
@@ -674,21 +590,15 @@ public abstract class WorldMixin {
                 filler = 0;
                 getter = 0;
 
-                if (saved_block_r > comp_block_r || saved_block_g > comp_block_g || saved_block_b > comp_block_b || saved_sun_r > comp_sun_r || saved_sun_g > comp_sun_g || saved_sun_b > comp_sun_b) { // savedLightValue
-                                                                                                                                                                                                        // has
-                                                                                                                                                                                                        // components
-                                                                                                                                                                                                        // that
-                                                                                                                                                                                                        // are
-                                                                                                                                                                                                        // larger
-                                                                                                                                                                                                        // than
-                                                                                                                                                                                                        // compLightValue
+                if (tmp.noL.apply(saved.noL, comp.noL, (a, b) -> a > b ? 1 : 0).reduce(0, (a, b) -> a | b) == 1) {
+                    // savedLightValue has components that are larger than compLightValue
+
                     // Light Destruction
 
-                    this.setLightValue(par1Enu, par_x, par_y, par_z, (int) compLightValue); // This kills the
-                                                                                            // light
+                    this.setLightValue(par1Enu, par_x, par_y, par_z, (int) compLightValue); // This kills the light
                     if (DEBUG) {
-                        CoreLoadingPlugin.CLLog.warn("Destruction1 " + makePosStr(par_x, par_y, par_z) + " with saved " + makeLightStr(saved_block_r, saved_block_g, saved_block_b, saved_sun_r, saved_sun_g, saved_sun_b)
-                                + " and comp " + makeLightStr(comp_block_r, comp_block_g, comp_block_b, comp_sun_r, comp_sun_g, comp_sun_b));
+                        CoreLoadingPlugin.CLLog.warn("Destruction1 " + makePosStr(par_x, par_y, par_z) + " with saved " + makeLightStr(saved)
+                                + " and comp " + makeLightStr(comp));
                     }
                     this.lightAdditionBlockList[getter++] = (startCoord | (savedLightValue << (coord_size * 3)));
 
@@ -705,8 +615,8 @@ public abstract class WorldMixin {
                         man_z = MathHelper.abs_int(queue_z - par_z);
                         manhattan_distance = man_x + man_y + man_z;
 
-                        int limit_test = Math.max(Math.max(saved_block_r, saved_block_g), saved_block_b);
-                        limit_test = Math.max(Math.max(Math.max(limit_test, saved_sun_r), saved_sun_g), saved_sun_b);
+                        int limit_test = Math.max(Math.max(saved.color.r, saved.color.g), saved.color.b);
+                        limit_test = Math.max(Math.max(Math.max(limit_test, saved.sun.r), saved.sun.r), saved.sun.b);
 
                         if (manhattan_distance < limit_test) { // Limits the splat size to the initial brightness value
                             for (neighborIndex = 0; neighborIndex < 6; ++neighborIndex) {
@@ -724,81 +634,36 @@ public abstract class WorldMixin {
                                 neighborLightEntry = this.getSavedLightValue(par1Enu, neighbor_x, neighbor_y, neighbor_z);
                                 neighborLightEntry = neighborLightEntry & ~0xF;
 
-                                int queue_block_r = (queueLightEntry >> LightingApi.bitshift_r) & LightingApi.bitmask;
-                                int queue_block_g = (queueLightEntry >> LightingApi.bitshift_g) & LightingApi.bitmask;
-                                int queue_block_b = (queueLightEntry >> LightingApi.bitshift_b) & LightingApi.bitmask;
-                                int queue_sun_r = (queueLightEntry >> LightingApi.bitshift_sun_r) & LightingApi.bitmask_sun;
-                                int queue_sun_g = (queueLightEntry >> LightingApi.bitshift_sun_g) & LightingApi.bitmask_sun;
-                                int queue_sun_b = (queueLightEntry >> LightingApi.bitshift_sun_b) & LightingApi.bitmask_sun;
+                                @Cleanup Light queue = LightBuffer.getLight();
 
-                                int neighbor_block_r = (neighborLightEntry >> LightingApi.bitshift_r) & LightingApi.bitmask;
-                                int neighbor_block_g = (neighborLightEntry >> LightingApi.bitshift_g) & LightingApi.bitmask;
-                                int neighbor_block_b = (neighborLightEntry >> LightingApi.bitshift_b) & LightingApi.bitmask;
-                                int neighbor_sun_r = (neighborLightEntry >> LightingApi.bitshift_sun_r) & LightingApi.bitmask_sun;
-                                int neighbor_sun_g = (neighborLightEntry >> LightingApi.bitshift_sun_g) & LightingApi.bitmask_sun;
-                                int neighbor_sun_b = (neighborLightEntry >> LightingApi.bitshift_sun_b) & LightingApi.bitmask_sun;
+                                @Cleanup Light neighbor = LightBuffer.getLight();
+
+                                queue.fromLight(queueLightEntry);
+
+                                neighbor.fromLight(neighborLightEntry);
 
                                 if (opacity < 15 || neighborLightEntry > 0) {
                                     // Get Saved light value from face
 
                                     // |------------------maximum theoretical light value------------------|
                                     // |------saved light value------|
-                                    int final_block_r = (Math.max(queue_block_r - (man_x + man_y + man_z), 0) >= neighbor_block_r) ? 0 : neighbor_block_r;
-                                    int final_block_g = (Math.max(queue_block_g - (man_x + man_y + man_z), 0) >= neighbor_block_g) ? 0 : neighbor_block_g;
-                                    int final_block_b = (Math.max(queue_block_b - (man_x + man_y + man_z), 0) >= neighbor_block_b) ? 0 : neighbor_block_b;
-                                    int final_sun_r = (Math.max(queue_sun_r - (man_x + man_y + man_z), 0) >= neighbor_sun_r) ? 0 : neighbor_sun_r;
-                                    int final_sun_g = (Math.max(queue_sun_g - (man_x + man_y + man_z), 0) >= neighbor_sun_g) ? 0 : neighbor_sun_g;
-                                    int final_sun_b = (Math.max(queue_sun_b - (man_x + man_y + man_z), 0) >= neighbor_sun_b) ? 0 : neighbor_sun_b;
+                                    @Cleanup Light finalBlock = LightBuffer.getLight();
+                                    finalBlock.l = 0;
+                                    int man = man_x + man_y + man_z;
+                                    finalBlock.noL.apply(queue.noL, neighbor.noL, (q, n) -> Math.max(q - man, 0) >= n ? 0 : n);
 
-                                    int sortValue = 0;
-                                    if ((queue_block_r > 0) && (final_block_r > sortValue)) {
-                                        sortValue = (int) final_block_r;
-                                    }
-                                    if ((queue_block_g > 0) && (final_block_g > sortValue)) {
-                                        sortValue = (int) final_block_g;
-                                    }
-                                    if ((queue_block_b > 0) && (final_block_b > sortValue)) {
-                                        sortValue = (int) final_block_b;
-                                    }
+                                    int sortValue = tmp.noL.apply(queue.noL, finalBlock.noL, (q, f) -> ((q > 0) ? f : -1)).reduce(0, Math::max);
 
-                                    if ((queue_sun_r > 0) && (final_sun_r > sortValue)) {
-                                        sortValue = (int) final_sun_r;
-                                    }
-                                    if ((queue_sun_g > 0) && (final_sun_g > sortValue)) {
-                                        sortValue = (int) final_sun_g;
-                                    }
-                                    if ((queue_sun_b > 0) && (final_sun_b > sortValue)) {
-                                        sortValue = (int) final_sun_b;
-                                    }
-
-                                    long light_combine = (final_block_r << LightingApi.bitshift_r) | (final_block_g << LightingApi.bitshift_g) | (final_block_b << LightingApi.bitshift_b)
-                                            | (final_sun_r << LightingApi.bitshift_sun_r) | (final_sun_g << LightingApi.bitshift_sun_g) | (final_sun_b << LightingApi.bitshift_sun_b);
+                                    long light_combine = finalBlock.toLight();
                                     // If the light we are looking at on the edge is brighter or equal to the
                                     // current light in any way, then there must be a light over there that's doing
                                     // it, so we'll stop eating colors and lights in that direction
                                     if (neighborLightEntry != light_combine) {
 
                                         if (sortValue != 0) {
-                                            if (final_block_r == sortValue) {
-                                                final_block_r = 0;
-                                            }
-                                            if (final_block_g == sortValue) {
-                                                final_block_g = 0;
-                                            }
-                                            if (final_block_b == sortValue) {
-                                                final_block_b = 0;
-                                            }
-                                            if (final_sun_r == sortValue) {
-                                                final_sun_r = 0;
-                                            }
-                                            if (final_sun_g == sortValue) {
-                                                final_sun_g = 0;
-                                            }
-                                            if (final_sun_b == sortValue) {
-                                                final_sun_b = 0;
-                                            }
-                                            light_combine = (final_block_r << LightingApi.bitshift_r) | (final_block_g << LightingApi.bitshift_g) | (final_block_b << LightingApi.bitshift_b)
-                                                    | (final_sun_r << LightingApi.bitshift_sun_r) | (final_sun_g << LightingApi.bitshift_sun_g) | (final_sun_b << LightingApi.bitshift_sun_b);
+                                            finalBlock.noL.applySelf((a) -> a == sortValue ? 0 : a);
+
+                                            light_combine = finalBlock.toLight();
 
                                             this.lightBackfillNeeded[queue_x - par_x + offset][queue_y - par_y + offset][queue_z - par_z + offset] = this.updateFlag;
                                             this.lightBackfillBlockList[sortValue - 1][this.lightBackfillIndexes[sortValue - 1]++] = (neighbor_x - par_x + size)
@@ -809,8 +674,8 @@ public abstract class WorldMixin {
                                         }
                                         this.setLightValue(par1Enu, neighbor_x, neighbor_y, neighbor_z, (int) light_combine); // This kills the light
                                         if (DEBUG) {
-                                            CoreLoadingPlugin.CLLog.warn("Destruction2 at (X: " + neighbor_x + ", Y: " + neighbor_y + ", Z: " + neighbor_z + ") with (block_r: " + final_block_r + ", block_g: "
-                                                    + final_block_g + ", block_b: " + final_block_b + ", sun_r: " + final_sun_r + ", sun_g: " + final_sun_g + ", sun_b: " + final_sun_b + ")");
+                                            CoreLoadingPlugin.CLLog.warn("Destruction2 at (X: " + neighbor_x + ", Y: " + neighbor_y + ", Z: " + neighbor_z + ") with (block_r: " + finalBlock.color.r + ", block_g: "
+                                                    + finalBlock.color.g + ", block_b: " + finalBlock.color.b + ", sun_r: " + finalBlock.sun.r + ", sun_g: " + finalBlock.sun.g + ", sun_b: " + finalBlock.sun.b + ")");
                                         }
                                         this.lightAdditionBlockList[getter++] = ((long) neighbor_x - (long) par_x + size) | (((long) neighbor_y - (long) par_y + size) << coord_size)
                                                 | (((long) neighbor_z - (long) par_z + size) << (coord_size * 2)) | ((long) queueLightEntry << (coord_size * 3)); // this array keeps the

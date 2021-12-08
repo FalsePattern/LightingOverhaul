@@ -129,9 +129,9 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
      */
     @Overwrite
     public void setExtBlocklightValue(int x, int y, int z, int value) {
-        int r = (value >> LightingApi.bitshift_r) & LightingApi.bitmask;
-        int g = (value >> LightingApi.bitshift_g) & LightingApi.bitmask;
-        int b = (value >> LightingApi.bitshift_b) & LightingApi.bitmask;
+        int r = (value >> LightingApi._bitshift_r) & LightingApi._bitmask;
+        int g = (value >> LightingApi._bitshift_g) & LightingApi._bitmask;
+        int b = (value >> LightingApi._bitshift_b) & LightingApi._bitmask;
         int normal = Math.max(Math.max(r, g), b);
         normal = Math.min(15, normal);
 
@@ -166,9 +166,9 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
         normal = Math.min(15, normal);
 
         int ret = normal;
-        ret |= r << LightingApi.bitshift_r;
-        ret |= g << LightingApi.bitshift_g;
-        ret |= b << LightingApi.bitshift_b;
+        ret |= r << LightingApi._bitshift_r;
+        ret |= g << LightingApi._bitshift_g;
+        ret |= b << LightingApi._bitshift_b;
 
         return ret;
     }
@@ -179,9 +179,9 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
      */
     @Overwrite
     public void setExtSkylightValue(int x, int y, int z, int value) {
-        int r = (value >> LightingApi.bitshift_sun_r) & LightingApi.bitmask_sun;
-        int g = (value >> LightingApi.bitshift_sun_g) & LightingApi.bitmask_sun;
-        int b = (value >> LightingApi.bitshift_sun_b) & LightingApi.bitmask_sun;
+        int r = (value >> LightingApi._bitshift_sun_r) & LightingApi._bitmask_sun;
+        int g = (value >> LightingApi._bitshift_sun_g) & LightingApi._bitmask_sun;
+        int b = (value >> LightingApi._bitshift_sun_b) & LightingApi._bitmask_sun;
         int normal = Math.max(Math.max(r, g), b);
 
         this.skylightArray.set(x, y, z, normal);
@@ -207,9 +207,9 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
         normal = Math.max(Math.max(r, g), b);
 
         int ret = normal;
-        ret |= r << LightingApi.bitshift_sun_r;
-        ret |= g << LightingApi.bitshift_sun_g;
-        ret |= b << LightingApi.bitshift_sun_b;
+        ret |= r << LightingApi._bitshift_sun_r;
+        ret |= g << LightingApi._bitshift_sun_g;
+        ret |= b << LightingApi._bitshift_sun_b;
 
         return ret;
     }
