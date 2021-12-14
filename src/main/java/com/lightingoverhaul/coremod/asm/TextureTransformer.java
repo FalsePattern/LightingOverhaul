@@ -22,7 +22,7 @@ public class TextureTransformer implements IClassTransformer {
 
         String helperName = "com/lightingoverhaul/mixinmod/helper/TextureHelper";
 
-        if (transformedName.startsWith("com.falsepattern.lightingoverhaul")) {
+        if (transformedName.startsWith("com.lightingoverhaul")) {
             return bytes; // Don't transform our own classes, we know what we're doing.
         }
 
@@ -48,6 +48,7 @@ public class TextureTransformer implements IClassTransformer {
                         AbstractInsnNode hook = new MethodInsnNode(Opcodes.INVOKESTATIC, helperName, isEnable ? "enableTexture" : "disableTexture", "()V", false);
                         methodNode.instructions.insert(instruction, hook);
                         changed = true;
+                        CoreLoadingPlugin.CLLog.info("Applied ASM transformation in method " + classNode.name + "." + methodNode.name + " for glEnable(GL_TEXTURE_2D);");
                     }
 
                     boolean isTexCoord = call.name.equals("glTexCoord2f");
@@ -56,6 +57,7 @@ public class TextureTransformer implements IClassTransformer {
                         methodNode.instructions.insert(instruction, hook);
                         methodNode.instructions.remove(instruction);
                         changed = true;
+                        CoreLoadingPlugin.CLLog.info("Applied ASM transformation in method " + classNode.name + "." + methodNode.name + " for glTexCoord2f();");
                     }
                 }
             }

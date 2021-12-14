@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.lightingoverhaul.mixinmod.interfaces.ITessellatorMixin;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
@@ -12,19 +13,18 @@ import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.world.IBlockAccess;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(RenderingRegistry.class)
 public abstract class RenderingRegistryMixin {
-
-    @Shadow(remap = false)
-    private Map<Integer, ISimpleBlockRenderingHandler> blockRenderers;
-
-    public boolean renderWorldBlock(RenderBlocks renderer, IBlockAccess world, int x, int y, int z, Block block, int modelId) {
+    @Redirect(method = "renderWorldBlock",
+              at = @At(value = "INVOKE",
+                       target = "Lcpw/mods/fml/client/registry/ISimpleBlockRenderingHandler;renderWorldBlock(Lnet/minecraft/world/IBlockAccess;IIILnet/minecraft/block/Block;ILnet/minecraft/client/renderer/RenderBlocks;)Z"),
+              remap = false,
+              require = 1)
+    public boolean renderWorldBlock(ISimpleBlockRenderingHandler bri, IBlockAccess world, int x, int y, int z, Block block, int modelId, RenderBlocks renderer) {
         ITessellatorMixin tessellatorMixin = (ITessellatorMixin) Tessellator.instance;
-        if (!this.blockRenderers.containsKey(modelId)) {
-            return false;
-        }
-        ISimpleBlockRenderingHandler bri = this.blockRenderers.get(modelId);
 
         String className = block.getClass().getName();
         boolean doLock = className.startsWith("com.carpentersblocks.");

@@ -14,10 +14,6 @@ public abstract class BlockMixin {
     @Shadow
     public int lightValue;
 
-    /***
-     * @author darkshadow44
-     * @reason TODO
-     */
     @Inject(method = "setLightLevel",
             at = @At(value="RETURN"),
             require = 1

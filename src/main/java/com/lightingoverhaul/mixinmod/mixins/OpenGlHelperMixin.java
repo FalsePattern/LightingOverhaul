@@ -8,17 +8,22 @@ import org.spongepowered.asm.mixin.Overwrite;
 import com.lightingoverhaul.coremod.api.LightingApi;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(OpenGlHelper.class)
 public abstract class OpenGlHelperMixin {
 
-    /***
-     * @author darkshadow44
-     * @reason TODO
-     */
-    @Overwrite
-    public static void setLightmapTextureCoords(int textureId, float x, float y) {
+    @Shadow public static int lightmapTexUnit;
 
+    @Inject(method = "setLightmapTextureCoords",
+            at = @At(value = "HEAD"),
+            cancellable = true,
+            require = 1)
+    private static void setLightmapTextureCoords(int textureID, float x, float y, CallbackInfo ci) {
+        ci.cancel();
         ITessellatorMixin tessellatorMixin = (ITessellatorMixin) Tessellator.instance;
 
         if (tessellatorMixin.isProgramInUse()) {
@@ -43,7 +48,9 @@ public abstract class OpenGlHelperMixin {
             GL20.glUniform4i(tessellatorMixin.getLightCoordSunUniform(), sun_r, sun_g, sun_b, 0);
         } // else noop; why is this ever called if enableLightmap hasn't been called?
 
-        OpenGlHelper.lastBrightnessX = x;
-        OpenGlHelper.lastBrightnessY = y;
+        if (textureID == lightmapTexUnit) {
+            OpenGlHelper.lastBrightnessX = x;
+            OpenGlHelper.lastBrightnessY = y;
+        }
     }
 }

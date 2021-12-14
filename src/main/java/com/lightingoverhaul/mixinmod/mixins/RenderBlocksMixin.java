@@ -51,10 +51,10 @@ public abstract class RenderBlocksMixin {
     private static boolean renderStandardBlockWithAmbientOcclusion_internal(RenderBlocks instance, Block block, int x, int y, int z, float r, float g, float b) {
         instance.enableAO = true;
         boolean flag = false;
-        float topLeftAoLightValue = 0.0F;
-        float bottomLeftAoLightValue = 0.0F;
-        float bottomRightAoLightValue = 0.0F;
-        float topRightAoLightValue = 0.0F;
+        float topLeftAoLightValue;
+        float bottomLeftAoLightValue;
+        float bottomRightAoLightValue;
+        float topRightAoLightValue;
         boolean notGrassAndNotOverridden = true;
         int blockBrightness = block.getMixedBrightnessForBlock(instance.blockAccess, x, y, z);
         Tessellator tessellator = Tessellator.instance;
@@ -175,7 +175,7 @@ public abstract class RenderBlocksMixin {
             instance.colorRedTopRight *= topRightAoLightValue;
             instance.colorGreenTopRight *= topRightAoLightValue;
             instance.colorBlueTopRight *= topRightAoLightValue;
-            instance.renderFaceYNeg(block, (double) x, (double) y, (double) z, instance.getBlockIcon(block, instance.blockAccess, x, y, z, 0));
+            instance.renderFaceYNeg(block, x, y, z, instance.getBlockIcon(block, instance.blockAccess, x, y, z, 0));
             flag = true;
         }
 
@@ -264,7 +264,7 @@ public abstract class RenderBlocksMixin {
             instance.colorRedTopRight *= topRightAoLightValue;
             instance.colorGreenTopRight *= topRightAoLightValue;
             instance.colorBlueTopRight *= topRightAoLightValue;
-            instance.renderFaceYPos(block, (double) x, (double) y, (double) z, instance.getBlockIcon(block, instance.blockAccess, x, y, z, 1));
+            instance.renderFaceYPos(block, x, y, z, instance.getBlockIcon(block, instance.blockAccess, x, y, z, 1));
             flag = true;
         }
 
@@ -364,7 +364,7 @@ public abstract class RenderBlocksMixin {
             instance.colorGreenTopRight *= topRightAoLightValue;
             instance.colorBlueTopRight *= topRightAoLightValue;
             iicon = instance.getBlockIcon(block, instance.blockAccess, x, y, z, 2);
-            instance.renderFaceZNeg(block, (double) x, (double) y, (double) z, iicon);
+            instance.renderFaceZNeg(block, x, y, z, iicon);
 
             if (RenderBlocks.fancyGrass && iicon.getIconName().equals("grass_side") && !instance.hasOverrideBlockTexture()) {
                 instance.colorRedTopLeft *= r;
@@ -379,7 +379,7 @@ public abstract class RenderBlocksMixin {
                 instance.colorBlueBottomLeft *= b;
                 instance.colorBlueBottomRight *= b;
                 instance.colorBlueTopRight *= b;
-                instance.renderFaceZNeg(block, (double) x, (double) y, (double) z, BlockGrass.getIconSideOverlay());
+                instance.renderFaceZNeg(block, x, y, z, BlockGrass.getIconSideOverlay());
             }
 
             flag = true;
@@ -479,7 +479,7 @@ public abstract class RenderBlocksMixin {
             instance.colorGreenTopRight *= topRightAoLightValue;
             instance.colorBlueTopRight *= topRightAoLightValue;
             iicon = instance.getBlockIcon(block, instance.blockAccess, x, y, z, 3);
-            instance.renderFaceZPos(block, (double) x, (double) y, (double) z, instance.getBlockIcon(block, instance.blockAccess, x, y, z, 3));
+            instance.renderFaceZPos(block, x, y, z, instance.getBlockIcon(block, instance.blockAccess, x, y, z, 3));
 
             if (RenderBlocks.fancyGrass && iicon.getIconName().equals("grass_side") && !instance.hasOverrideBlockTexture()) {
                 instance.colorRedTopLeft *= r;
@@ -494,7 +494,7 @@ public abstract class RenderBlocksMixin {
                 instance.colorBlueBottomLeft *= b;
                 instance.colorBlueBottomRight *= b;
                 instance.colorBlueTopRight *= b;
-                instance.renderFaceZPos(block, (double) x, (double) y, (double) z, BlockGrass.getIconSideOverlay());
+                instance.renderFaceZPos(block, x, y, z, BlockGrass.getIconSideOverlay());
             }
 
             flag = true;
@@ -594,7 +594,7 @@ public abstract class RenderBlocksMixin {
             instance.colorGreenTopRight *= topRightAoLightValue;
             instance.colorBlueTopRight *= topRightAoLightValue;
             iicon = instance.getBlockIcon(block, instance.blockAccess, x, y, z, 4);
-            instance.renderFaceXNeg(block, (double) x, (double) y, (double) z, iicon);
+            instance.renderFaceXNeg(block, x, y, z, iicon);
 
             if (RenderBlocks.fancyGrass && iicon.getIconName().equals("grass_side") && !instance.hasOverrideBlockTexture()) {
                 instance.colorRedTopLeft *= r;
@@ -609,7 +609,7 @@ public abstract class RenderBlocksMixin {
                 instance.colorBlueBottomLeft *= b;
                 instance.colorBlueBottomRight *= b;
                 instance.colorBlueTopRight *= b;
-                instance.renderFaceXNeg(block, (double) x, (double) y, (double) z, BlockGrass.getIconSideOverlay());
+                instance.renderFaceXNeg(block, x, y, z, BlockGrass.getIconSideOverlay());
             }
 
             flag = true;
@@ -709,7 +709,7 @@ public abstract class RenderBlocksMixin {
             instance.colorGreenTopRight *= topRightAoLightValue;
             instance.colorBlueTopRight *= topRightAoLightValue;
             iicon = instance.getBlockIcon(block, instance.blockAccess, x, y, z, 5);
-            instance.renderFaceXPos(block, (double) x, (double) y, (double) z, iicon);
+            instance.renderFaceXPos(block, x, y, z, iicon);
 
             if (RenderBlocks.fancyGrass && iicon.getIconName().equals("grass_side") && !instance.hasOverrideBlockTexture()) {
                 instance.colorRedTopLeft *= r;
@@ -724,7 +724,7 @@ public abstract class RenderBlocksMixin {
                 instance.colorBlueBottomLeft *= b;
                 instance.colorBlueBottomRight *= b;
                 instance.colorBlueTopRight *= b;
-                instance.renderFaceXPos(block, (double) x, (double) y, (double) z, BlockGrass.getIconSideOverlay());
+                instance.renderFaceXPos(block, x, y, z, BlockGrass.getIconSideOverlay());
             }
 
             flag = true;
@@ -893,9 +893,6 @@ public abstract class RenderBlocksMixin {
         int q4 = (p4 >> startBit) & 0xf;
 
         avg = (q1 + q2 + q3 + q4) / 4;
-
-        if (avg > 15)
-            avg = 15; // Cap to 4 bits again
 
         return avg << startBit;
     }

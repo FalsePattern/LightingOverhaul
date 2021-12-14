@@ -32,42 +32,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(EntityPlayerMP.class)
-public abstract class EntityPlayerMPMixin extends EntityPlayer {
+public abstract class EntityPlayerMPMixin {
 
-    public EntityPlayerMPMixin(World p_i45324_1_, GameProfile p_i45324_2_) {
-        super(p_i45324_1_, p_i45324_2_);
-    }
-
-    @Final
-    @SuppressWarnings("rawtypes")
-    @Shadow
-    public List loadedChunks;
-
-    @Shadow
-    public abstract WorldServer getServerForPlayer();
-
-    @Shadow
-    private int field_147101_bU;
-
-    @Final
-    @Shadow
-    public ItemInWorldManager theItemInWorldManager;
-
-    @Final
-    @SuppressWarnings("rawtypes")
-    @Shadow
-    private List destroyedItemsNetCache;
-
-    @Shadow
-    public NetHandlerPlayServer playerNetServerHandler;
-
-    @Shadow
-    protected abstract void func_147097_b(TileEntity p_147097_1_);
-
-
-    @SuppressWarnings("rawtypes")
-    @Inject(method = "onUpdate", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/network/NetHandlerPlayServer;sendPacket(Lnet/minecraft/network/Packet;)V", ordinal = 1), locals = LocalCapture.CAPTURE_FAILHARD)
-    public void onUpdate(CallbackInfo ci, ArrayList arraylist) {
+    @Inject(method = "onUpdate",
+            at = @At(value = "INVOKE_ASSIGN",
+                     target = "Lnet/minecraft/network/NetHandlerPlayServer;sendPacket(Lnet/minecraft/network/Packet;)V",
+                     ordinal = 1),
+            locals = LocalCapture.CAPTURE_FAILHARD)
+    public void onUpdate(CallbackInfo ci, ArrayList<Chunk> arraylist) {
         PlayerManagerHelper.entityPlayerMP_onUpdate(arraylist, (EntityPlayerMP) (Object) this);
     }
 }

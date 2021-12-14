@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.world.chunk.NibbleArray;
@@ -16,10 +17,10 @@ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorageMixin {
 
     @Shadow
-    private byte[] blockLSBArray;
+    public byte[] blockLSBArray;
 
     @Shadow
-    private NibbleArray blocklightArray;
+    public NibbleArray blocklightArray;
 
     @Shadow
     private NibbleArray skylightArray;
@@ -106,11 +107,8 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
         return bColorArraySun;
     }
 
-    /***
-     * @author darkshadow44
-     * @reason TODO
-     */
-    @Inject(at = @At("RETURN"), method = { "<init>" })
+    @Inject(at = @At("RETURN"),
+            method = { "<init>" })
     public void init(CallbackInfo callbackInfo) {
         this.rColorArray = new NibbleArray(this.blockLSBArray.length, 4);
         this.gColorArray = new NibbleArray(this.blockLSBArray.length, 4);
@@ -123,19 +121,18 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
         this.bColorArraySun = new NibbleArray(this.blockLSBArray.length, 4);
     }
 
-    /***
-     * @author darkshadow44
-     * @reason TODO
-     */
-    @Overwrite
-    public void setExtBlocklightValue(int x, int y, int z, int value) {
+    @Redirect(method = "setExtBlocklightValue",
+              at = @At(value = "INVOKE",
+                       target = "Lnet/minecraft/world/chunk/NibbleArray;set(IIII)V"),
+              require = 1)
+    private void setExtBlockLightValueRGB(NibbleArray instance, int x, int y, int z, int value) {
         int r = (value >> LightingApi._bitshift_r) & LightingApi._bitmask;
         int g = (value >> LightingApi._bitshift_g) & LightingApi._bitmask;
         int b = (value >> LightingApi._bitshift_b) & LightingApi._bitmask;
         int normal = Math.max(Math.max(r, g), b);
         normal = Math.min(15, normal);
 
-        this.blocklightArray.set(x, y, z, value);
+        instance.set(x, y, z, normal);
         this.rColorArray.set(x, y, z, r & 0xF);
         this.gColorArray.set(x, y, z, g & 0xF);
         this.bColorArray.set(x, y, z, b & 0xF);
@@ -145,13 +142,12 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
         this.bColorArray2.set(x, y, z, b >> 4);
     }
 
-    /***
-     * @author darkshadow44
-     * @reason TODO
-     */
-    @Overwrite
-    public int getExtBlocklightValue(int x, int y, int z) {
-        int normal = this.blocklightArray.get(x, y, z);
+    @Redirect(method = "getExtBlocklightValue",
+              at = @At(value = "INVOKE",
+                       target = "Lnet/minecraft/world/chunk/NibbleArray;get(III)I"),
+              require = 1)
+    public int getExtBlockLightValueRGB(NibbleArray instance, int x, int y, int z) {
+        int normal = instance.get(x, y, z);
         int r = this.rColorArray.get(x, y, z);
         int g = this.gColorArray.get(x, y, z);
         int b = this.bColorArray.get(x, y, z);
@@ -173,30 +169,28 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
         return ret;
     }
 
-    /***
-     * @author darkshadow44
-     * @reason TODO
-     */
-    @Overwrite
-    public void setExtSkylightValue(int x, int y, int z, int value) {
+    @Redirect(method = "setExtSkylightValue",
+              at = @At(value = "INVOKE",
+                       target = "Lnet/minecraft/world/chunk/NibbleArray;set(IIII)V"),
+              require = 1)
+    public void setExtSkylightValue(NibbleArray instance, int x, int y, int z, int value) {
         int r = (value >> LightingApi._bitshift_sun_r) & LightingApi._bitmask_sun;
         int g = (value >> LightingApi._bitshift_sun_g) & LightingApi._bitmask_sun;
         int b = (value >> LightingApi._bitshift_sun_b) & LightingApi._bitmask_sun;
         int normal = Math.max(Math.max(r, g), b);
 
-        this.skylightArray.set(x, y, z, normal);
+        instance.set(x, y, z, normal);
         this.rColorArraySun.set(x, y, z, r);
         this.gColorArraySun.set(x, y, z, g);
         this.bColorArraySun.set(x, y, z, b);
     }
 
-    /***
-     * @author darkshadow44
-     * @reason TODO
-     */
-    @Overwrite
-    public int getExtSkylightValue(int x, int y, int z) {
-        int normal = this.skylightArray.get(x, y, z);
+    @Redirect(method = "getExtSkylightValue",
+              at = @At(value = "INVOKE",
+                       target = "Lnet/minecraft/world/chunk/NibbleArray;get(III)I"),
+              require = 1)
+    public int getExtSkylightValue(NibbleArray instance, int x, int y, int z) {
+        int normal = instance.get(x, y, z);
         int r = this.rColorArraySun.get(x, y, z);
         int g = this.gColorArraySun.get(x, y, z);
         int b = this.bColorArraySun.get(x, y, z);

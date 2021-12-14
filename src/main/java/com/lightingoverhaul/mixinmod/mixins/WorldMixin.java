@@ -12,6 +12,7 @@ import com.lightingoverhaul.coremod.asm.CoreLoadingPlugin;
 import com.lightingoverhaul.mixinmod.helper.RGBHelper;
 import com.lightingoverhaul.mixinmod.interfaces.IChunkMixin;
 import lombok.Cleanup;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -62,6 +63,7 @@ public abstract class WorldMixin {
         return 0;
     }
 
+    @Final
     @Shadow
     public Profiler theProfiler;
 
@@ -187,7 +189,7 @@ public abstract class WorldMixin {
             int meta = this.getBlockMetadata(x, y, z);
             int index = stainedglass_api_index[meta];
 
-            opacity.apply(LightingApi.colors[index], (a) -> (int) Math.round((15 - a) / 3.0F) + 1);
+            opacity.apply(LightingApi.colors[index], (a) -> Math.round((15 - a) / 3.0F) + 1);
         }
         BinaryOperator oper = (a, b) -> Math.max(0, a - b);
         light.l = oper.apply(light.l, opacityIn);
@@ -217,47 +219,6 @@ public abstract class WorldMixin {
         int lightlevel = this.getBlockLightValue(x, y, z);
         return getBrightness(lightlevel);
     }
-
-//    // Use this one if you want color
-//    /***
-//     * @author darkshadow44
-//     * @reason TODO
-//     */
-//    @SideOnly(Side.CLIENT)
-//    @Overwrite
-//    public int getLightBrightnessForSkyBlocks(int x, int y, int z, int lightValue) {
-//        int skyBrightness = this.getSkyBlockTypeBrightness(EnumSkyBlock.Sky, x, y, z);
-//        int blockBrightness = this.getSkyBlockTypeBrightness(EnumSkyBlock.Block, x, y, z);
-//
-//        int light_l = (lightValue >> LightingApi.bitshift_l) & 0xF;
-//        int light_r = (lightValue >> LightingApi.bitshift_r) & LightingApi.bitmask;
-//        int light_g = (lightValue >> LightingApi.bitshift_g) & LightingApi.bitmask;
-//        int light_b = (lightValue >> LightingApi.bitshift_b) & LightingApi.bitmask;
-//
-//        int block_l = (blockBrightness >> LightingApi.bitshift_l) & 0xF;
-//        int block_r = (blockBrightness >> LightingApi.bitshift_r) & LightingApi.bitmask;
-//        int block_g = (blockBrightness >> LightingApi.bitshift_g) & LightingApi.bitmask;
-//        int block_b = (blockBrightness >> LightingApi.bitshift_b) & LightingApi.bitmask;
-//
-//        block_l = Math.max(block_l, light_l);
-//        block_r = Math.max(block_r, light_r);
-//        block_g = Math.max(block_g, light_g);
-//        block_b = Math.max(block_b, light_b);
-//
-//        block_r = Math.min(15, block_r);
-//        block_g = Math.min(15, block_g);
-//        block_b = Math.min(15, block_b);
-//
-//        int sun_r = (skyBrightness >> LightingApi.bitshift_sun_r) & LightingApi.bitmask_sun;
-//        int sun_g = (skyBrightness >> LightingApi.bitshift_sun_g) & LightingApi.bitmask_sun;
-//        int sun_b = (skyBrightness >> LightingApi.bitshift_sun_b) & LightingApi.bitmask_sun;
-//
-//        int detectAsRGB = 1 << 30; // Dummy value so tesselator doesn't treat pure blue as vanilla light... This
-//        // will be ignored, except for in Tesselator.setBrightness
-//
-//        return detectAsRGB | (sun_r << LightingApi.bitshift_sun_r2) | (sun_g << LightingApi.bitshift_sun_g2) | (sun_b << LightingApi.bitshift_sun_b2) | (block_l << LightingApi.bitshift_l2) | (block_r << LightingApi.bitshift_r2)
-//                | (block_g << LightingApi.bitshift_g2) | (block_b << LightingApi.bitshift_b2);
-//    }
 
     @SideOnly(Side.CLIENT)
     @Inject(at = @At(value = "HEAD"), method = "getLightBrightnessForSkyBlocks", cancellable = true)
@@ -616,7 +577,7 @@ public abstract class WorldMixin {
                         manhattan_distance = man_x + man_y + man_z;
 
                         int limit_test = Math.max(Math.max(saved.color.r, saved.color.g), saved.color.b);
-                        limit_test = Math.max(Math.max(Math.max(limit_test, saved.sun.r), saved.sun.r), saved.sun.b);
+                        limit_test = Math.max(Math.max(Math.max(limit_test, saved.sun.r), saved.sun.g), saved.sun.b);
 
                         if (manhattan_distance < limit_test) { // Limits the splat size to the initial brightness value
                             for (neighborIndex = 0; neighborIndex < 6; ++neighborIndex) {
@@ -667,7 +628,7 @@ public abstract class WorldMixin {
 
                                             this.lightBackfillNeeded[queue_x - par_x + offset][queue_y - par_y + offset][queue_z - par_z + offset] = this.updateFlag;
                                             this.lightBackfillBlockList[sortValue - 1][this.lightBackfillIndexes[sortValue - 1]++] = (neighbor_x - par_x + size)
-                                                    | ((neighbor_y - par_y + size) << (coord_size * 1)) | ((neighbor_z - par_z + size) << (coord_size * 2)); // record
+                                                    | ((neighbor_y - par_y + size) << coord_size) | ((neighbor_z - par_z + size) << (coord_size * 2)); // record
                                                                                                                                                              // coordinates
                                                                                                                                                              // for
                                                                                                                                                              // backfill
@@ -709,7 +670,7 @@ public abstract class WorldMixin {
                         while (this.lightBackfillIndexes[filler] > 0) {
                             getter = this.lightBackfillBlockList[filler][--this.lightBackfillIndexes[filler]];
                             queue_x = (getter & coord_mask) - size + par_x; // Get Entry X coord
-                            queue_y = (getter >> (coord_size * 1) & coord_mask) - size + par_y; // Get Entry Y coord
+                            queue_y = (getter >> coord_size & coord_mask) - size + par_y; // Get Entry Y coord
                             queue_z = (getter >> (coord_size * 2) & coord_mask) - size + par_z; // Get Entry Z coord
 
                             if (this.lightBackfillNeeded[queue_x - par_x + offset][queue_y - par_y + offset][queue_z - par_z + offset] == this.updateFlag) {
@@ -735,9 +696,7 @@ public abstract class WorldMixin {
                 if (a != 0)
                     CoreLoadingPlugin.CLLog.info("got :" + a);
                 return a;
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
+            } catch (IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
         }

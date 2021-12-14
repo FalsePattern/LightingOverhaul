@@ -10,7 +10,6 @@ public enum Mixin {
     ChunkMixin("ChunkMixin", Side.BOTH, TargetedMod.VANILLA),
     TessellatorMixin("TessellatorMixin", Side.BOTH, TargetedMod.VANILLA),
     ChunkCacheMixin("ChunkCacheMixin", Side.BOTH, TargetedMod.VANILLA),
-    FontRendererMixin("FontRendererMixin", Side.BOTH, TargetedMod.VANILLA),
     EntityRendererMixin("EntityRendererMixin", Side.BOTH, TargetedMod.VANILLA),
     RenderingRegistryMixin("RenderingRegistryMixin", Side.BOTH, TargetedMod.VANILLA),
     OpenGlHelperMixin("OpenGlHelperMixin", Side.BOTH, TargetedMod.VANILLA),
@@ -45,8 +44,3 @@ public enum Mixin {
     }
 }
 
-enum Side {
-    BOTH,
-    CLIENT,
-    SERVER;
-}

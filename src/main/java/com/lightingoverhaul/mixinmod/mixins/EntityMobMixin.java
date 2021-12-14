@@ -17,7 +17,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(EntityMob.class)
 public abstract class EntityMobMixin {
 
-    @Redirect(method="isValidLightLevel", at= @At(value="INVOKE", target="Lnet/minecraft/world/World;getSavedLightValue(Lnet/minecraft/world/EnumSkyBlock;III)I"))
+    @Redirect(method="isValidLightLevel",
+              at= @At(value="INVOKE",
+                      target="Lnet/minecraft/world/World;getSavedLightValue(Lnet/minecraft/world/EnumSkyBlock;III)I"),
+              require = 1)
     private int sunlightValueCheckFix(World thiz, EnumSkyBlock p_72972_1_, int p_72972_2_, int p_72972_3_, int p_72972_4_) {
         int val = thiz.getSavedLightValue(p_72972_1_, p_72972_2_, p_72972_3_, p_72972_4_);
         return LightingApi.getMaxChannelSun(val);

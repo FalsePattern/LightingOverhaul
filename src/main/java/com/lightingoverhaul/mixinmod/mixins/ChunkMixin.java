@@ -14,7 +14,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.lightingoverhaul.coremod.api.LightingApi;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockStainedGlass;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -76,26 +75,12 @@ public abstract class ChunkMixin implements IChunkMixin {
     }
 
     @Shadow
-    public void removeTileEntity(int p_150805_1_, int p_150805_2_, int p_150805_3_) {
-    }
-
-    @Shadow(remap = false)
-    public TileEntity getTileEntityUnsafe(int x, int y, int z) {
-        return null;
-    }
-
-    @Shadow
     public int getSavedLightValue(EnumSkyBlock p_76614_1_, int p_76614_2_, int p_76614_3_, int p_76614_4_) {
         return 0;
     }
 
     @Shadow
     private void propagateSkylightOcclusion(int p_76595_1_, int p_76595_2_) {
-    }
-
-    @Shadow
-    public TileEntity func_150806_e(int p_150806_1_, int p_150806_2_, int p_150806_3_) {
-        return null;
     }
 
     @Shadow
@@ -110,12 +95,15 @@ public abstract class ChunkMixin implements IChunkMixin {
     int[][][] lightMapSun;
     int[] stainedglass_api_index;
 
-    @Inject(method = "<init>*", at = @At("RETURN"))
+    @Inject(method = "<init>*",
+            at = @At("RETURN"),
+            require = 1)
     private void construct(CallbackInfo callbackInfo) {
         lightMapSun = new int[16][256][16];
         stainedglass_api_index = new int[] { 15, 14, 13, 12, 11, 10, 9, 7, 8, 6, 5, 4, 3, 2, 1, 0 };
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public boolean canReallySeeTheSky(int x, int y, int z) {
         if (((Object) this) instanceof EmptyChunk) {
@@ -133,40 +121,34 @@ public abstract class ChunkMixin implements IChunkMixin {
         return lightMapSun[x][y][z];
     }
 
-    /***
-     * @author darkshadow44
-     * @reason TODO
-     */
-    @Inject(at=@At("HEAD"), method = "getBlockLightValue", cancellable = true)
-    public void getBlockLightValue(int x, int y, int z, int value, CallbackInfoReturnable<Integer> cir) {
-        ExtendedBlockStorage extendedblockstorage = this.storageArrays[y >> 4];
-
-        if (extendedblockstorage == null) {
-            int defaultLightValue = EnumSkyBlock.Sky.defaultLightValue & 0xF;
-            cir.setReturnValue(!this.worldObj.provider.hasNoSky && value < defaultLightValue ? defaultLightValue - value : 0);
-        } else {
-            int skyLight = this.worldObj.provider.hasNoSky ? 0 : extendedblockstorage.getExtSkylightValue(x, y & 15, z) & 0xf;
-
-            if (skyLight > 0) {
-                Chunk.isLit = true;
-            }
-
-            skyLight -= value;
-
-            int blockLight = extendedblockstorage.getExtBlocklightValue(x, y & 15, z) & 0xf;
-            if (skyLight > blockLight) {
-                blockLight = skyLight;
-            }
-
-            cir.setReturnValue(blockLight);
-        }
+    @Redirect(method = "getBlockLightValue",
+              at = @At(value = "FIELD",
+                       target = "Lnet/minecraft/world/EnumSkyBlock;defaultLightValue:I"),
+              require = 2)
+    private int getBlockLightValue_0(EnumSkyBlock instance) {
+        return instance.defaultLightValue & 0xF;
     }
 
-    /***
-     * @author darkshadow44
-     * @reason TODO
-     */
-    @Inject(at=@At("HEAD"), method = "generateHeightMap", cancellable = true)
+    @Redirect(method = "getBlockLightValue",
+              at = @At(value = "INVOKE",
+                       target = "Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;getExtSkylightValue(III)I"),
+              require = 1)
+    private int getBlockLightValue_1(ExtendedBlockStorage instance, int p_76670_1_, int p_76670_2_, int p_76670_3_) {
+        return instance.getExtSkylightValue(p_76670_1_, p_76670_2_ & 15, p_76670_3_) & 0xF;
+    }
+
+    @Redirect(method = "getBlockLightValue",
+              at = @At(value = "INVOKE",
+                       target = "Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;getExtBlocklightValue(III)I"),
+              require = 1)
+    private int getBlockLightValue_2(ExtendedBlockStorage instance, int p_76670_1_, int p_76670_2_, int p_76670_3_) {
+        return instance.getExtBlocklightValue(p_76670_1_, p_76670_2_ & 15, p_76670_3_) & 0xF;
+    }
+
+    @Inject(method = "generateHeightMap",
+            at=@At("HEAD"),
+            cancellable = true,
+            require = 1)
     public void generateHeightMap(CallbackInfo ci) {
         ci.cancel();
         int i = getTopFilledSegment();
@@ -187,11 +169,10 @@ public abstract class ChunkMixin implements IChunkMixin {
         this.isModified = true;
     }
 
-    /***
-     * @author darkshadow44
-     * @reason TODO
-     */
-    @Inject(at=@At("HEAD"), method = "generateSkylightMap", cancellable = true)
+    @Inject(method = "generateSkylightMap",
+            at=@At("HEAD"),
+            cancellable = true,
+            require = 1)
     public void generateSkylightMapInjection(CallbackInfo ci) {
         ci.cancel();
         if (heightMap2 == null) {
@@ -255,8 +236,7 @@ public abstract class ChunkMixin implements IChunkMixin {
 
     @Inject(method="func_150807_a",
             at = @At(value = "HEAD"),
-            require = 1
-    )
+            require = 1)
     private void func_150807_a_p0(CallbackInfoReturnable<Boolean> cir) {
         if (heightMap2 == null) {
             generateSkylightMap();
@@ -264,53 +244,44 @@ public abstract class ChunkMixin implements IChunkMixin {
     }
 
     @Redirect(method="func_150807_a",
-            at = @At(value = "FIELD",
-                    target = "Lnet/minecraft/world/chunk/Chunk;heightMap:[I"
-            ),
-            require = 1
-    )
+              at = @At(value = "FIELD",
+                       target = "Lnet/minecraft/world/chunk/Chunk;heightMap:[I"),
+              require = 1)
     private int[] func_150807_a_p1(Chunk instance) {
         return heightMap2;
     }
 
     @ModifyVariable(method="func_150807_a",
-            at = @At(value = "STORE"),
-            name = "j1",
-            require = 1
-    )
+                    at = @At(value = "STORE"),
+                    name = "j1",
+                    require = 1)
     private int func_150807_a_p2(int value) {
-        j1 = value;
-        return value;
+        return j1 = value;
     }
 
     @ModifyVariable(method="func_150807_a",
-            at = @At(value = "STORE"),
-            name = "flag",
-            require = 1
-    )
+                    at = @At(value = "STORE"),
+                    name = "flag",
+                    require = 1)
     private boolean func_150807_a_p3(boolean value) {
         flag = value;
         return true;
     }
 
     @ModifyVariable(method="func_150807_a",
-            at = @At(value = "STORE"),
-            name = "l1",
-            require = 1
-    )
+                    at = @At(value = "STORE"),
+                    name = "l1",
+                    require = 1)
     private int func_150807_a_p4(int value) {
-        l1 = value;
-        return value;
+        return l1 = value;
     }
 
     @ModifyVariable(method="func_150807_a",
-            at = @At(value = "STORE"),
-            name = "i2",
-            require = 1
-    )
+                    at = @At(value = "STORE"),
+                    name = "i2",
+                    require = 1)
     private int func_150807_a_p5(int value) {
-        i2 = value;
-        return value;
+        return i2 = value;
     }
 
     @ModifyVariable(method="func_150807_a",
@@ -319,17 +290,14 @@ public abstract class ChunkMixin implements IChunkMixin {
             require = 1
     )
     private int func_150807_a_p6(int value) {
-        k2 = value;
-        return value;
+        return k2 = value;
     }
 
     @Inject(method="func_150807_a",
             at = @At(value = "INVOKE",
-                    shift = At.Shift.BEFORE,
-                    target = "Lnet/minecraft/world/chunk/Chunk;generateSkylightMap()V"
-            ),
-            require = 1
-    )
+                     shift = At.Shift.BEFORE,
+                     target = "Lnet/minecraft/world/chunk/Chunk;generateSkylightMap()V"),
+            require = 1)
     private void func_150807_a_p7(int x, int y, int z, Block block_new, int meta_new, CallbackInfoReturnable<Boolean> cir) {
         if (flag) {
             this.generateSkylightMap();
@@ -356,10 +324,9 @@ public abstract class ChunkMixin implements IChunkMixin {
     }
 
     @Redirect(method = "func_150807_a",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/chunk/Chunk;generateSkylightMap()V"
-            ),
-            require = 1)
+              at = @At(value = "INVOKE",
+                       target = "Lnet/minecraft/world/chunk/Chunk;generateSkylightMap()V"),
+              require = 1)
     private void func_150807_a_p10(Chunk instance) {
         //noop
     }
@@ -398,9 +365,9 @@ public abstract class ChunkMixin implements IChunkMixin {
                 if (getBlock(x, pos, z) instanceof BlockStainedGlass) {
                     int meta = this.getBlockMetadata(x, pos, z);
                     int index = stainedglass_api_index[meta];
-                    r_opacity = (int) Math.round((15 - LightingApi.r[index]) / 3.0f) + 1;
-                    g_opacity = (int) Math.round((15 - LightingApi.g[index]) / 3.0f) + 1;
-                    b_opacity = (int) Math.round((15 - LightingApi.b[index]) / 3.0f) + 1;
+                    r_opacity = Math.round((15 - LightingApi.r[index]) / 3.0f) + 1;
+                    g_opacity = Math.round((15 - LightingApi.g[index]) / 3.0f) + 1;
+                    b_opacity = Math.round((15 - LightingApi.b[index]) / 3.0f) + 1;
                 }
 
                 sun_r -= r_opacity;
@@ -436,14 +403,15 @@ public abstract class ChunkMixin implements IChunkMixin {
      * @author darkshadow44
      * @reason TODO
      */
-    @Inject(at=@At("HEAD"), method = "relightBlock", cancellable = true)
+    @Inject(method = "relightBlock",
+            at=@At("HEAD"),
+            cancellable = true,
+            require = 1)
     private void relightBlock(int x, int y, int z, CallbackInfo ci) {
         ci.cancel();
         int heightMapMax_old = this.heightMap[z << 4 | x] & 0xFF;
         int heightMapMaxReal_old = this.heightMap2[z << 4 | x] & 0xFF;
-        int heightMapMax_new = heightMapMax_old;
-        if (y > heightMapMax_old)
-            heightMapMax_new = y;
+        int heightMapMax_new = Math.max(y, heightMapMax_old);
         while (heightMapMax_new > 0 && is_translucent_for_relightBlock(x, heightMapMax_new - 1, z))
             heightMapMax_new--;
 
@@ -475,21 +443,10 @@ public abstract class ChunkMixin implements IChunkMixin {
         this.isModified = true;
     }
 
-    @Shadow
-    public boolean isTerrainPopulated;
-    @Shadow
-    public boolean isLightPopulated;
-
-    @Shadow
-    public abstract void func_150801_a(int p_150801_1_);
-
-    @Shadow
-    protected abstract boolean func_150811_f(int p_150811_1_, int p_150811_2_);
-
-
-    @Shadow public long inhabitedTime;
-
-    @Redirect(method="func_150809_p", at=@At(value  = "FIELD", target="Lnet/minecraft/world/WorldProvider;hasNoSky:Z", opcode = Opcodes.GETFIELD))
+    @Redirect(method="func_150809_p",
+              at=@At(value  = "FIELD",
+                     target="Lnet/minecraft/world/WorldProvider;hasNoSky:Z",
+                     opcode = Opcodes.GETFIELD))
     private boolean fixNoSky(WorldProvider instance) {
         return false;
     }
