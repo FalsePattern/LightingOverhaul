@@ -38,7 +38,7 @@ public class ChunkColorDataPacket implements IMessage, IMessageHandler<ChunkColo
     public NibbleArray[] BlueColorArraySun;
     public int[] yLocation;
 
-    private final boolean USE_COMPRESSION = true;
+    private final boolean USE_COMPRESSION = false;
 
     @Override
     public IMessage onMessage(ChunkColorDataPacket packet, MessageContext context) {

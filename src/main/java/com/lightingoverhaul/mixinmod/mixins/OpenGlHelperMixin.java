@@ -44,8 +44,8 @@ public abstract class OpenGlHelperMixin {
             int sun_g = (brightness >> LightingApi._bitshift_sun_g2) & LightingApi._bitmask_sun;
             int sun_b = (brightness >> LightingApi._bitshift_sun_b2) & LightingApi._bitmask_sun;
 
-            GL20.glUniform4i(tessellatorMixin.getLightCoordUniform(), block_r, block_g, block_b, 0);
-            GL20.glUniform4i(tessellatorMixin.getLightCoordSunUniform(), sun_r, sun_g, sun_b, 0);
+            GL20.glUniform4i(tessellatorMixin.getShader().getLightCoordUniform(), block_r, block_g, block_b, 0);
+            GL20.glUniform4i(tessellatorMixin.getShader().getLightCoordSunUniform(), sun_r, sun_g, sun_b, 0);
         } // else noop; why is this ever called if enableLightmap hasn't been called?
 
         if (textureID == lightmapTexUnit) {

@@ -10,6 +10,11 @@ Lighting Overhaul is an open source Forge Core-Mod that aims to replace Minecraf
 - Smooth mixing of colored light
 
 ## Fork changes (for developers)
-- Migrated to a way better build script. Special thanks to [basdxz](https://github.com/basdxz) for helping me through this part step by step.
+- Migrated to a way better build script.
 - Rebranded to Lighting Overhaul
 - Cleaned up source code directory clutter. Now the entire code is in a comprehensible structure instead of scattered around everywhere.
+- Reworked all mixins from @Overwrite to more extensible alternatives (in progress)
+
+## Special Thanks
+[basdxz](https://github.com/basdxz)
+- For helping me with migrating the ancient code to a more modern buildscript, and giving me guidance with mixins and Minecraft's render engine.

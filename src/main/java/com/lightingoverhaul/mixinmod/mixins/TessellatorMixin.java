@@ -4,25 +4,25 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.nio.ShortBuffer;
+import java.nio.*;
 import java.util.Arrays;
 
 import com.lightingoverhaul.coremod.api.LightingApi;
 import com.lightingoverhaul.coremod.asm.CoreLoadingPlugin;
-import com.lightingoverhaul.mixinmod.helper.ShaderException;
-import com.lightingoverhaul.mixinmod.helper.ShaderHelper;
+import com.lightingoverhaul.mixinmod.helper.shader.IRGBShader;
+import com.lightingoverhaul.mixinmod.helper.shader.RGBShader;
+import com.lightingoverhaul.mixinmod.helper.shader.common.ShaderException;
 import com.lightingoverhaul.mixinmod.interfaces.ITessellatorMixin;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
+import org.spongepowered.asm.lib.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -81,44 +81,35 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
 
     private int rawBufferSize;
 
-    private static int texCoordParam;
-    private static int lightCoordParam;
-    private static int clProgram;
+    private static RGBShader shader;
+
     private static boolean programInUse;
-    private static int lightCoordUniform;
-    private static int lightCoordSunUniform;
-    private static int gammaUniform;
-    private static int sunlevelUniform;
-    private static int nightVisionWeightUniform;
-    private static final IntBuffer cachedLightCoord;
-    private static final IntBuffer cachedLightCoordSun;
-    private static int cachedShader;
+
     private static boolean hasFlaggedOpenglError;
     private static boolean lockedBrightness;
     private static float gamma;
     private static float sunlevel;
     private static float nightVisionWeight;
-    private static int enableTextureUniform;
 
     static {
-        cachedLightCoord = ByteBuffer.allocateDirect(16).asIntBuffer();
-        cachedLightCoordSun = ByteBuffer.allocateDirect(16).asIntBuffer();
-        cachedShader = 0;
         hasFlaggedOpenglError = false;
     }
 
-    /***
-     * @author darkshadow44
-     * @reason TODO
-     */
-    @Overwrite
-    public void setBrightness(int par1) {
-        if (lockedBrightness)
-            return;
-        this.hasBrightness = true;
-        this.brightness = par1;
-        if (par1 < 256)
-            this.brightness = makeBrightness(par1);
+    @Inject(method = "setBrightness",
+            at = @At(value = "HEAD"),
+            cancellable = true,
+            require = 1)
+    private void brightnessLock(CallbackInfo ci) {
+        if (lockedBrightness) ci.cancel();
+    }
+
+    @Redirect(method = "setBrightness",
+                    at = @At(value = "FIELD",
+                             target = "Lnet/minecraft/client/renderer/Tessellator;brightness:I",
+                             opcode = Opcodes.PUTFIELD),
+                    require = 1)
+    private void customBrightness(Tessellator instance, int value) {
+        instance.brightness = value < 256 ? makeBrightness(value) : value;
     }
 
     @Inject(method = "<init>*", at = @At("RETURN"))
@@ -131,43 +122,9 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
         String fragSource = readResourceAsString("/shaders/lightOverlay.frag");
 
         try {
-            clProgram = ShaderHelper.createShader(vertSource, fragSource);
+            shader = RGBShader.builder().addVertex(vertSource).addFragment(fragSource).build();
         } catch (ShaderException e) {
             CoreLoadingPlugin.CLLog.error(e.getMessage());
-        }
-
-        texCoordParam = GL20.glGetAttribLocation(clProgram, "TexCoord");
-        lightCoordParam = GL20.glGetAttribLocation(clProgram, "LightCoord");
-        lightCoordUniform = GL20.glGetUniformLocation(clProgram, "u_LightCoord");
-        lightCoordSunUniform = GL20.glGetUniformLocation(clProgram, "u_LightCoordSun");
-        gammaUniform = GL20.glGetUniformLocation(clProgram, "gamma");
-        sunlevelUniform = GL20.glGetUniformLocation(clProgram, "sunlevel");
-        nightVisionWeightUniform = GL20.glGetUniformLocation(clProgram, "nightVisionWeight");
-        enableTextureUniform = GL20.glGetUniformLocation(clProgram, "enableTexture");
-
-        if (texCoordParam <= 0) {
-            CoreLoadingPlugin.CLLog.error("texCoordParam attribute location returned: " + texCoordParam);
-        }
-        if (lightCoordParam <= 0) {
-            CoreLoadingPlugin.CLLog.error("lightCoordParam attribute location returned: " + lightCoordParam);
-        }
-        if (lightCoordUniform <= 0) {
-            CoreLoadingPlugin.CLLog.error("lightCoordUniform attribute location returned: " + lightCoordUniform);
-        }
-        if (lightCoordSunUniform <= 0) {
-            CoreLoadingPlugin.CLLog.error("lightCoordSunUniform attribute location returned: " + lightCoordSunUniform);
-        }
-        if (gammaUniform <= 0) {
-            CoreLoadingPlugin.CLLog.error("gammaUniform attribute location returned: " + gammaUniform);
-        }
-        if (sunlevelUniform <= 0) {
-            CoreLoadingPlugin.CLLog.error("sunlevelUniform attribute location returned: " + sunlevelUniform);
-        }
-        if (nightVisionWeight <= 0) {
-            CoreLoadingPlugin.CLLog.error("nightVisionWeight attribute location returned: " + nightVisionWeight);
-        }
-        if (enableTextureUniform <= 0) {
-            CoreLoadingPlugin.CLLog.error("enableTextureUniform attribute location returned: " + enableTextureUniform);
         }
     }
 
@@ -188,21 +145,25 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
         return source.toString();
     }
 
+    @Override
+    public IRGBShader getShader() {
+        return shader;
+    }
+
     public void enableShader() {
-        cachedShader = GL11.glGetInteger(GL20.GL_CURRENT_PROGRAM);
-        GL20.glUseProgram(clProgram);
+        shader.bind();
         programInUse = true;
-        int textureUniform = GL20.glGetUniformLocation(clProgram, "Texture");
+        int textureUniform = shader.getTextureUniform();
         GL20.glUniform1i(textureUniform, OpenGlHelper.defaultTexUnit - GL13.GL_TEXTURE0);
-        GL20.glUniform1f(gammaUniform, gamma);
-        GL20.glUniform1f(sunlevelUniform, sunlevel);
-        GL20.glUniform1f(nightVisionWeightUniform, nightVisionWeight);
-        GL20.glUniform1i(enableTextureUniform, 1);
+        GL20.glUniform1f(shader.gammaUniform, gamma);
+        GL20.glUniform1f(shader.sunLevelUniform, sunlevel);
+        GL20.glUniform1f(shader.nightVisionWeightUniform, nightVisionWeight);
+        GL20.glUniform1i(shader.enableTextureUniform, 1);
     }
 
     public void disableShader() {
         programInUse = false;
-        GL20.glUseProgram(cachedShader);
+        shader.unbind();
     }
 
     public void setTextureCoord(FloatBuffer buffer) {
@@ -213,12 +174,12 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
                 hasFlaggedOpenglError = true;
             }
         }
-        GL20.glVertexAttribPointer(texCoordParam, 2, false, 32, buffer);
-        GL20.glEnableVertexAttribArray(texCoordParam);
+        GL20.glVertexAttribPointer(shader.texCoordAttrib, 2, false, 32, buffer);
+        GL20.glEnableVertexAttribArray(shader.texCoordAttrib);
     }
 
     public void unsetTextureCoord() {
-        GL20.glDisableVertexAttribArray(texCoordParam);
+        GL20.glDisableVertexAttribArray(shader.texCoordAttrib);
     }
 
     public void updateShaders(float newGamma, float newSunlevel, float newNightVisionWeight) {
@@ -228,18 +189,14 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
     }
 
     public void setLightCoord(ByteBuffer buffer) {
-        GL20.glGetUniform(clProgram, lightCoordUniform, cachedLightCoord);
-        GL20.glUniform4i(lightCoordUniform, 0, 0, 0, 0);
-        GL20.glGetUniform(clProgram, lightCoordSunUniform, cachedLightCoordSun);
-        GL20.glUniform4i(lightCoordSunUniform, 0, 0, 0, 0);
-        GL20.glVertexAttribPointer(lightCoordParam, 4, true, false, 32, buffer);
-        GL20.glEnableVertexAttribArray(lightCoordParam);
+        shader.backupLightCoordUniforms();
+        GL20.glVertexAttribPointer(shader.lightCoordAttrib, 4, true, false, 32, buffer);
+        GL20.glEnableVertexAttribArray(shader.lightCoordAttrib);
     }
 
     public void unsetLightCoord() {
-        GL20.glDisableVertexAttribArray(lightCoordParam);
-        GL20.glUniform4(lightCoordUniform, cachedLightCoord);
-        GL20.glUniform4(lightCoordSunUniform, cachedLightCoordSun);
+        GL20.glDisableVertexAttribArray(shader.lightCoordAttrib);
+        shader.restoreLightCoordUniforms();
     }
 
     public int makeBrightness(int lightLevel) {
@@ -306,14 +263,6 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
         return programInUse;
     }
 
-    public int getLightCoordUniform() {
-        return lightCoordUniform;
-    }
-
-    public int getLightCoordSunUniform() {
-        return lightCoordSunUniform;
-    }
-
     public void setLockedBrightness(boolean locked) {
         lockedBrightness = locked;
     }
@@ -335,6 +284,50 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
     @Shadow
     private void reset() {
     }
+
+//    @Redirect(method = "draw",
+//            at = @At(value = "INVOKE",
+//                     target = "Ljava/nio/FloatBuffer;position(I)Ljava/nio/Buffer;",
+//                     ordinal = 0),
+//
+//            require = 1)
+//    private Buffer draw_0(FloatBuffer instance, int i) {
+//        val ret = instance.position(i);
+//        setTextureCoord(floatBuffer);
+//        return ret;
+//    }
+//
+//    @Redirect(method = "draw",
+//            at = @At(value = "INVOKE",
+//                     target = "Ljava/nio/ShortBuffer;position(I)Ljava/nio/Buffer;",
+//                     ordinal = 0),
+//            require = 1)
+//    private Buffer draw_1(ShortBuffer instance, int i) {
+//        val ret = instance.position(i);
+//        byteBuffer.position(28);
+//        setLightCoord(byteBuffer);
+//        return ret;
+//    }
+//
+//    @Redirect(method = "draw",
+//            at = @At(value = "INVOKE",
+//                     target = "Lorg/lwjgl/opengl/GL11;glDisableClientState(I)V",
+//                     shift = At.Shift.AFTER,
+//                     ordinal = 1),
+//            require = 1)
+//    private void draw_2(CallbackInfoReturnable<Integer> cir) {
+//        unsetTextureCoord();
+//    }
+//
+//    @Inject(method = "draw",
+//            at = @At(value = "INVOKE",
+//                     target = "Lnet/minecraft/client/renderer/OpenGlHelper;setClientActiveTexture(I)V",
+//                     shift = At.Shift.AFTER,
+//                     ordinal = 2),
+//            require = 1)
+//    private void draw_3(CallbackInfoReturnable<Integer> cir) {
+//        unsetLightCoord();
+//    }
 
     /***
      * @author darkshadow44
@@ -401,15 +394,15 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
     }
 
     public void enableTexture() {
-        GL20.glUniform1i(enableTextureUniform, 1);
+        GL20.glUniform1i(shader.enableTextureUniform, 1);
     }
 
     public void disableTexture() {
-        GL20.glUniform1i(enableTextureUniform, 0);
+        GL20.glUniform1i(shader.enableTextureUniform, 0);
     }
 
     public void setTextureCoords(float x, float y) {
-        GL20.glVertexAttrib2f(texCoordParam, x, y);
+        GL20.glVertexAttrib2f(shader.texCoordAttrib, x, y);
         GL11.glTexCoord2f(x, y);
     }
 }

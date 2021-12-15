@@ -25,7 +25,7 @@ public class ChunkStorageRGB {
      * @param rawdata The raw bytestream to build an array from.
      * @return Instance of a NibbleArray.
      */
-    private static NibbleArray checkedGetNibbleArray(byte[] rawdata) {
+    public static NibbleArray checkedGetNibbleArray(byte[] rawdata) {
         if (rawdata.length == 0) {
             return new NibbleArray(4096, 4);
         } else if (rawdata.length < 2048) {
@@ -64,12 +64,12 @@ public class ChunkStorageRGB {
             if (chunkStorageArrays[k] != null) {
                 if (nbtYCompound.hasKey("RedColorArray")) // , 7))
                 {
-                    rColorArray = checkedGetNibbleArray(nbtYCompound.getByteArray("RedColorArray"));
-                    gColorArray = checkedGetNibbleArray(nbtYCompound.getByteArray("GreenColorArray"));
-                    bColorArray = checkedGetNibbleArray(nbtYCompound.getByteArray("BlueColorArray"));
-                    rColorArray2 = checkedGetNibbleArray(nbtYCompound.getByteArray("RedColorArray2"));
-                    gColorArray2 = checkedGetNibbleArray(nbtYCompound.getByteArray("GreenColorArray2"));
-                    bColorArray2 = checkedGetNibbleArray(nbtYCompound.getByteArray("BlueColorArray2"));
+                    rColorArray =    checkedGetNibbleArray(nbtYCompound.getByteArray("RedColorArray"));
+                    gColorArray =    checkedGetNibbleArray(nbtYCompound.getByteArray("GreenColorArray"));
+                    bColorArray =    checkedGetNibbleArray(nbtYCompound.getByteArray("BlueColorArray"));
+                    rColorArray2 =   checkedGetNibbleArray(nbtYCompound.getByteArray("RedColorArray2"));
+                    gColorArray2 =   checkedGetNibbleArray(nbtYCompound.getByteArray("GreenColorArray2"));
+                    bColorArray2 =   checkedGetNibbleArray(nbtYCompound.getByteArray("BlueColorArray2"));
                     rColorArraySun = checkedGetNibbleArray(nbtYCompound.getByteArray("RedColorArraySun"));
                     gColorArraySun = checkedGetNibbleArray(nbtYCompound.getByteArray("GreenColorArraySun"));
                     bColorArraySun = checkedGetNibbleArray(nbtYCompound.getByteArray("BlueColorArraySun"));

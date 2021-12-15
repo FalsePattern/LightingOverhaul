@@ -221,7 +221,10 @@ public abstract class WorldMixin {
     }
 
     @SideOnly(Side.CLIENT)
-    @Inject(at = @At(value = "HEAD"), method = "getLightBrightnessForSkyBlocks", cancellable = true)
+    @Inject(method = "getLightBrightnessForSkyBlocks",
+            at = @At(value = "HEAD"),
+            cancellable = true,
+            require = 1)
     public void getLightBrightnessForSkyBlocks(int x, int y, int z, int lightValue, CallbackInfoReturnable<Integer> cir) {
         int skyBrightness = this.getSkyBlockTypeBrightness(EnumSkyBlock.Sky, x, y, z);
         int blockBrightness = this.getSkyBlockTypeBrightness(EnumSkyBlock.Block, x, y, z);

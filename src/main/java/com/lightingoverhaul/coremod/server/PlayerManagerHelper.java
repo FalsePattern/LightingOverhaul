@@ -34,8 +34,8 @@ public class PlayerManagerHelper {
 
     public static void entityPlayerMP_onUpdate(List<Chunk> chunks, EntityPlayerMP player) {
         for (Chunk c : chunks) {
-            // CLLog.info("S26: Server just sent chunk ({}, {}) to player {}", c.xPosition,
-            // c.zPosition, player.getDisplayName());
+            CLLog.info("S26: Server just sent chunk ({}, {}) to player {}", c.xPosition,
+            c.zPosition, player.getDisplayName());
 
             sendChunkRGBDataToPlayer(player, c.xPosition, c.zPosition, c);
         }
@@ -43,10 +43,7 @@ public class PlayerManagerHelper {
 
     public static void sendChunkRGBDataToPlayer(EntityPlayerMP player, int chunkX, int chunkZ, Chunk chunk) {
         if (chunk == null) {
-            // Pick out chunk from world
-            // TODO: This kills the server
-            // chunk = Minecraft.getMinecraft().theWorld.getChunkFromChunkCoords(chunkX,
-            // chunkZ);
+            chunk = player.worldObj.getChunkFromChunkCoords(chunkX, chunkZ);
 
             if (chunk == null) {
                 CLLog.warn("Could not load chunk ({}, {}) for RGB color data!", chunkX, chunkZ);

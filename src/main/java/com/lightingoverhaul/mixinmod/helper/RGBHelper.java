@@ -42,4 +42,16 @@ public class RGBHelper {
                 | block_g << LightingApi._bitshift_g2 | block_b << LightingApi._bitshift_b2;
 
     }
+
+    public static float average(int packedChannel) {
+        int sunR = (packedChannel) >>> LightingApi._bitshift_sun_r2;
+        int sunG = (packedChannel) >>> LightingApi._bitshift_sun_g2;
+        int sunB = (packedChannel) >>> LightingApi._bitshift_sun_b2;
+        int blockR = (packedChannel) >>> LightingApi._bitshift_r2;
+        int blockG = (packedChannel) >>> LightingApi._bitshift_g2;
+        int blockB = (packedChannel) >>> LightingApi._bitshift_b2;
+        int blockL = (packedChannel) >>> LightingApi._bitshift_l2;
+
+        return (sunR + sunG + sunB + blockR + blockG + blockB + blockL) / 7f;
+    }
 }

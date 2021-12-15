@@ -1,8 +1,10 @@
 package com.lightingoverhaul.mixinmod.mixins;
 
 import com.lightingoverhaul.coremod.api.LightingApi;
+import com.lightingoverhaul.mixinmod.helper.RGBHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -21,6 +23,55 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(RenderBlocks.class)
 public abstract class RenderBlocksMixin {
 
+    @Shadow public double renderMinX;
+    @Shadow public double renderMaxX;
+    @Shadow public double renderMinY;
+    @Shadow public double renderMaxY;
+    @Shadow public double renderMinZ;
+    @Shadow public double renderMaxZ;
+
+    @Shadow public IIcon overrideBlockTexture;
+
+    @Shadow public abstract boolean hasOverrideBlockTexture();
+
+    @Shadow public int uvRotateTop;
+
+    @Shadow public boolean renderFromInside;
+
+    @Shadow public boolean enableAO;
+
+    @Shadow public float colorRedTopLeft;
+
+    @Shadow public int brightnessTopLeft;
+
+    @Shadow public int brightnessBottomLeft;
+
+    @Shadow public int brightnessBottomRight;
+
+    @Shadow public int brightnessTopRight;
+
+    @Shadow public float colorRedTopRight;
+
+    @Shadow public float colorGreenTopRight;
+
+    @Shadow public float colorBlueTopRight;
+
+    @Shadow public float colorBlueBottomRight;
+
+    @Shadow public float colorGreenBottomRight;
+
+    @Shadow public float colorGreenBottomLeft;
+
+    @Shadow public float colorBlueBottomLeft;
+
+    @Shadow public float colorGreenTopLeft;
+
+    @Shadow public float colorBlueTopLeft;
+
+    @Shadow public float colorRedBottomLeft;
+
+    @Shadow public float colorRedBottomRight;
+
     /***
      * @author darkshadow44
      * @reason TODO
@@ -30,25 +81,25 @@ public abstract class RenderBlocksMixin {
         return BlockHelper.getMixedBrightnessForBlockWithColor(blockAccess, x, y + 1, z);
     }
 
-    /***
-     * @author darkshadow44
-     * @reason TODO
-     */
-    @Overwrite
-    public boolean renderStandardBlockWithAmbientOcclusionPartial(Block block, int x, int y, int z, float r, float g, float b) {
-        return renderStandardBlockWithAmbientOcclusion_internal((RenderBlocks) (Object) this, block, x, y, z, r, g, b);
-    }
+//    /***
+//     * @author darkshadow44
+//     * @reason TODO
+//     */
+//    @Overwrite
+//    public boolean renderStandardBlockWithAmbientOcclusionPartial(Block block, int x, int y, int z, float r, float g, float b) {
+//        return renderStandardBlockWithAmbientOcclusion_internal((RenderBlocks) (Object) this, block, x, y, z, r, g, b);
+//    }
+//
+//    /***
+//     * @author darkshadow44
+//     * @reason TODO
+//     */
+//    @Overwrite
+//    public boolean renderStandardBlockWithAmbientOcclusion(Block block, int x, int y, int z, float r, float g, float b) {
+//        return renderStandardBlockWithAmbientOcclusion_internal((RenderBlocks) (Object) this, block, x, y, z, r, g, b);
+//    }
 
-    /***
-     * @author darkshadow44
-     * @reason TODO
-     */
-    @Overwrite
-    public boolean renderStandardBlockWithAmbientOcclusion(Block block, int x, int y, int z, float r, float g, float b) {
-        return renderStandardBlockWithAmbientOcclusion_internal((RenderBlocks) (Object) this, block, x, y, z, r, g, b);
-    }
-
-    private static boolean renderStandardBlockWithAmbientOcclusion_internal(RenderBlocks instance, Block block, int x, int y, int z, float r, float g, float b) {
+    private static boolean renderStandardBlockWithAmbientOcclusion_internal(RenderBlocks instance, Block block, int x, int y, int z, float r, float g, float b){
         instance.enableAO = true;
         boolean flag = false;
         float topLeftAoLightValue;
@@ -58,7 +109,7 @@ public abstract class RenderBlocksMixin {
         boolean notGrassAndNotOverridden = true;
         int blockBrightness = block.getMixedBrightnessForBlock(instance.blockAccess, x, y, z);
         Tessellator tessellator = Tessellator.instance;
-        tessellator.setBrightness(0xf000f);
+        //tessellator.setBrightness(0xf000f);
 
         if (instance.getBlockIcon(block).getIconName().equals("grass_top")) {
             // Don't tint the dirt part of grass blocks!
@@ -857,40 +908,36 @@ public abstract class RenderBlocksMixin {
 
         return flag;
     }
+
     @Inject(method = "getAoBrightness",
-            at = @At(value = "RETURN"),
+            at = @At(value = "HEAD"),
             cancellable = true,
             require = 1
     )
-    public void getAoBrightness(int r, int g, int b, int l, CallbackInfoReturnable<Integer> cir) {
-        // SSSS BBBB GGGG RRRR LLLL 0000
-        // 1111 0000 0000 0000 1111 0000 = 15728880
-
-        r = Math.max(r, l);
-        g = Math.max(g, l);
-        b = Math.max(b, l);
-
-        // return (r & 15728880) + (g & 15728880) + (b &
-        // 15728880) + (l & 15728880) >> 2 & 15728880;
+    public void getAoBrightness(int a, int b, int c, int l, CallbackInfoReturnable<Integer> cir) {
 
         // Must mix all 5 channels now
-        cir.setReturnValue(mixColorChannel(LightingApi._bitshift_sun_r2, r, g, b, l) | // SSSS
-                mixColorChannel(LightingApi._bitshift_sun_g2, r, g, b, l) | // SSSS
-                mixColorChannel(LightingApi._bitshift_sun_b2, r, g, b, l) | // SSSS
-                mixColorChannel(LightingApi._bitshift_b2, r, g, b, l) | // BBBB
-                mixColorChannel(LightingApi._bitshift_g2, r, g, b, l) | // GGGG this is the problem child
-                mixColorChannel(LightingApi._bitshift_r2, r, g, b, l) | // RRRR
-                mixColorChannel(LightingApi._bitshift_l2, r, g, b, l) // LLLL
+        cir.setReturnValue(mixColorChannel(LightingApi._bitshift_sun_r2, a, b, c, l) | // SSSS
+                mixColorChannel(LightingApi._bitshift_sun_g2, a, b, c, l) | // SSSS
+                mixColorChannel(LightingApi._bitshift_sun_b2, a, b, c, l) | // SSSS
+                mixColorChannel(LightingApi._bitshift_b2, a, b, c, l) | // BBBB
+                mixColorChannel(LightingApi._bitshift_g2, a, b, c, l) | // GGGG this is the problem child
+                mixColorChannel(LightingApi._bitshift_r2, a, b, c, l) | // RRRR
+                mixColorChannel(LightingApi._bitshift_l2, a, b, c, l) // LLLL
         );
     }
 
     public int mixColorChannel(int startBit, int p1, int p2, int p3, int p4) {
         int avg;
 
-        int q1 = (p1 >> startBit) & 0xf;
-        int q2 = (p2 >> startBit) & 0xf;
-        int q3 = (p3 >> startBit) & 0xf;
-        int q4 = (p4 >> startBit) & 0xf;
+        int q1 = (p1 >>> startBit) & 0xf;
+        int q2 = (p2 >>> startBit) & 0xf;
+        int q3 = (p3 >>> startBit) & 0xf;
+        int q4 = (p4 >>> startBit) & 0xf;
+
+        if (q1 == 0) q1 = q4;
+        if (q2 == 0) q2 = q4;
+        if (q3 == 0) q3 = q4;
 
         avg = (q1 + q2 + q3 + q4) / 4;
 

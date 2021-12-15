@@ -157,6 +157,8 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
 
         if (r == 0 && g == 0 && b == 0) {
             r = g = b = normal;
+        } else if (r != g && g != b && b != r){
+            normal = normal; //noop for breakpoint
         }
         normal = Math.max(Math.max(r, g), b);
         normal = Math.min(15, normal);
