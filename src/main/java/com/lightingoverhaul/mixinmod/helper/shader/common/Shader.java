@@ -1,20 +1,22 @@
 package com.lightingoverhaul.mixinmod.helper.shader.common;
 
-import com.lightingoverhaul.mixinmod.helper.shader.RGBShader;
+import com.lightingoverhaul.mixinmod.helper.shader.common.uniforms.Uniform;
 import lombok.val;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class Shader implements AutoCloseable {
     protected final int program;
 
     private int cachedShader;
 
-    public Shader(ShaderSource... shaders) {
-        program = ShaderHelper.createShader(shaders);
+    public Shader(int program) {
+        this.program = program;
     }
 
     public void bind() {
@@ -26,12 +28,12 @@ public class Shader implements AutoCloseable {
         GL20.glUseProgram(cachedShader);
     }
 
-    public int getUniformLocation(String name) {
+    public <T extends Uniform> T getUniform(String name, BiFunction<Integer, Integer, T> constructor) {
         val loc = GL20.glGetUniformLocation(program, name);
         if (loc < 0) {
             throw new ShaderException("Failed to retrieve uniform location: " + name);
         }
-        return loc;
+        return constructor.apply(program, loc);
     }
 
     public int getAttribLocation(String name) {
@@ -70,8 +72,9 @@ public class Shader implements AutoCloseable {
             return this;
         }
 
-        public Shader build() {
-            return new Shader(sources.toArray(new ShaderSource[0]));
+        public <T extends Shader> T build(Function<Integer, T> constructor) {
+            val program = ShaderHelper.createShader(sources.toArray(new ShaderSource[0]));
+            return constructor.apply(program);
         }
 
     }

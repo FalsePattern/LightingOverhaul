@@ -1,12 +1,12 @@
 package com.lightingoverhaul.mixinmod.interfaces;
 
-import com.lightingoverhaul.mixinmod.helper.shader.IRGBShader;
+import com.lightingoverhaul.mixinmod.helper.shader.RGBShader;
 
 public interface ITessellatorMixin {
 
     boolean isProgramInUse();
 
-    IRGBShader getShader();
+    RGBShader getShader();
 
     void updateShaders(float newGamma, float newSunlevel, float newNightVisionWeight);
 
