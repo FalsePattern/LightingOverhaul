@@ -48,7 +48,7 @@ public class TextureTransformer implements IClassTransformer {
                         AbstractInsnNode hook = new MethodInsnNode(Opcodes.INVOKESTATIC, helperName, isEnable ? "enableTexture" : "disableTexture", "()V", false);
                         methodNode.instructions.insert(instruction, hook);
                         changed = true;
-                        CoreLoadingPlugin.CLLog.info("Applied ASM transformation in method " + classNode.name + "." + methodNode.name + " for glEnable(GL_TEXTURE_2D);");
+                        CoreLoadingPlugin.CLLog.debug("Applied ASM transformation in method " + classNode.name + "." + methodNode.name + " for " + (isEnable ? "glEnable" : "glDisable") + "(GL_TEXTURE_2D);");
                     }
 
                     boolean isTexCoord = call.name.equals("glTexCoord2f");
@@ -57,7 +57,7 @@ public class TextureTransformer implements IClassTransformer {
                         methodNode.instructions.insert(instruction, hook);
                         methodNode.instructions.remove(instruction);
                         changed = true;
-                        CoreLoadingPlugin.CLLog.info("Applied ASM transformation in method " + classNode.name + "." + methodNode.name + " for glTexCoord2f();");
+                        CoreLoadingPlugin.CLLog.debug("Applied ASM transformation in method " + classNode.name + "." + methodNode.name + " for glTexCoord2f();");
                     }
                 }
             }
