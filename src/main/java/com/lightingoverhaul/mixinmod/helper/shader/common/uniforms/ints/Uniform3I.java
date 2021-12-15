@@ -17,4 +17,9 @@ public class Uniform3I extends UniformI {
     public void set(int x, int y, int z) {
         GL20.glUniform3i(location, x, y, z);
     }
+
+    @Override
+    public int type() {
+        return GL20.GL_INT_VEC3;
+    }
 }

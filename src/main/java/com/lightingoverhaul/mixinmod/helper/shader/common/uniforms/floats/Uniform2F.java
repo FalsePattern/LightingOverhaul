@@ -16,4 +16,9 @@ public class Uniform2F extends UniformF {
     public void set(float x, float y) {
         GL20.glUniform2f(location, x, y);
     }
+
+    @Override
+    public int type() {
+        return GL20.GL_FLOAT_VEC2;
+    }
 }

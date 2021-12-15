@@ -16,4 +16,9 @@ public class Uniform3F extends UniformF {
     public void set(float x, float y, float z) {
         GL20.glUniform3f(location, x, y, z);
     }
+
+    @Override
+    public int type() {
+        return GL20.GL_FLOAT_VEC3;
+    }
 }

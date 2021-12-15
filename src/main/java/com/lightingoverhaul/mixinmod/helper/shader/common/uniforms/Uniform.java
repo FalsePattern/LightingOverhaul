@@ -7,4 +7,12 @@ public class Uniform {
         this.program = program;
         this.location = location;
     }
+
+    public int type() {
+        return -1;
+    }
+
+    public int size() {
+        return 1;
+    }
 }

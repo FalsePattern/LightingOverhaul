@@ -50,11 +50,7 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
         String vertSource = ResourceHelper.readResourceAsString("/shaders/lightOverlay.vert");
         String fragSource = ResourceHelper.readResourceAsString("/shaders/lightOverlay.frag");
 
-        try {
-            shader = Shader.builder().addVertex(vertSource).addFragment(fragSource).build(RGBShader::new);
-        } catch (ShaderException e) {
-            CoreLoadingPlugin.CLLog.error(e.getMessage());
-        }
+        shader = Shader.builder().addVertex(vertSource).addFragment(fragSource).build(RGBShader::new);
     }
 
     public void enableShader() {

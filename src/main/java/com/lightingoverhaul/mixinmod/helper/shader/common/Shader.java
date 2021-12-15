@@ -1,7 +1,16 @@
 package com.lightingoverhaul.mixinmod.helper.shader.common;
 
 import com.lightingoverhaul.mixinmod.helper.shader.common.uniforms.Uniform;
+import com.lightingoverhaul.mixinmod.helper.shader.common.uniforms.floats.Uniform1F;
+import com.lightingoverhaul.mixinmod.helper.shader.common.uniforms.floats.Uniform2F;
+import com.lightingoverhaul.mixinmod.helper.shader.common.uniforms.floats.Uniform3F;
+import com.lightingoverhaul.mixinmod.helper.shader.common.uniforms.floats.Uniform4F;
+import com.lightingoverhaul.mixinmod.helper.shader.common.uniforms.ints.Uniform1I;
+import com.lightingoverhaul.mixinmod.helper.shader.common.uniforms.ints.Uniform2I;
+import com.lightingoverhaul.mixinmod.helper.shader.common.uniforms.ints.Uniform3I;
+import com.lightingoverhaul.mixinmod.helper.shader.common.uniforms.ints.Uniform4I;
 import lombok.val;
+import lombok.var;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
@@ -33,7 +42,29 @@ public class Shader implements AutoCloseable {
         if (loc < 0) {
             throw new ShaderException("Failed to retrieve uniform location: " + name);
         }
-        return constructor.apply(program, loc);
+        var id = 0;
+        {
+            val maxID = GL20.glGetProgrami(program, GL20.GL_ACTIVE_UNIFORMS);
+            val maxLen = GL20.glGetProgrami(program, GL20.GL_ACTIVE_UNIFORM_MAX_LENGTH);
+            var success = false;
+            for (; id < maxID; id++) {
+                if (name.equals(GL20.glGetActiveUniform(program, id, maxLen))) {
+                    success = true;
+                    break;
+                }
+            }
+            if (!success) throw new ShaderException("Uniform type verification failed!");
+        }
+        val size = GL20.glGetActiveUniformSize(program, id);
+        val type = GL20.glGetActiveUniformType(program, id);
+        val result = constructor.apply(program, loc);
+        if (result.type() != type) {
+            throw new ShaderException("Failed to retrieve uniform " + name + " as " + result.getClass().getCanonicalName() + ": Type mismatch!");
+        }
+        if (result.size() != size) {
+            throw new ShaderException("Failed to retrieve uniform " + name + " as " + result.getClass().getCanonicalName() + ": Size mismatch!");
+        }
+        return result;
     }
 
     public int getAttribLocation(String name) {

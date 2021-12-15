@@ -4,6 +4,7 @@ import com.lightingoverhaul.mixinmod.helper.shader.common.Shader;
 import com.lightingoverhaul.mixinmod.helper.shader.common.uniforms.floats.Uniform1F;
 import com.lightingoverhaul.mixinmod.helper.shader.common.uniforms.ints.Uniform1I;
 import com.lightingoverhaul.mixinmod.helper.shader.common.uniforms.ints.Uniform4I;
+import com.lightingoverhaul.mixinmod.helper.shader.common.uniforms.sampler.Sampler2D;
 
 public class RGBShader extends Shader {
     public final int texCoordAttrib = getAttribLocation("TexCoord");
@@ -15,7 +16,7 @@ public class RGBShader extends Shader {
     public final Uniform1F sunLevelUniform = getUniform("sunlevel", Uniform1F::new);
     public final Uniform1F nightVisionWeightUniform = getUniform("nightVisionWeight", Uniform1F::new);
     public final Uniform1I enableTextureUniform = getUniform("enableTexture", Uniform1I::new);
-    public final Uniform1I textureUniform = getUniform("Texture", Uniform1I::new);
+    public final Sampler2D textureUniform = getUniform("Texture", Sampler2D::new);
 
     public RGBShader(int program) {
         super(program);
