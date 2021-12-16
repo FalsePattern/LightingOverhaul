@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.*;
+import java.util.Arrays;
 
 import com.lightingoverhaul.coremod.api.LightingApi;
 import com.lightingoverhaul.coremod.asm.CoreLoadingPlugin;
@@ -132,6 +133,14 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
 
     @Shadow
     private static ByteBuffer byteBuffer;
+
+    @Shadow public int rawBufferIndex;
+
+    @Shadow public int[] rawBuffer;
+
+    @Shadow public int vertexCount;
+
+    @Shadow(remap = false) private int rawBufferSize;
 
     @Inject(method = "setBrightness",
             at = @At(value = "HEAD"),

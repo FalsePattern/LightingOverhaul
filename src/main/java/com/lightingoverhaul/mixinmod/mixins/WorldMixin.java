@@ -87,6 +87,8 @@ public abstract class WorldMixin {
         return 0;
     }
 
+    @Shadow protected abstract int computeLightValue(int p_98179_1_, int p_98179_2_, int p_98179_3_, EnumSkyBlock p_98179_4_);
+
     public long[] lightAdditionBlockList;
     public int[][][] lightAdditionNeeded;
     public int[][][] lightAdditionNeededOpacity;
@@ -205,21 +207,6 @@ public abstract class WorldMixin {
         return light.toLight();
     }
 
-    private static float getBrightness(float lightlevel) {
-        float f1 = 1.0f - lightlevel / 15.0f;
-        return (1.0f - f1) / (f1 * 3.0f + 1.0f);
-    }
-
-    /***
-     * @author darkshadow44
-     * @reason TODO
-     */
-    @Overwrite
-    public float getLightBrightness(int x, int y, int z) {
-        int lightlevel = this.getBlockLightValue(x, y, z);
-        return getBrightness(lightlevel);
-    }
-
     @SideOnly(Side.CLIENT)
     @Inject(method = "getLightBrightnessForSkyBlocks",
             at = @At(value = "HEAD"),
@@ -231,19 +218,15 @@ public abstract class WorldMixin {
         cir.setReturnValue(RGBHelper.computeLightBrightnessForSkyBlocks(skyBrightness, blockBrightness, lightValue));
     }
 
-
-
-
-    /***
-     * @author darkshadow44
-     * @reason TODO
-     */
-    @Overwrite
-    private int computeLightValue(int x, int y, int z, EnumSkyBlock par1Enu) {
+    @Inject(method = "computeLightValue",
+            at = @At(value = "HEAD"),
+            cancellable = true,
+            require = 1)
+    private void computeLightValueReplacement(int x, int y, int z, EnumSkyBlock par1Enu, CallbackInfoReturnable<Integer> cir) {
         Chunk chunk = getChunkFromChunkCoords(x >> 4, z >> 4);
         IChunkMixin chunkMixin = (IChunkMixin) chunk;
         if (par1Enu == EnumSkyBlock.Sky && this.canBlockSeeTheSky(x, y, z)) {
-            return EnumSkyBlock.Sky.defaultLightValue;
+            cir.setReturnValue(EnumSkyBlock.Sky.defaultLightValue);
         } else {
             Block block = this.getBlock(x, y, z);
 
@@ -283,7 +266,7 @@ public abstract class WorldMixin {
             }
 
             if (opacity >= 15) {
-                return 0;
+                cir.setReturnValue(0);
             } else {
 
                 for (int faceIndex = 0; faceIndex < 6; ++faceIndex) {
@@ -306,18 +289,17 @@ public abstract class WorldMixin {
                     neighbor.fromLight(light);
                     current.applySelf(neighbor, Math::max);
                 }
-                return current.toLight();
+                cir.setReturnValue(current.toLight());
             }
         }
     }
 
-    /***
-     * @author darkshadow44
-     * @reason TODO
-     */
-    @Overwrite
-    public boolean updateLightByType(EnumSkyBlock par1Enu, int par_x, int par_y, int par_z) {
-        return this.updateLightByType_withIncrement(par1Enu, par_x, par_y, par_z, true, par_x, par_y, par_z);
+    @Inject(method = "updateLightByType",
+            at = @At(value = "HEAD"),
+            cancellable = true,
+            require = 1)
+    public void updateLightByTypeReplacement(EnumSkyBlock par1Enu, int par_x, int par_y, int par_z, CallbackInfoReturnable<Boolean> cir) {
+        cir.setReturnValue(this.updateLightByType_withIncrement(par1Enu, par_x, par_y, par_z, true, par_x, par_y, par_z));
     }
 
     private String makeLightStr(Light light) {
