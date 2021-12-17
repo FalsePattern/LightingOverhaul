@@ -138,6 +138,8 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
 
     @Shadow(remap = false) private int rawBufferSize;
 
+    @Shadow private int brightness;
+
     @Inject(method = "setBrightness",
             at = @At(value = "HEAD"),
             cancellable = true,
@@ -152,7 +154,7 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
                        opcode = Opcodes.PUTFIELD),
               require = 1)
     private void customBrightness(Tessellator instance, int value) {
-        instance.brightness = value < 256 ? makeBrightness(value) : value;
+        this.brightness = value < 256 ? makeBrightness(value) : value;
     }
 
     @Inject(method = "<init>*", at = @At("RETURN"))
@@ -166,7 +168,7 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
                        ordinal = 0),
               require = 1)
     private int hackVertexBrightness(Tessellator instance) {
-        val brightness = instance.brightness;
+        val brightness = this.brightness;
 
         int block_r = (brightness >>> LightingApi._bitshift_r2) & 0xF;
         int block_g = (brightness >>> LightingApi._bitshift_g2) & 0xF;
