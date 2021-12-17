@@ -43,7 +43,7 @@ public class CoreDummyContainer extends DummyModContainer {
         meta.modId = Tags.MODID + "core";
         meta.name = Tags.MODNAME + " Core";
         meta.version = version;
-        meta.logoFile = "/mod_" + Tags.MODIDCAPITALIZED + "Core.logo.png";
+        meta.logoFile = "/mod_" + Tags.MODID + "core.logo.png";
         meta.url = "https://github.com/FalsePattern/LightingOverhaul";
         meta.credits = "";
         meta.authorList = Arrays.asList("heaton84", "Murray65536", "Kovu", "Biggerfisch", "CptSpaceToaster", "DarkShadow44", "FalsePattern");

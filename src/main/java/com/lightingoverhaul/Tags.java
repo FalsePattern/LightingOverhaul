@@ -9,6 +9,4 @@ public class Tags {
     public static final String MODNAME = "GRADLETOKEN_MODNAME";
     public static final String VERSION = "GRADLETOKEN_VERSION";
     public static final String GROUPNAME = "GRADLETOKEN_GROUPNAME";
-    public static final String MODIDCAPITALIZED = "GRADLETOKEN_MODIDCAPITALIZED";
-    public static final String CURRENTMAINTAINER = "GRADLETOKEN_CURRENTMAINTAINER";
 }
