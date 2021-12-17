@@ -1,12 +1,9 @@
 package com.lightingoverhaul.mixinmod.mixins;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.lightingoverhaul.coremod.api.LightingApi;
 import net.minecraft.block.Block;
@@ -29,7 +26,6 @@ public abstract class BlockMixin {
               require = 1
     )
     public void setLightLevel(Block instance, int value) {
-        // Clamp negative values
         if (par1 < 0.0F) {
             par1 = 0.0F;
         }

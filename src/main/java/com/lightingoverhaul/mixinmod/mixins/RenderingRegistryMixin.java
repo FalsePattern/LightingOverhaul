@@ -1,13 +1,9 @@
 package com.lightingoverhaul.mixinmod.mixins;
 
-import java.util.Map;
-
 import com.lightingoverhaul.mixinmod.interfaces.ITessellatorMixin;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
 
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 import cpw.mods.fml.client.registry.RenderingRegistry;

@@ -1,12 +1,14 @@
 package com.lightingoverhaul.mixinmod.mixinplugin;
 
 import com.lightingoverhaul.Tags;
+import lombok.val;
 import net.minecraft.launchwrapper.Launch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.lib.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
+import org.spongepowered.asm.mixin.throwables.MixinException;
 import ru.timeconqueror.spongemixins.MinecraftURLClassPath;
 
 import java.io.File;
@@ -69,8 +71,10 @@ public class MixinPlugin implements IMixinConfigPlugin {
         List<String> mixins = new ArrayList<>();
         for (Mixin mixin : Mixin.values()) {
             if (mixin.shouldLoad(loadedMods)) {
-                mixins.add(mixin.mixinClass);
-                LOG.debug("Loading mixin: " + mixin.mixinClass);
+                val mixinClass = mixin.getBestAlternativeForTier(CompatibilityTier.InjectCancel); //TODO read this from config
+                if (mixinClass == null) throw new MixinException("Failed to select alternative for mixin: " + mixin.name());
+                mixins.add(mixinClass);
+                LOG.info("Loading mixin: " + mixinClass);
             }
         }
         return mixins;

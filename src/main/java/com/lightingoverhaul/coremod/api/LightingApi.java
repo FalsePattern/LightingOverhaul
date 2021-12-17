@@ -1,8 +1,6 @@
 package com.lightingoverhaul.coremod.api;
 
 import com.google.common.primitives.Ints;
-import com.lightingoverhaul.coremod.util.Light;
-import com.lightingoverhaul.coremod.util.RGB;
 
 /**
  * Public API for ColoredLightsCore
@@ -11,20 +9,12 @@ import com.lightingoverhaul.coremod.util.RGB;
  *
  */
 public class LightingApi {
-    public static float l[] = new float[] { 0F, 1F / 15, 2F / 15, 3F / 15, 4F / 15, 5F / 15, 6F / 15, 7F / 15, 8F / 15, 9F / 15, 10F / 15, 11F / 15, 12F / 15, 13F / 15, 14F / 15, 1F };
+    public static float[] l = new float[] { 0F, 1F / 15, 2F / 15, 3F / 15, 4F / 15, 5F / 15, 6F / 15, 7F / 15, 8F / 15, 9F / 15, 10F / 15, 11F / 15, 12F / 15, 13F / 15, 14F / 15, 1F };
 
     //                                  black red green brown blue purple cyan gray lightgray pink lime yellow lightblue magenta orange white
-    public static int r[] = new int[] {     0, 15,    0,    8,   0,    10,   0,  10,        5,  15,   8,    15,        0,     15,    15,   15 };
-    public static int g[] = new int[] {     0,  0,   15,    3,   0,     0,  15,  10,        5,  10,  15,    15,        8,      0,    12,   15 };
-    public static int b[] = new int[] {     0,  0,    0,    0,  15,    15,  15,  10,        5,  13,   0,     0,       15,     15,    10,   15 };
-
-    public static RGB[] colors = new RGB[16];
-
-    static {
-        for (int i = 0; i < 16; i++) {
-            colors[i] = new RGB(r[i], g[i], b[i]);
-        }
-    }
+    public static int[] r = new int[] {     0, 15,    0,    8,   0,    10,   0,  10,        5,  15,   8,    15,        0,     15,    15,   15 };
+    public static int[] g = new int[] {     0,  0,   15,    3,   0,     0,  15,  10,        5,  10,  15,    15,        8,      0,    12,   15 };
+    public static int[] b = new int[] {     0,  0,    0,    0,  15,    15,  15,  10,        5,  13,   0,     0,       15,     15,    10,   15 };
 
     public static int _bitshift_l = 0;
     public static int _bitshift_r = 4;
@@ -34,10 +24,6 @@ public class LightingApi {
     public static int _bitshift_sun_g = 23;
     public static int _bitshift_sun_b = 27;
     
-    public static final Light bitshift_light = new Light(_bitshift_l, _bitshift_r, _bitshift_g, _bitshift_b, _bitshift_sun_r, _bitshift_sun_g, _bitshift_sun_b);
-    public static final RGB bitshift_block = bitshift_light.color;
-    public static final RGB bitshift_sun = bitshift_light.sun;
-
     public static int _bitshift_l2 = 4;
     public static int _bitshift_r2 = 8;
     public static int _bitshift_g2 = 12;
@@ -46,17 +32,8 @@ public class LightingApi {
     public static int _bitshift_sun_g2 = 24;
     public static int _bitshift_sun_b2 = 0;
     
-    public static final Light bitshift_light2 = new Light(_bitshift_l2, _bitshift_r2, _bitshift_g2, _bitshift_b2, _bitshift_sun_r2, _bitshift_sun_g2, _bitshift_sun_b2);
-    public static final RGB bitshift_block2 = bitshift_light2.color;
-    public static final RGB bitshift_sun2 = bitshift_light2.sun;
-
     public static int _bitmask = 0x1F;
     public static int _bitmask_sun = 0xF;
-
-    public static final Light bitmask_light = new Light(0xF, _bitmask, _bitmask, _bitmask, _bitmask_sun, _bitmask_sun, _bitmask_sun);
-    public static final RGB bitmask_block = bitmask_light.color;
-    public static final RGB bitmask_sun = bitmask_light.sun;
-
 
     /**
      * Computes a 20-bit lighting word, containing red, green, blue settings, and brightness settings.
@@ -158,5 +135,11 @@ public class LightingApi {
 
     public static int getMaxChannelSun(int light) {
         return Ints.max(extractSunR(light), extractSunG(light), extractSunB(light));
+    }
+
+    public static int toLight(int r, int g, int b, int l, int sr, int sg, int sb) {
+        return (sr << LightingApi._bitshift_sun_r) | (sg << LightingApi._bitshift_sun_g) | (sb << LightingApi._bitshift_sun_b)
+               | (r << LightingApi._bitshift_r) | (g << LightingApi._bitshift_g) | (b << LightingApi._bitshift_b)
+               | (l << LightingApi._bitshift_l);
     }
 }

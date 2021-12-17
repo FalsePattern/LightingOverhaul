@@ -1,18 +1,12 @@
 package com.lightingoverhaul.mixinmod.mixins;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.*;
-import java.util.Arrays;
 
 import com.lightingoverhaul.coremod.api.LightingApi;
 import com.lightingoverhaul.coremod.asm.CoreLoadingPlugin;
 import com.lightingoverhaul.mixinmod.helper.ResourceHelper;
 import com.lightingoverhaul.mixinmod.helper.shader.RGBShader;
 import com.lightingoverhaul.mixinmod.helper.shader.common.Shader;
-import com.lightingoverhaul.mixinmod.helper.shader.common.ShaderException;
 import com.lightingoverhaul.mixinmod.interfaces.ITessellatorMixin;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -23,7 +17,6 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.spongepowered.asm.lib.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

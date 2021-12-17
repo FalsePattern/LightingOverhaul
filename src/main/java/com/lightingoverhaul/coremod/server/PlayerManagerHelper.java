@@ -34,8 +34,8 @@ public class PlayerManagerHelper {
 
     public static void entityPlayerMP_onUpdate(List<Chunk> chunks, EntityPlayerMP player) {
         for (Chunk c : chunks) {
-            CLLog.info("S26: Server just sent chunk ({}, {}) to player {}", c.xPosition,
-            c.zPosition, player.getDisplayName());
+            //CLLog.info("S26: Server just sent chunk ({}, {}) to player {}", c.xPosition,
+            //c.zPosition, player.getDisplayName());
 
             sendChunkRGBDataToPlayer(player, c.xPosition, c.zPosition, c);
         }

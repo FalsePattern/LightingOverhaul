@@ -2,28 +2,17 @@ package com.lightingoverhaul.mixinmod.mixins;
 
 import com.lightingoverhaul.coremod.api.LightingApi;
 import com.lightingoverhaul.mixinmod.interfaces.IExtendedBlockStorageMixin;
+import net.minecraft.world.chunk.NibbleArray;
+import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import net.minecraft.world.chunk.NibbleArray;
-import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
-
 @Mixin(ExtendedBlockStorage.class)
 public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorageMixin {
-
-    @Shadow
-    public byte[] blockLSBArray;
-
-    @Shadow
-    public NibbleArray blocklightArray;
-
-    @Shadow
-    private NibbleArray skylightArray;
 
     public NibbleArray rColorArray;
     public NibbleArray gColorArray;
@@ -34,6 +23,9 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
     public NibbleArray rColorArraySun;
     public NibbleArray gColorArraySun;
     public NibbleArray bColorArraySun;
+
+    @Shadow
+    public byte[] blockLSBArray;
 
     public void setRedColorArray(NibbleArray array) {
         this.rColorArray = array;
@@ -157,8 +149,6 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
 
         if (r == 0 && g == 0 && b == 0) {
             r = g = b = normal;
-        } else if (r != g && g != b && b != r){
-            normal = normal; //noop for breakpoint
         }
         normal = Math.max(Math.max(r, g), b);
         normal = Math.min(15, normal);

@@ -15,6 +15,7 @@ import net.minecraft.launchwrapper.IClassTransformer;
 public class TextureTransformer implements IClassTransformer {
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytes) {
+        if (bytes == null) return null; //Need this so that classes that aren't loaded don't cause an exception that hides the true reason.
         ClassReader classReader = new ClassReader(bytes);
         ClassNode classNode = new ClassNode();
 

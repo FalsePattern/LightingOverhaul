@@ -1,27 +1,26 @@
 package com.lightingoverhaul.mixinmod.mixins;
 
-import com.lightingoverhaul.mixinmod.helper.Func150807aVars;
+import com.lightingoverhaul.coremod.api.LightingApi;
 import com.lightingoverhaul.mixinmod.interfaces.IChunkMixin;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockStainedGlass;
+import net.minecraft.init.Blocks;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.EnumSkyBlock;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.EmptyChunk;
+import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import com.lightingoverhaul.coremod.api.LightingApi;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockStainedGlass;
-import net.minecraft.world.EnumSkyBlock;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.EmptyChunk;
-import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import scala.tools.asm.Opcodes;
 
@@ -90,9 +89,15 @@ public abstract class ChunkMixin implements IChunkMixin {
     public void generateSkylightMap() {
     }
 
-    @Shadow
+    @Shadow(remap = false)
     private void relightBlock(int x, int y, int z) {
     }
+
+    @Shadow public abstract TileEntity getTileEntityUnsafe(int x, int y, int z);
+
+    @Shadow public abstract void removeTileEntity(int p_150805_1_, int p_150805_2_, int p_150805_3_);
+
+    @Shadow public abstract TileEntity func_150806_e(int p_150806_1_, int p_150806_2_, int p_150806_3_);
 
     int[] heightMap2;
     int[][][] lightMapSun;
@@ -173,15 +178,16 @@ public abstract class ChunkMixin implements IChunkMixin {
         this.isModified = true;
     }
 
-    @Redirect(method = "generateSkylightMap",
-            at=@At(value = "INVOKE",
-                   target = "Lnet/minecraft/world/chunk/Chunk;getTopFilledSegment()I",
-                   ordinal = 0),
+    @Inject(method = "generateSkylightMap",
+            at=@At(value = "HEAD"),
+            cancellable = true,
             require = 1)
-    public int generateSkylightMapInjection(Chunk instance) {
+    private void generateSkylightMapInjection(CallbackInfo ci) {
+        ci.cancel();
         if (heightMap2 == null) {
             heightMap2 = new int[256];
         }
+
         int i = getTopFilledSegment();
         heightMapMinimum = Integer.MAX_VALUE;
         for (byte b = 0; b < 16; b++) {
@@ -229,139 +235,127 @@ public abstract class ChunkMixin implements IChunkMixin {
                 }
             }
         }
-        return 0;
+        this.isModified = true;
     }
 
-    @ModifyVariable(method = "generateSkylightMap",
-                    at = @At(value = "STORE",
-                             opcode = Opcodes.ISTORE),
-                    ordinal = 1,
-                    require = 1)
-    private int skipVanillaGenerateSkylightMap(int value) {
-        return 16;
-    }
-
-    private final Func150807aVars vars = new Func150807aVars();
-
-    @Redirect(method="func_150807_a",
-            at = @At(value = "FIELD",
-                     target = "Lnet/minecraft/world/chunk/Chunk;heightMap:[I",
-                     ordinal = 0),
+    @Inject(method = "func_150807_a",
+            at = @At(value = "HEAD"),
+            cancellable = true,
             require = 1)
-    private int[] func_150807_a_p0(Chunk instance) {
+    private void blockChangeHandler(int x, int y, int z, Block block_new, int meta_new, CallbackInfoReturnable<Boolean> cir) {
+        int heightMapIndex = z << 4 | x;
+
+        //Added
         if (heightMap2 == null) {
             generateSkylightMap();
         }
-        return heightMap2;
-    }
 
-    @ModifyVariable(method="func_150807_a",
-                    at = @At(value = "STORE"),
-                    name = "j1",
-                    require = 1)
-    private int func_150807_a_p2(int value) {
-        return vars.j1 = value;
-    }
+        if (y >= this.precipitationHeightMap[heightMapIndex] - 1) {
+            this.precipitationHeightMap[heightMapIndex] = -999;
+        }
 
-    @ModifyVariable(method="func_150807_a",
-                    at = @At(value = "STORE"),
-                    name = "flag",
-                    require = 1)
-    private boolean func_150807_a_p3(boolean value) {
-        vars.flag = value;
-        return true;
-    }
+        int realHeightmapMax = this.heightMap2[heightMapIndex];
+        Block block_old = this.getBlock(x, y, z);
+        int meta_old = this.getBlockMetadata(x, y, z);
 
-    @ModifyVariable(method="func_150807_a",
-                    at = @At(value = "STORE"),
-                    name = "l1",
-                    require = 1)
-    private int func_150807_a_p4(int value) {
-        return vars.l1 = value;
-    }
-
-    @ModifyVariable(method="func_150807_a",
-                    at = @At(value = "STORE"),
-                    name = "i2",
-                    require = 1)
-    private int func_150807_a_p5(int value) {
-        return vars.i2 = value;
-    }
-
-    @ModifyVariable(method="func_150807_a",
-            at = @At(value = "STORE"),
-            name = "k2",
-            require = 1
-    )
-    private int func_150807_a_p6(int value) {
-        return vars.k2 = value;
-    }
-
-    @ModifyVariable(method = "func_150807_a",
-                    at = @At(value = "HEAD"),
-                    ordinal = 0,
-                    argsOnly = true)
-    private int extractParam0(int value) {
-        return vars.x = value;
-    }
-
-    @ModifyVariable(method = "func_150807_a",
-                    at = @At(value = "HEAD"),
-                    ordinal = 1,
-                    argsOnly = true)
-    private int extractParam1(int value) {
-        return vars.x = value;
-    }
-
-    @ModifyVariable(method = "func_150807_a",
-                    at = @At(value = "HEAD"),
-                    ordinal = 2,
-                    argsOnly = true)
-    private int extractParam2(int value) {
-        return vars.x = value;
-    }
-
-    @ModifyVariable(method = "func_150807_a",
-                    at = @At(value = "HEAD"),
-                    ordinal = 0,
-                    argsOnly = true)
-    private Block extractParam4(Block value) {
-        return vars.block_new = value;
-    }
-
-    @ModifyVariable(method = "func_150807_a",
-                    at = @At(value = "HEAD"),
-                    ordinal = 3,
-                    argsOnly = true)
-    private int extractParam4(int value) {
-        return vars.meta_new = value;
-    }
-
-    @Redirect(method="func_150807_a",
-            at = @At(value = "INVOKE",
-                     target = "Lnet/minecraft/world/chunk/Chunk;generateSkylightMap()V"),
-            require = 1)
-    private void func_150807_a_p7(Chunk instance) {
-        if (vars.flag) {
-            this.generateSkylightMap();
+        if (block_old == block_new && meta_old == meta_new) {
+            cir.setReturnValue(false);
         } else {
-            int opacity_new = vars.block_new.getLightOpacity(this.worldObj, vars.l1, vars.y, vars.i2);
+            ExtendedBlockStorage extendedblockstorage = this.storageArrays[y >> 4];
+            boolean flag = false;
 
-            boolean isColoredGlas = vars.block_new instanceof BlockStainedGlass;
+            if (extendedblockstorage == null) {
+                if (block_new == Blocks.air) {
+                    cir.setReturnValue(false);
+                }
 
-            boolean is_addition = (opacity_new > 0) || isColoredGlas;
+                extendedblockstorage = this.storageArrays[y >> 4] = new ExtendedBlockStorage(y >> 4 << 4, !this.worldObj.provider.hasNoSky);
+                flag = y >= realHeightmapMax;
+            }
 
-            if (vars.y >= vars.j1 - 1) {
-                if (is_addition) {
-                    this.relightBlock(vars.x, vars.y + 1, vars.z);
-                } else {
-                    this.relightBlock(vars.x, vars.y, vars.z);
+            int l1 = this.xPosition * 16 + x;
+            int i2 = this.zPosition * 16 + z;
+
+            int opacity_old = block_old.getLightOpacity(this.worldObj, l1, y, i2);
+
+            if (!this.worldObj.isRemote) {
+                block_old.onBlockPreDestroy(this.worldObj, l1, y, i2, meta_old);
+            }
+
+            extendedblockstorage.func_150818_a(x, y & 15, z, block_new);
+            extendedblockstorage.setExtBlockMetadata(x, y & 15, z, meta_new); // This line duplicates the one below, so breakBlock fires with valid worldstate
+
+            if (!this.worldObj.isRemote) {
+                block_old.breakBlock(this.worldObj, l1, y, i2, block_old, meta_old);
+                // After breakBlock a phantom TE might have been created with incorrect meta. This attempts to kill that phantom TE so the normal one can be create properly later
+                TileEntity te = this.getTileEntityUnsafe(x & 0x0F, y, z & 0x0F);
+                if (te != null && te.shouldRefresh(block_old, getBlock(x & 0x0F, y, z & 0x0F), meta_old, getBlockMetadata(x & 0x0F, y, z & 0x0F), worldObj, l1, y, i2)) {
+                    this.removeTileEntity(x & 0x0F, y, z & 0x0F);
+                }
+            } else if (block_old.hasTileEntity(meta_old))  {
+                TileEntity te = this.getTileEntityUnsafe(x & 0x0F, y, z & 0x0F);
+                if (te != null && te.shouldRefresh(block_old, block_new, meta_old, meta_new, worldObj, l1, y, i2)) {
+                    this.worldObj.removeTileEntity(l1, y, i2);
                 }
             }
 
-            if ((opacity_new != vars.k2 || isColoredGlas)
-                    && (opacity_new < vars.k2 || this.getSavedLightValue(EnumSkyBlock.Sky, vars.x, vars.y, vars.z) > 0 || this.getSavedLightValue(EnumSkyBlock.Block, vars.x, vars.y, vars.z) > 0)) {
-                this.propagateSkylightOcclusion(vars.x, vars.z);
+            if (extendedblockstorage.getBlockByExtId(x, y & 15, z) != block_new) {
+                cir.setReturnValue(false);
+            } else {
+                extendedblockstorage.setExtBlockMetadata(x, y & 15, z, meta_new);
+
+                if (flag) {
+                    this.generateSkylightMap();
+                } else {
+                    int opacity_new = block_new.getLightOpacity(this.worldObj, l1, y, i2);
+
+                    boolean isColoredGlass = block_new instanceof BlockStainedGlass; //Added
+                    boolean is_addition = (opacity_new > 0) || isColoredGlass; //Added
+
+                    /* ORIGINAL:
+                   if (j2 > 0)
+                    {
+                        if (p_150807_2_ >= j1)
+                        {
+                            this.relightBlock(p_150807_1_, p_150807_2_ + 1, p_150807_3_);
+                        }
+                    }
+                    else if (p_150807_2_ == j1 - 1)
+                    {
+                        this.relightBlock(p_150807_1_, p_150807_2_, p_150807_3_);
+                    }
+                     */
+                    if (y >= realHeightmapMax - 1) {
+                        if (is_addition) {
+                            this.relightBlock(x, y + 1, z);
+                        } else {
+                            this.relightBlock(x, y, z);
+                        }
+                    }
+
+                    if ((opacity_new != opacity_old || isColoredGlass) //Added colored glass check
+                        && (opacity_new < opacity_old || this.getSavedLightValue(EnumSkyBlock.Sky, x, y, z) > 0 || this.getSavedLightValue(EnumSkyBlock.Block, x, y, z) > 0)) {
+                        this.propagateSkylightOcclusion(x, z);
+                    }
+                }
+
+                TileEntity tileentity;
+
+                if (!this.worldObj.isRemote) {
+                    block_new.onBlockAdded(this.worldObj, l1, y, i2);
+                }
+
+                if (block_new.hasTileEntity(meta_new)) {
+                    tileentity = this.func_150806_e(x, y, z);
+
+                    if (tileentity != null) {
+                        tileentity.updateContainingBlockInfo();
+                        tileentity.blockMetadata = meta_new;
+                    }
+                }
+
+                this.isModified = true;
+                cir.setReturnValue(true);
             }
         }
     }
@@ -434,10 +428,6 @@ public abstract class ChunkMixin implements IChunkMixin {
         }
     }
 
-    /***
-     * @author darkshadow44
-     * @reason TODO
-     */
     @Inject(method = "relightBlock",
             at=@At("HEAD"),
             cancellable = true,
