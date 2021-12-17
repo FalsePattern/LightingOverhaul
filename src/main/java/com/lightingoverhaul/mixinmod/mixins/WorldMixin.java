@@ -114,62 +114,6 @@ public abstract class WorldMixin {
         stainedglass_api_index = new int[] { 15, 14, 13, 12, 11, 10, 9, 7, 8, 6, 5, 4, 3, 2, 1, 0 };
     }
 
-    // Copied from the world class in 1.7.2, modified from the source from 1.6.4,
-    // made the method STATIC
-    // Added the parameter 'World world, ' and then replaces all instances of world,
-    // with WORLD
-    public int getBlockLightValue_do(int x, int y, int z, boolean par4) {
-        if (x >= -30000000 && z >= -30000000 && x < 30000000 && z < 30000000) {
-            if (par4 && this.getBlock(x, y, z).getUseNeighborBrightness()) {
-                // heaton84 - should be world.getBlockLightValue_do,
-                // switched to this.getBlockLightValue_do
-                // This will save an extra invoke
-                int l1 = this.getBlockLightValue_do(x, y + 1, z, false);
-                int l = this.getBlockLightValue_do(x + 1, y, z, false);
-                int i1 = this.getBlockLightValue_do(x - 1, y, z, false);
-                int j1 = this.getBlockLightValue_do(x, y, z + 1, false);
-                int k1 = this.getBlockLightValue_do(x, y, z - 1, false);
-
-                if ((l & 0xf) > (l1 & 0xf)) {
-                    l1 = l;
-                }
-
-                if ((i1 & 0xf) > (l1 & 0xf)) {
-                    l1 = i1;
-                }
-
-                if ((j1 & 0xf) > (l1 & 0xf)) {
-                    l1 = j1;
-                }
-
-                if ((k1 & 0xf) > (l1 & 0xf)) {
-                    l1 = k1;
-                }
-
-                return l1;
-            } else if (y < 0) {
-                return 0;
-            } else {
-                if (y >= 256) {
-                    y = 255;
-                }
-
-                // int cx = x >> 4;
-                // int cz = z >> 4;
-                Chunk chunk = this.getChunkFromChunkCoords(x >> 4, z >> 4);
-                x &= 0xf;
-                z &= 0xf;
-
-                // CLLog.info("NEWTEST {},{}:{}", cx, cz,
-                // Integer.toBinaryString(chunk.getBlockLightValue(0, 0, 0, 15)));
-
-                return chunk.getBlockLightValue(x, y, z, this.skylightSubtracted);
-            }
-        } else {
-            return 15;
-        }
-    }
-
     private int calculateOpacity(int lightIn, int opacityIn, Block block, int x, int y, int z) {
         //@Cleanup Light light = LightBuffer.getLight();
         //@Cleanup RGB opacity = LightBuffer.getRGB();
@@ -429,7 +373,6 @@ public abstract class WorldMixin {
             int saved_r = LightingApi.extractR((int) savedLightValue);
             int saved_g = LightingApi.extractG((int) savedLightValue);
             int saved_b = LightingApi.extractB((int) savedLightValue);
-            int saved_l = LightingApi.extractL((int) savedLightValue);
             int saved_sr = LightingApi.extractSunR((int) savedLightValue);
             int saved_sg = LightingApi.extractSunG((int) savedLightValue);
             int saved_sb = LightingApi.extractSunB((int) savedLightValue);
@@ -439,7 +382,6 @@ public abstract class WorldMixin {
             int comp_r = LightingApi.extractR((int) compLightValue);
             int comp_g = LightingApi.extractG((int) compLightValue);
             int comp_b = LightingApi.extractB((int) compLightValue);
-            int comp_l = LightingApi.extractL((int) compLightValue);
             int comp_sr = LightingApi.extractSunR((int) compLightValue);
             int comp_sg = LightingApi.extractSunG((int) compLightValue);
             int comp_sb = LightingApi.extractSunB((int) compLightValue);
@@ -504,7 +446,6 @@ public abstract class WorldMixin {
                         int queue_r = LightingApi.extractR(queueLightEntry);
                         int queue_g = LightingApi.extractG(queueLightEntry);
                         int queue_b = LightingApi.extractB(queueLightEntry);
-                        int queue_l = LightingApi.extractL(queueLightEntry);
                         int queue_sr = LightingApi.extractSunR(queueLightEntry);
                         int queue_sg = LightingApi.extractSunG(queueLightEntry);
                         int queue_sb = LightingApi.extractSunB(queueLightEntry);
@@ -515,7 +456,6 @@ public abstract class WorldMixin {
                         int edge_r = LightingApi.extractR(neighborLightEntry);
                         int edge_g = LightingApi.extractG(neighborLightEntry);
                         int edge_b = LightingApi.extractB(neighborLightEntry);
-                        int edge_l = LightingApi.extractL(neighborLightEntry);
                         int edge_sr = LightingApi.extractSunR(neighborLightEntry);
                         int edge_sg = LightingApi.extractSunG(neighborLightEntry);
                         int edge_sb = LightingApi.extractSunB(neighborLightEntry);
@@ -579,7 +519,6 @@ public abstract class WorldMixin {
                                             int queueFiltered_r = LightingApi.extractR(queueLightEntryFiltered);
                                             int queueFiltered_g = LightingApi.extractG(queueLightEntryFiltered);
                                             int queueFiltered_b = LightingApi.extractB(queueLightEntryFiltered);
-                                            int queueFiltered_l = LightingApi.extractL(queueLightEntryFiltered);
                                             int queueFiltered_sr = LightingApi.extractSunR(queueLightEntryFiltered);
                                             int queueFiltered_sg = LightingApi.extractSunG(queueLightEntryFiltered);
                                             int queueFiltered_sb = LightingApi.extractSunB(queueLightEntryFiltered);
@@ -590,7 +529,6 @@ public abstract class WorldMixin {
                                             int neighbor_r = LightingApi.extractR(neighborLightEntry);
                                             int neighbor_g = LightingApi.extractG(neighborLightEntry);
                                             int neighbor_b = LightingApi.extractB(neighborLightEntry);
-                                            int neighbor_l = LightingApi.extractL(neighborLightEntry);
                                             int neighbor_sr = LightingApi.extractSunR(neighborLightEntry);
                                             int neighbor_sg = LightingApi.extractSunG(neighborLightEntry);
                                             int neighbor_sb = LightingApi.extractSunB(neighborLightEntry);
@@ -711,7 +649,6 @@ public abstract class WorldMixin {
                                 int queue_r = LightingApi.extractR(queueLightEntry);
                                 int queue_g = LightingApi.extractG(queueLightEntry);
                                 int queue_b = LightingApi.extractB(queueLightEntry);
-                                int queue_l = LightingApi.extractL(queueLightEntry);
                                 int queue_sr = LightingApi.extractSunR(queueLightEntry);
                                 int queue_sg = LightingApi.extractSunG(queueLightEntry);
                                 int queue_sb = LightingApi.extractSunB(queueLightEntry);
@@ -722,7 +659,6 @@ public abstract class WorldMixin {
                                 int neighbor_r = LightingApi.extractR(neighborLightEntry);
                                 int neighbor_g = LightingApi.extractG(neighborLightEntry);
                                 int neighbor_b = LightingApi.extractB(neighborLightEntry);
-                                int neighbor_l = LightingApi.extractL(neighborLightEntry);
                                 int neighbor_sr = LightingApi.extractSunR(neighborLightEntry);
                                 int neighbor_sg = LightingApi.extractSunG(neighborLightEntry);
                                 int neighbor_sb = LightingApi.extractSunB(neighborLightEntry);
