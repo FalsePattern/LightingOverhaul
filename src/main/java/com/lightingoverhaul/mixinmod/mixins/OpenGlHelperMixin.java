@@ -1,6 +1,8 @@
 package com.lightingoverhaul.mixinmod.mixins;
 
 import com.lightingoverhaul.mixinmod.interfaces.ITessellatorMixin;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL20;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -14,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(OpenGlHelper.class)
+@SideOnly(Side.CLIENT)
 public abstract class OpenGlHelperMixin {
 
     @Shadow public static int lightmapTexUnit;

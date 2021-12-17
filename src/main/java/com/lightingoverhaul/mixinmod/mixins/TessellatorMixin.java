@@ -14,6 +14,8 @@ import com.lightingoverhaul.mixinmod.helper.shader.RGBShader;
 import com.lightingoverhaul.mixinmod.helper.shader.common.Shader;
 import com.lightingoverhaul.mixinmod.helper.shader.common.ShaderException;
 import com.lightingoverhaul.mixinmod.interfaces.ITessellatorMixin;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import lombok.Getter;
 import lombok.val;
 import org.lwjgl.opengl.GL11;
@@ -32,6 +34,7 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 
 @Mixin(Tessellator.class)
+@SideOnly(Side.CLIENT)
 public abstract class TessellatorMixin implements ITessellatorMixin {
     @Getter
     private RGBShader shader;

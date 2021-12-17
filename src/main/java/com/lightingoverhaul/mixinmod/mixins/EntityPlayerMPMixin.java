@@ -35,8 +35,9 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 public abstract class EntityPlayerMPMixin {
 
     @Inject(method = "onUpdate",
-            at = @At(value = "INVOKE_ASSIGN",
+            at = @At(value = "INVOKE",
                      target = "Lnet/minecraft/network/NetHandlerPlayServer;sendPacket(Lnet/minecraft/network/Packet;)V",
+                     shift = At.Shift.AFTER,
                      ordinal = 1),
             locals = LocalCapture.CAPTURE_FAILHARD)
     public void onUpdate(CallbackInfo ci, ArrayList<Chunk> arraylist) {

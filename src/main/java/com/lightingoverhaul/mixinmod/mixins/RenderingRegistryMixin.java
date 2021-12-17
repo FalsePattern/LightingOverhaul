@@ -3,6 +3,8 @@ package com.lightingoverhaul.mixinmod.mixins;
 import java.util.Map;
 
 import com.lightingoverhaul.mixinmod.interfaces.ITessellatorMixin;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,6 +19,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(RenderingRegistry.class)
+@SideOnly(Side.CLIENT)
 public abstract class RenderingRegistryMixin {
     @Redirect(method = "renderWorldBlock",
               at = @At(value = "INVOKE",

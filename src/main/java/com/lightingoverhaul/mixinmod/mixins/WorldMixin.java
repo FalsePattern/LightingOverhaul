@@ -14,10 +14,8 @@ import com.lightingoverhaul.mixinmod.interfaces.IChunkMixin;
 import lombok.Cleanup;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import cpw.mods.fml.relauncher.Side;
@@ -32,6 +30,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+@SuppressWarnings("ConstantConditions")
 @Mixin(World.class)
 public abstract class WorldMixin {
 
@@ -83,6 +82,7 @@ public abstract class WorldMixin {
     }
 
     @Shadow
+    @SideOnly(Side.CLIENT)
     public int getSkyBlockTypeBrightness(EnumSkyBlock paramEnumSkyBlock, int paramInt1, int paramInt2, int paramInt3) {
         return 0;
     }
@@ -294,12 +294,36 @@ public abstract class WorldMixin {
         }
     }
 
-    @Inject(method = "updateLightByType",
-            at = @At(value = "HEAD"),
-            cancellable = true,
-            require = 1)
-    public void updateLightByTypeReplacement(EnumSkyBlock par1Enu, int par_x, int par_y, int par_z, CallbackInfoReturnable<Boolean> cir) {
-        cir.setReturnValue(this.updateLightByType_withIncrement(par1Enu, par_x, par_y, par_z, true, par_x, par_y, par_z));
+    private EnumSkyBlock ulbt_par1Enu;
+    private int ulbt_retval = 0;
+
+    @ModifyVariable(method = "updateLightByType",
+                    at = @At(value = "HEAD",
+                       ordinal = 0),
+                    require = 1,
+                    argsOnly = true)
+    private EnumSkyBlock updateLightByTypeGetPar1Enu(EnumSkyBlock par1Enu) {
+        ulbt_par1Enu = par1Enu;
+        return par1Enu;
+    }
+
+    @Redirect(method = "updateLightByType",
+              at = @At(value = "INVOKE",
+                       target = "Lnet/minecraft/world/World;doChunksNearChunkExist(IIII)Z",
+                       ordinal = 0),
+              require = 1)
+    private boolean updateLightByTypeReplacement(World instance, int par_x, int par_y, int par_z, int p_72873_4_) {
+        ulbt_retval = this.updateLightByType_withIncrement(ulbt_par1Enu, par_x, par_y, par_z, true, par_x, par_y, par_z) ? 1 : 0;
+        return false;
+    }
+
+    @ModifyConstant(method = "updateLightByType",
+                    constant = @Constant(intValue = 0,
+                                         expandZeroConditions = Constant.Condition.LESS_THAN_ZERO,
+                                         ordinal = 0),
+                    require = 1)
+    private int updateLightByTypeReturn(int constant) {
+        return ulbt_retval;
     }
 
     private String makeLightStr(Light light) {
@@ -355,6 +379,7 @@ public abstract class WorldMixin {
 
             int neighborIndex;
             int neighborLightEntry;
+
             final boolean DEBUG = false;
 
             this.theProfiler.endStartSection("lightAddition");

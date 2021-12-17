@@ -90,7 +90,7 @@ checkPropertyExists("usesShadowedDependencies")
 checkPropertyExists("developmentEnvironmentUserName")
 
 def checkPropertyExists(String propertyName) {
-    if (project.hasProperty(propertyName) == false) {
+    if (!project.hasProperty(propertyName)) {
         throw new GradleException("This project requires a property \"" + propertyName + "\"! Please add it your \"gradle.properties\". You can find all properties and their description here: https://github.com/SinTh0r4s/ExampleMod1.7.10/blob/main/gradle.properties")
     }
 }
@@ -101,21 +101,21 @@ String scalaSourceDir = "src/main/scala/"
 
 String targetPackageJava = javaSourceDir + modGroup.toString().replaceAll("\\.", "/")
 String targetPackageScala = scalaSourceDir + modGroup.toString().replaceAll("\\.", "/")
-if((new File(targetPackageJava).exists() || new File(targetPackageScala).exists()) == false) {
+if(!(new File(targetPackageJava).exists() || new File(targetPackageScala).exists())) {
     throw new GradleException("Could not resolve \"modGroup\"! Could not find " + targetPackageJava + " or " + targetPackageScala)
 }
 
 if(apiPackage) {
     targetPackageJava = javaSourceDir + modGroup.toString().replaceAll("\\.", "/") + "/" + apiPackage.toString().replaceAll("\\.", "/")
     targetPackageScala = scalaSourceDir + modGroup.toString().replaceAll("\\.", "/") + "/" + apiPackage.toString().replaceAll("\\.", "/")
-    if((new File(targetPackageJava).exists() || new File(targetPackageScala).exists()) == false) {
+    if(!(new File(targetPackageJava).exists() || new File(targetPackageScala).exists())) {
         throw new GradleException("Could not resolve \"apiPackage\"! Could not find " + targetPackageJava + " or " + targetPackageScala)
     }
 }
 
 if(accessTransformersFile) {
     String targetFile = "src/main/resources/META-INF/" + accessTransformersFile
-    if(new File(targetFile).exists() == false) {
+    if(!new File(targetFile).exists()) {
         throw new GradleException("Could not resolve \"accessTransformersFile\"! Could not find " + targetFile)
     }
 }
@@ -127,14 +127,14 @@ if(usesMixins.toBoolean()) {
 
     targetPackageJava = javaSourceDir + modGroup.toString().replaceAll("\\.", "/") + "/" + mixinsPackage.toString().replaceAll("\\.", "/")
     targetPackageScala = scalaSourceDir + modGroup.toString().replaceAll("\\.", "/") + "/" + mixinsPackage.toString().replaceAll("\\.", "/")
-    if((new File(targetPackageJava).exists() || new File(targetPackageScala).exists()) == false) {
+    if(!(new File(targetPackageJava).exists() || new File(targetPackageScala).exists())) {
         throw new GradleException("Could not resolve \"mixinsPackage\"! Could not find " + targetPackageJava + " or " + targetPackageScala)
     }
 
     String targetFileJava = javaSourceDir + modGroup.toString().replaceAll("\\.", "/") + "/" + mixinPlugin.toString().replaceAll("\\.", "/") + ".java"
     String targetFileScala = scalaSourceDir + modGroup.toString().replaceAll("\\.", "/") + "/" + mixinPlugin.toString().replaceAll("\\.", "/") + ".scala"
     String targetFileScalaJava = scalaSourceDir + modGroup.toString().replaceAll("\\.", "/") + "/" + mixinPlugin.toString().replaceAll("\\.", "/") + ".java"
-    if((new File(targetFileJava).exists() || new File(targetFileScala).exists() || new File(targetFileScalaJava).exists()) == false) {
+    if(!(new File(targetFileJava).exists() || new File(targetFileScala).exists() || new File(targetFileScalaJava).exists())) {
         throw new GradleException("Could not resolve \"mixinPlugin\"! Could not find " + targetFileJava + " or " + targetFileScala + " or " + targetFileScalaJava)
     }
 }
@@ -143,7 +143,7 @@ if(coreModClass) {
     String targetFileJava = javaSourceDir + modGroup.toString().replaceAll("\\.", "/") + "/" + coreModClass.toString().replaceAll("\\.", "/") + ".java"
     String targetFileScala = scalaSourceDir + modGroup.toString().replaceAll("\\.", "/") + "/" + coreModClass.toString().replaceAll("\\.", "/") + ".scala"
     String targetFileScalaJava = scalaSourceDir + modGroup.toString().replaceAll("\\.", "/") + "/" + coreModClass.toString().replaceAll("\\.", "/") + ".java"
-    if((new File(targetFileJava).exists() || new File(targetFileScala).exists() || new File(targetFileScalaJava).exists()) == false) {
+    if(!(new File(targetFileJava).exists() || new File(targetFileScala).exists() || new File(targetFileScalaJava).exists())) {
         throw new GradleException("Could not resolve \"coreModClass\"! Could not find " + targetFileJava + " or " + targetFileScala + " or " + targetFileScalaJava)
     }
 }
@@ -162,8 +162,8 @@ configurations.all {
 try {
     version = minecraftVersion + "-" + gitVersion()
 }
-catch (Exception e) {
-    throw new IllegalStateException("This mod must be version controlled by Git AND the repository must provide at least one tag!");
+catch (Exception ignored) {
+    throw new IllegalStateException("This mod must be version controlled by Git AND the repository must provide at least one tag!")
 }
 
 group = modGroup
@@ -331,8 +331,12 @@ runClient {
                 developmentEnvironmentUserName
         ]
     }
+    arguments += [
+            "-XX:+UseG1GC"
+    ]
 
     args(arguments)
+    maxHeapSize("4G")
 }
 
 runServer {
@@ -344,8 +348,12 @@ runServer {
                 "--tweakClass org.spongepowered.asm.launch.MixinTweaker"
         ]
     }
+    arguments += [
+            "-XX:+UseG1GC"
+    ]
 
     args(arguments)
+    maxHeapSize("4G")
 }
 
 tasks.withType(JavaExec).configureEach {
@@ -383,9 +391,10 @@ processResources
             }
         }
 
+@SuppressWarnings('GrMethodMayBeStatic')
 def getManifestAttributes() {
     def manifestAttributes = [:]
-    if(containsMixinsAndOrCoreModOnly.toBoolean() == false && (usesMixins.toBoolean() || coreModClass)) {
+    if(!containsMixinsAndOrCoreModOnly.toBoolean() && (usesMixins.toBoolean() || coreModClass)) {
         manifestAttributes += ["FMLCorePluginContainsFMLMod": true]
     }
 
@@ -401,7 +410,7 @@ def getManifestAttributes() {
         manifestAttributes += [
                 "TweakClass" : "org.spongepowered.asm.launch.MixinTweaker",
                 "MixinConfigs" : "mixins." + modId + ".json",
-                "ForceLoadAsMod" : containsMixinsAndOrCoreModOnly.toBoolean() == false
+                "ForceLoadAsMod" : !containsMixinsAndOrCoreModOnly.toBoolean()
         ]
     }
     return manifestAttributes

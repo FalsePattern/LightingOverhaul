@@ -8,12 +8,12 @@ import java.util.List;
 public enum Mixin {
 
     ChunkMixin("ChunkMixin", Side.BOTH, TargetedMod.VANILLA),
-    TessellatorMixin("TessellatorMixin", Side.BOTH, TargetedMod.VANILLA),
+    TessellatorMixin("TessellatorMixin", Side.CLIENT, TargetedMod.VANILLA),
     ChunkCacheMixin("ChunkCacheMixin", Side.BOTH, TargetedMod.VANILLA),
-    EntityRendererMixin("EntityRendererMixin", Side.BOTH, TargetedMod.VANILLA),
-    RenderingRegistryMixin("RenderingRegistryMixin", Side.BOTH, TargetedMod.VANILLA),
-    OpenGlHelperMixin("OpenGlHelperMixin", Side.BOTH, TargetedMod.VANILLA),
-    RenderBlocksMixin("RenderBlocksMixin", Side.BOTH, TargetedMod.VANILLA),
+    EntityRendererMixin("EntityRendererMixin", Side.CLIENT, TargetedMod.VANILLA),
+    RenderingRegistryMixin("RenderingRegistryMixin", Side.CLIENT, TargetedMod.VANILLA),
+    OpenGlHelperMixin("OpenGlHelperMixin", Side.CLIENT, TargetedMod.VANILLA),
+    RenderBlocksMixin("RenderBlocksMixin", Side.CLIENT, TargetedMod.VANILLA),
     ExtendedBlockStorageMixin("ExtendedBlockStorageMixin", Side.BOTH, TargetedMod.VANILLA),
     EntityPlayerMPMixin("EntityPlayerMPMixin", Side.BOTH, TargetedMod.VANILLA),
     EntityMobMixin("EntityMobMixin", Side.BOTH, TargetedMod.VANILLA),

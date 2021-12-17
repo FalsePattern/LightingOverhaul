@@ -1,6 +1,8 @@
 package com.lightingoverhaul.mixinmod.mixins;
 
 import com.lightingoverhaul.coremod.api.LightingApi;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,6 +22,7 @@ import net.minecraft.world.IBlockAccess;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(RenderBlocks.class)
+@SideOnly(Side.CLIENT)
 public abstract class RenderBlocksMixin {
 
     @Redirect(method = { "renderBlockLiquid" },
