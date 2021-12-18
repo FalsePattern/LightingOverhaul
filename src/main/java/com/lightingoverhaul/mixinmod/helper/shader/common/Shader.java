@@ -1,14 +1,6 @@
 package com.lightingoverhaul.mixinmod.helper.shader.common;
 
 import com.lightingoverhaul.mixinmod.helper.shader.common.uniforms.Uniform;
-import com.lightingoverhaul.mixinmod.helper.shader.common.uniforms.floats.Uniform1F;
-import com.lightingoverhaul.mixinmod.helper.shader.common.uniforms.floats.Uniform2F;
-import com.lightingoverhaul.mixinmod.helper.shader.common.uniforms.floats.Uniform3F;
-import com.lightingoverhaul.mixinmod.helper.shader.common.uniforms.floats.Uniform4F;
-import com.lightingoverhaul.mixinmod.helper.shader.common.uniforms.ints.Uniform1I;
-import com.lightingoverhaul.mixinmod.helper.shader.common.uniforms.ints.Uniform2I;
-import com.lightingoverhaul.mixinmod.helper.shader.common.uniforms.ints.Uniform3I;
-import com.lightingoverhaul.mixinmod.helper.shader.common.uniforms.ints.Uniform4I;
 import lombok.val;
 import lombok.var;
 import org.lwjgl.opengl.GL11;

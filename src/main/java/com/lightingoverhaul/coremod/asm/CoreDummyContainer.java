@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
-import java.util.Iterator;
 
 import com.lightingoverhaul.Tags;
 import com.lightingoverhaul.coremod.fmlevents.ChunkDataEventHandler;
@@ -26,6 +25,7 @@ import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.MinecraftForge;
 
+@SuppressWarnings("UnstableApiUsage")
 public class CoreDummyContainer extends DummyModContainer {
     public ChunkDataEventHandler chunkDataEventHandler;
 

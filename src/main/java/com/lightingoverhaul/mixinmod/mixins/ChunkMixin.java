@@ -30,7 +30,7 @@ public abstract class ChunkMixin implements IChunkMixin {
     public World worldObj;
 
     @Shadow
-    public ExtendedBlockStorage[] storageArrays;
+    private ExtendedBlockStorage[] storageArrays;
 
     @Final
     @Shadow
@@ -58,7 +58,7 @@ public abstract class ChunkMixin implements IChunkMixin {
     public int[] precipitationHeightMap;
 
     @Shadow
-    public void updateSkylightNeighborHeight(int paramInt1, int paramInt2, int paramInt3, int paramInt4) {
+    private void updateSkylightNeighborHeight(int paramInt1, int paramInt2, int paramInt3, int paramInt4) {
     }
 
     @Shadow
@@ -283,11 +283,11 @@ public abstract class ChunkMixin implements IChunkMixin {
             }
 
             extendedblockstorage.func_150818_a(x, y & 15, z, block_new);
-            extendedblockstorage.setExtBlockMetadata(x, y & 15, z, meta_new); // This line duplicates the one below, so breakBlock fires with valid worldstate
+            extendedblockstorage.setExtBlockMetadata(x, y & 15, z, meta_new); // This line duplicates the one below, so breakBlock fires with valid world state
 
             if (!this.worldObj.isRemote) {
                 block_old.breakBlock(this.worldObj, l1, y, i2, block_old, meta_old);
-                // After breakBlock a phantom TE might have been created with incorrect meta. This attempts to kill that phantom TE so the normal one can be create properly later
+                // After breakBlock a phantom TE might have been created with incorrect meta. This attempts to kill that phantom TE so the normal one can be created properly later
                 TileEntity te = this.getTileEntityUnsafe(x & 0x0F, y, z & 0x0F);
                 if (te != null && te.shouldRefresh(block_old, getBlock(x & 0x0F, y, z & 0x0F), meta_old, getBlockMetadata(x & 0x0F, y, z & 0x0F), worldObj, l1, y, i2)) {
                     this.removeTileEntity(x & 0x0F, y, z & 0x0F);
@@ -446,7 +446,7 @@ public abstract class ChunkMixin implements IChunkMixin {
 
         /*
          * We always need to recalculate, the heightmap doesn't have to change, for
-         * example when stained glass is placed blow stained glass
+         * example when stained-glass is placed blow stained-glass
          */
         int toprocess_max = Math.max(heightMapMax_new, heightMapMax_old);
         int toprocess_min = Math.min(heightMapMaxReal_old, heightMapMaxReal_new);

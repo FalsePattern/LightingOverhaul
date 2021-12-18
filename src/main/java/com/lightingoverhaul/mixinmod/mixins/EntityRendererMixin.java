@@ -22,10 +22,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class EntityRendererMixin {
 
     @Shadow
-    public Minecraft mc;
+    private Minecraft mc;
 
     @Shadow
-    public float getNightVisionBrightness(EntityPlayer paramEntityPlayer, float paramFloat) {
+    private float getNightVisionBrightness(EntityPlayer paramEntityPlayer, float paramFloat) {
         return 0;
     }
 

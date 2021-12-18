@@ -130,11 +130,14 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
     @Shadow
     private static ByteBuffer byteBuffer;
 
-    @Shadow public int rawBufferIndex;
+    @Shadow
+    private int rawBufferIndex;
 
-    @Shadow public int[] rawBuffer;
+    @Shadow
+    private int[] rawBuffer;
 
-    @Shadow public int vertexCount;
+    @Shadow
+    private int vertexCount;
 
     @Shadow(remap = false) private int rawBufferSize;
 
