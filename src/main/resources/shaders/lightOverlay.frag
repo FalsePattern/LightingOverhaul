@@ -10,9 +10,9 @@ uniform float sunlevel;
 uniform float nightVisionWeight;
 uniform int enableTexture;
 
-float getBrightness(float lightlevel)
+float getBrightness(float lightLevel)
 {
-    float f1 = 1.0 - lightlevel / 15.0;
+    float f1 = 1.0 - lightLevel / 15.0;
     return (1.0 - f1) / (f1 * 3.0 + 1.0);
 }
 
@@ -47,15 +47,15 @@ float normalize(float f)
 	return (f - 0.2) * 1.25;
 }
 
-float doColor(float blockpart, float sunpart)
+float doColor(float blockPart, float sunPart)
 {
     float Min = 0;
     float Max = 1.0;
     float nightVisionMinBrightness = 0.7;
     Min = Min * (1.0 - nightVisionWeight) + nightVisionMinBrightness * nightVisionWeight;
 
-    float block_brightness = getBrightness(blockpart);
-    float sun_brightness = normalize(sunlevel) * getBrightness(sunpart);
+    float block_brightness = getBrightness(blockPart);
+    float sun_brightness = normalize(sunlevel) * getBrightness(sunPart);
     float brightness = max(block_brightness, sun_brightness);
     return applyGamma(brightness) * (Max - Min) + Min;
 }
