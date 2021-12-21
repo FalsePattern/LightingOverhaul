@@ -1,13 +1,16 @@
 package com.lightingoverhaul.forgemod.lib;
 
 public class BlockInfo {
-    public static final String[] c = {
+    public static final String[] COLOR = {
         "Black", "Red", "Green", "Brown",
-        "Blue", "Purple", "Cyan", "Dark Gray", "Light Gray", "Pink", "Light Green", "Yellow",
-        "Light Blue", "Magenta", "Orange", "White"
+        "Blue", "Purple", "Cyan", "LightGray", "Gray", "Pink", "Lime", "Yellow",
+        "LightBlue", "Magenta", "Orange", "White"
     };
-    public static String CLLamp = "CLBlock";
-    public static String CLStone = "CLStone";
-    public static String CLStoneBright = "CLStoneBright";
-    public static String CLDust = "CLDust";
-} 
+
+    public static final String CLLamp = "CLBlock";
+    public static final String CLStone = "CLStone";
+    public static final String CLDust = "CLDust";
+
+    public static final String OD_DUST = "dustGlowstone";
+    public static final String OD_GLOWSTONE = "glowstone";
+}

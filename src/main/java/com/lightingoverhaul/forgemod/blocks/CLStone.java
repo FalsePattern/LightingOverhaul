@@ -28,7 +28,7 @@ public class CLStone extends Block {
     }
 
     @SideOnly(Side.CLIENT)
-    private IIcon icons[];
+    private IIcon[] icons;
 
     @SideOnly(Side.CLIENT)
     @Override
@@ -50,7 +50,7 @@ public class CLStone extends Block {
         return meta;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings("unchecked")
     @SideOnly(Side.CLIENT)
     @Override
     public void getSubBlocks(Item par1, CreativeTabs par2CreativeTabs, List par3List) {
@@ -82,11 +82,6 @@ public class CLStone extends Block {
     @Override
     public int getLightValue(IBlockAccess world, int x, int y, int z) {
         int meta = world.getBlockMetadata(x, y, z);
-        if (meta == 0) {
-            // Temporary
-            return LightingApi.makeRGBLightValue(15, 15, 15);
-        } else {
-            return LightingApi.makeRGBLightValue(LightingApi.r[meta], LightingApi.g[meta], LightingApi.b[meta]);
-        }
+        return LightingApi.makeRGBLightValue(LightingApi.r[meta], LightingApi.g[meta], LightingApi.b[meta]);
     }
 }
