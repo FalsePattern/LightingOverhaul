@@ -109,6 +109,7 @@ public class CoreDummyContainer extends DummyModContainer {
         setLightValue(Blocks.portal, 6, 3, 11);
         setLightValue(Blocks.lit_furnace, 13, 12, 10);
         setLightValue(Blocks.powered_repeater, 9, 0, 0);
+        setLightValue(Blocks.glowstone, 15, 15, 12);
 
         Block thisShouldBeABlock;
         int l;

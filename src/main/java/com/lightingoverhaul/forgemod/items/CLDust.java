@@ -6,8 +6,12 @@ import com.lightingoverhaul.Tags;
 import com.lightingoverhaul.forgemod.lib.BlockInfo;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.client.resources.Locale;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
@@ -20,7 +24,7 @@ public class CLDust extends Item {
     }
     
     @SideOnly(Side.CLIENT)
-    private IIcon icons[];
+    private IIcon[] icons;
 
     @Override
     public String getUnlocalizedName(ItemStack itemstack) {
@@ -47,12 +51,21 @@ public class CLDust extends Item {
         return meta;
     }
     
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings("unchecked")
     @SideOnly(Side.CLIENT)
     @Override
     public void getSubItems(Item par1, CreativeTabs par2CreativeTabs, List par3List) {
         for (int i = 0; i < 16; i++) {
             par3List.add(new ItemStack(par1, 1, i));
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void addInformation(ItemStack itemStack, EntityPlayer player, List dataList, boolean p_77624_4_) {
+        if (itemStack.getItemDamage() == 0) {
+            dataList.add(I18n.format("nolight.text"));
         }
     }
 }

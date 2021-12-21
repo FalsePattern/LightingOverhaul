@@ -6,7 +6,6 @@ Lighting Overhaul is an open source Forge Core-Mod that aims to replace Minecraf
 ## Features
 - Colored glowstone
 - Light gets colored when it passes through stained glass (even sunlight!)
-- Super bright glowstone with 32 blocks range instead of the normal 16 (currently creative only)
 - Smooth mixing of colored light
 
 ## Fork changes (for developers)

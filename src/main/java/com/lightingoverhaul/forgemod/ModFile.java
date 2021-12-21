@@ -15,8 +15,6 @@ public class ModFile {
     @SidedProxy(clientSide = Tags.GROUPNAME + ".forgemod.proxy.ClientProxy", serverSide = Tags.GROUPNAME + ".forgemod.proxy.CommonProxy")
     public static CommonProxy proxy;
 
-    public static CLWorldGen wg = new CLWorldGen();
-
     @EventHandler
     public static void preInit(FMLPreInitializationEvent event) {
         CLMaterialsController.init();
@@ -26,7 +24,6 @@ public class ModFile {
     @EventHandler
     public static void init(FMLInitializationEvent event) {
         CLMaterialsController.addRecipes();
-        GameRegistry.registerWorldGenerator(wg, 10000);
     }
 
     @EventHandler
