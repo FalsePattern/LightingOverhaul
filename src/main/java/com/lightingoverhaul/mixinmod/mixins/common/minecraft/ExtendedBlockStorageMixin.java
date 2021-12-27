@@ -1,4 +1,4 @@
-package com.lightingoverhaul.mixinmod.mixins;
+package com.lightingoverhaul.mixinmod.mixins.common.minecraft;
 
 import com.lightingoverhaul.coremod.api.LightingApi;
 import com.lightingoverhaul.mixinmod.interfaces.IExtendedBlockStorageMixin;

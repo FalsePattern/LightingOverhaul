@@ -13,6 +13,9 @@ import org.objectweb.asm.tree.MethodNode;
 import net.minecraft.launchwrapper.IClassTransformer;
 
 public class TextureTransformer implements IClassTransformer {
+    private static final String[] IGNORED_ROOTS = new String[] {
+            "com.lightingoverhaul", "journeymap.client"
+    };
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytes) {
         if (bytes == null) return null; //Need this so that classes that aren't loaded don't cause an exception that hides the true reason.
@@ -23,8 +26,8 @@ public class TextureTransformer implements IClassTransformer {
 
         String helperName = "com/lightingoverhaul/mixinmod/helper/TextureHelper";
 
-        if (transformedName.startsWith("com.lightingoverhaul")) {
-            return bytes; // Don't transform our own classes, we know what we're doing.
+        for (String root: IGNORED_ROOTS) {
+            if (transformedName.startsWith(root)) return bytes;
         }
 
         boolean changed = false;

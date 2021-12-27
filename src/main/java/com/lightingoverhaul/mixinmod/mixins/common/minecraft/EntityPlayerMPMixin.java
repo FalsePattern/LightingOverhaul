@@ -1,4 +1,4 @@
-package com.lightingoverhaul.mixinmod.mixins;
+package com.lightingoverhaul.mixinmod.mixins.common.minecraft;
 
 import com.lightingoverhaul.coremod.server.PlayerManagerHelper;
 import net.minecraft.entity.player.EntityPlayerMP;

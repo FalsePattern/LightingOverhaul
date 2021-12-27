@@ -1,4 +1,4 @@
-package com.lightingoverhaul.mixinmod.mixins;
+package com.lightingoverhaul.mixinmod.mixins.client.minecraft;
 
 import java.nio.*;
 
@@ -33,7 +33,6 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
     private RGBShader shader;
 
     private boolean programInUse;
-
     private boolean hasFlaggedOpenglError = false;
     private boolean lockedBrightness;
     private float gamma;
@@ -131,17 +130,7 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
     private static ByteBuffer byteBuffer;
 
     @Shadow
-    private int rawBufferIndex;
-
-    @Shadow
-    private int[] rawBuffer;
-
-    @Shadow
-    private int vertexCount;
-
-    @Shadow(remap = false) private int rawBufferSize;
-
-    @Shadow private int brightness;
+    private int brightness;
 
     @Inject(method = "setBrightness",
             at = @At(value = "HEAD"),
@@ -160,7 +149,8 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
         this.brightness = value < 256 ? makeBrightness(value) : value;
     }
 
-    @Inject(method = "<init>*", at = @At("RETURN"))
+    @Inject(method = "<init>*",
+            at = @At("RETURN"))
     private void init(CallbackInfo callback) {
         setupShaders();
     }

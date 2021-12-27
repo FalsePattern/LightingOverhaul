@@ -1,4 +1,4 @@
-package com.lightingoverhaul.mixinmod.mixins;
+package com.lightingoverhaul.mixinmod.mixins.client.minecraft;
 
 import com.lightingoverhaul.mixinmod.interfaces.ITessellatorMixin;
 import cpw.mods.fml.relauncher.Side;

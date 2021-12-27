@@ -12,21 +12,21 @@ import static com.lightingoverhaul.mixinmod.mixinplugin.TargetedMod.*;
 
 public enum Mixin {
 
-    //Both sides
-    BlockMixin(builder().unit(Regular, "BlockMixin")),
-    ChunkCacheMixin(builder().unit(InjectCancel, "ChunkCacheMixin")),
-    ChunkMixin(builder().unit(InjectCancel, "ChunkMixin")),
-    EntityMobMixin(builder().unit(Regular, "EntityMobMixin")),
-    EntityPlayerMPMixin(builder().unit(Regular, "EntityPlayerMPMixin")),
-    ExtendedBlockStorageMixin(builder().unit(Regular, "ExtendedBlockStorageMixin")),
-    WorldMixin(builder().unit(InjectCancel, "WorldMixin")),
+    BlockMixin(builder(Side.COMMON).unit(Regular, "minecraft.BlockMixin")),
+    ChunkMixin(builder(Side.COMMON).unit(InjectCancel, "minecraft.ChunkMixin")),
+    EntityMobMixin(builder(Side.COMMON).unit(Regular, "minecraft.EntityMobMixin")),
+    EntityPlayerMPMixin(builder(Side.COMMON).unit(Regular, "minecraft.EntityPlayerMPMixin")),
+    ExtendedBlockStorageMixin(builder(Side.COMMON).unit(Regular, "minecraft.ExtendedBlockStorageMixin")),
+    WorldMixin(builder(Side.COMMON).unit(InjectCancel, "minecraft.WorldMixin")),
 
-    //Client only
-    EntityRendererMixin(builder().side(Side.CLIENT).unit(InjectCancel, "EntityRendererMixin")),
-    OpenGLHelperMixin(builder().side(Side.CLIENT).unit(InjectCancel, "OpenGLHelperMixin")),
-    RenderBlocksMixin(builder().side(Side.CLIENT).unit(InjectCancel, "RenderBlocksMixin")),
-    RenderingRegistryMixin(builder().side(Side.CLIENT).unit(Regular, "RenderingRegistryMixin")),
-    TessellatorMixin(builder().side(Side.CLIENT).unit(InjectCancel, "TessellatorMixin"));
+    ClientChunkMixin(builder(Side.CLIENT).unit(InjectCancel, "minecraft.ChunkMixin")),
+    ClientChunkCacheMixin(builder(Side.CLIENT).unit(InjectCancel, "minecraft.ChunkCacheMixin")),
+    ClientEntityRendererMixin(builder(Side.CLIENT).unit(InjectCancel, "minecraft.EntityRendererMixin")),
+    ClientOpenGLHelperMixin(builder(Side.CLIENT).unit(InjectCancel, "minecraft.OpenGLHelperMixin")),
+    ClientRenderBlocksMixin(builder(Side.CLIENT).unit(InjectCancel, "minecraft.RenderBlocksMixin")),
+    ClientRenderingRegistryMixin(builder(Side.CLIENT).unit(Regular, "minecraft.RenderingRegistryMixin")),
+    ClientTessellatorMixin(builder(Side.CLIENT).unit(InjectCancel, "minecraft.TessellatorMixin")),
+    ClientWorldMixin(builder(Side.CLIENT).unit(InjectCancel, "minecraft.WorldMixin"));
 
     public final MixinUnit[] units;
     public final Set<TargetedMod> targetedMods;
@@ -39,7 +39,7 @@ public enum Mixin {
     }
 
     public boolean shouldLoad(List<TargetedMod> loadedMods) {
-        return (side == Side.BOTH
+        return (side == Side.COMMON
                 || side == Side.SERVER && FMLLaunchHandler.side().isServer()
                 || side == Side.CLIENT && FMLLaunchHandler.side().isClient())
                 && loadedMods.containsAll(targetedMods);
@@ -52,31 +52,27 @@ public enum Mixin {
         throw new MixinException("Failed to retrieve mixin alternative for " + this.name() + " in mod " + Tags.MODID);
     }
 
-    private static Builder builder() {
-        return builder(true);
-    }
 
-    private static Builder builder(boolean withVanilla) {
-        return withVanilla ? new Builder().target(VANILLA) : new Builder();
+    private static Builder builder(Side side) {
+        return new Builder(side).target(VANILLA);
     }
 
     private static class Builder {
         public ArrayList<MixinUnit> units = new ArrayList<>();
-        public Side side = Side.BOTH;
+        public Side side;
         public Set<TargetedMod> targetedMods = new HashSet<>();
 
+        public Builder(Side side) {
+            this.side = side;
+        }
+
         public Builder unit(CompatibilityTier tier, String mixinClass) {
-            units.add(new MixinUnit(tier, mixinClass));
+            units.add(new MixinUnit(tier, side.name().toLowerCase() + "." + mixinClass));
             return this;
         }
 
         public Builder target(TargetedMod mod) {
             targetedMods.add(mod);
-            return this;
-        }
-
-        public Builder side(Side side) {
-            this.side = side;
             return this;
         }
     }
@@ -92,7 +88,7 @@ public enum Mixin {
     }
 
     private enum Side {
-        BOTH,
+        COMMON,
         CLIENT,
         SERVER
     }

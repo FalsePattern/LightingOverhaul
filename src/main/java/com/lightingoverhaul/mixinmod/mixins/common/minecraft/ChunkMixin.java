@@ -1,9 +1,7 @@
-package com.lightingoverhaul.mixinmod.mixins;
+package com.lightingoverhaul.mixinmod.mixins.common.minecraft;
 
 import com.lightingoverhaul.coremod.api.LightingApi;
 import com.lightingoverhaul.mixinmod.interfaces.IChunkMixin;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockStainedGlass;
 import net.minecraft.init.Blocks;
@@ -25,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import scala.tools.asm.Opcodes;
 
 @Mixin(Chunk.class)
-public abstract class ChunkMixin implements IChunkMixin {
+public abstract class ChunkMixin implements IChunkMixin  {
     @Shadow
     public World worldObj;
 
@@ -58,46 +56,37 @@ public abstract class ChunkMixin implements IChunkMixin {
     public int[] precipitationHeightMap;
 
     @Shadow
-    private void updateSkylightNeighborHeight(int paramInt1, int paramInt2, int paramInt3, int paramInt4) {
-    }
+    protected abstract void updateSkylightNeighborHeight(int paramInt1, int paramInt2, int paramInt3, int paramInt4);
 
     @Shadow
-    public Block getBlock(int paramInt1, int paramInt2, int paramInt3) {
-        return null;
-    }
+    public abstract Block getBlock(int paramInt1, int paramInt2, int paramInt3);
 
     @Shadow
-    public int func_150808_b(int paramInt1, int paramInt2, int paramInt3) {
-        return 0;
-    }
+    public abstract int func_150808_b(int paramInt1, int paramInt2, int paramInt3);
 
     @Shadow
-    public int getBlockMetadata(int p_76628_1_, int p_76628_2_, int p_76628_3_) {
-        return 0;
-    }
+    public abstract int getBlockMetadata(int p_76628_1_, int p_76628_2_, int p_76628_3_);
 
     @Shadow
-    public int getSavedLightValue(EnumSkyBlock p_76614_1_, int p_76614_2_, int p_76614_3_, int p_76614_4_) {
-        return 0;
-    }
+    public abstract int getSavedLightValue(EnumSkyBlock p_76614_1_, int p_76614_2_, int p_76614_3_, int p_76614_4_);
 
     @Shadow
-    private void propagateSkylightOcclusion(int p_76595_1_, int p_76595_2_) {
-    }
+    protected abstract void propagateSkylightOcclusion(int p_76595_1_, int p_76595_2_);
 
     @Shadow
-    public void generateSkylightMap() {
-    }
+    public abstract void generateSkylightMap();
 
     @Shadow
-    private void relightBlock(int x, int y, int z) {
-    }
+    protected abstract void relightBlock(int x, int y, int z);
 
-    @Shadow public abstract TileEntity getTileEntityUnsafe(int x, int y, int z);
+    @Shadow
+    public abstract TileEntity getTileEntityUnsafe(int x, int y, int z);
 
-    @Shadow public abstract void removeTileEntity(int p_150805_1_, int p_150805_2_, int p_150805_3_);
+    @Shadow
+    public abstract void removeTileEntity(int p_150805_1_, int p_150805_2_, int p_150805_3_);
 
-    @Shadow public abstract TileEntity func_150806_e(int p_150806_1_, int p_150806_2_, int p_150806_3_);
+    @Shadow
+    public abstract TileEntity func_150806_e(int p_150806_1_, int p_150806_2_, int p_150806_3_);
 
     int[] heightMap2;
     int[][][] lightMapSun;
@@ -151,31 +140,6 @@ public abstract class ChunkMixin implements IChunkMixin {
               require = 1)
     private int getBlockLightValue_2(ExtendedBlockStorage instance, int p_76670_1_, int p_76670_2_, int p_76670_3_) {
         return instance.getExtBlocklightValue(p_76670_1_, p_76670_2_ & 15, p_76670_3_) & 0xF;
-    }
-
-    @Inject(method = "generateHeightMap",
-            at=@At("HEAD"),
-            cancellable = true,
-            require = 1)
-    @SideOnly(Side.CLIENT)
-    public void generateHeightMap(CallbackInfo ci) {
-        ci.cancel();
-        int i = getTopFilledSegment();
-        this.heightMapMinimum = Integer.MAX_VALUE;
-        for (byte b = 0; b < 16; b++) {
-            for (byte b1 = 0; b1 < 16; b1++) {
-                this.precipitationHeightMap[b + (b1 << 4)] = -999;
-                for (int j = i + 16 - 1; j > 0; j--) {
-                    if (!is_translucent_for_relightBlock(b, j - 1, b1)) {
-                        this.heightMap[b1 << 4 | b] = j;
-                        if (j < this.heightMapMinimum)
-                            this.heightMapMinimum = j;
-                        break;
-                    }
-                }
-            }
-        }
-        this.isModified = true;
     }
 
     @Inject(method = "generateSkylightMap",
@@ -311,20 +275,6 @@ public abstract class ChunkMixin implements IChunkMixin {
 
                     boolean isColoredGlass = block_new instanceof BlockStainedGlass; //Added
                     boolean is_addition = (opacity_new > 0) || isColoredGlass; //Added
-
-                    /* ORIGINAL:
-                   if (j2 > 0)
-                    {
-                        if (p_150807_2_ >= j1)
-                        {
-                            this.relightBlock(p_150807_1_, p_150807_2_ + 1, p_150807_3_);
-                        }
-                    }
-                    else if (p_150807_2_ == j1 - 1)
-                    {
-                        this.relightBlock(p_150807_1_, p_150807_2_, p_150807_3_);
-                    }
-                     */
                     if (y >= realHeightmapMax - 1) {
                         if (is_addition) {
                             this.relightBlock(x, y + 1, z);

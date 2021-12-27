@@ -1,4 +1,4 @@
-package com.lightingoverhaul.mixinmod.mixins;
+package com.lightingoverhaul.mixinmod.mixins.client.minecraft;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -12,12 +12,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ChunkCache.class)
+@SideOnly(Side.CLIENT)
 public abstract class ChunkCacheMixin {
     @Inject(method = "getLightBrightnessForSkyBlocks",
             at = @At(value = "HEAD"),
             cancellable = true,
             require = 1)
-    @SideOnly(Side.CLIENT)
     /*
      * Any Light rendered on a 1.8 Block goes through here
      */

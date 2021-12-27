@@ -1,4 +1,4 @@
-package com.lightingoverhaul.mixinmod.mixins;
+package com.lightingoverhaul.mixinmod.mixins.client.minecraft;
 
 import com.lightingoverhaul.mixinmod.interfaces.ITessellatorMixin;
 import cpw.mods.fml.relauncher.Side;
@@ -22,7 +22,7 @@ public abstract class RenderingRegistryMixin {
                        target = "Lcpw/mods/fml/client/registry/ISimpleBlockRenderingHandler;renderWorldBlock(Lnet/minecraft/world/IBlockAccess;IIILnet/minecraft/block/Block;ILnet/minecraft/client/renderer/RenderBlocks;)Z"),
               remap = false,
               require = 1)
-    public boolean renderWorldBlock(ISimpleBlockRenderingHandler bri, IBlockAccess world, int x, int y, int z, Block block, int modelId, RenderBlocks renderer) {
+    private boolean renderWorldBlock(ISimpleBlockRenderingHandler bri, IBlockAccess world, int x, int y, int z, Block block, int modelId, RenderBlocks renderer) {
         ITessellatorMixin tessellatorMixin = (ITessellatorMixin) Tessellator.instance;
 
         String className = block.getClass().getName();
