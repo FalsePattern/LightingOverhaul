@@ -1,6 +1,5 @@
 package com.lightingoverhaul.coremod.asm;
 
-import org.lwjgl.opengl.GL11;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -13,22 +12,25 @@ import org.objectweb.asm.tree.MethodNode;
 import net.minecraft.launchwrapper.IClassTransformer;
 
 public class TextureTransformer implements IClassTransformer {
+    private static final int GL11__GL_TEXTURE_2D = 0xDE1;
     private static final String[] IGNORED_ROOTS = new String[] {
             "com.lightingoverhaul", "journeymap.client"
     };
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytes) {
         if (bytes == null) return null; //Need this so that classes that aren't loaded don't cause an exception that hides the true reason.
+
+        //Do not transform whitelisted classes
+        for (String root: IGNORED_ROOTS) {
+            if (transformedName.startsWith(root)) return bytes;
+        }
+
         ClassReader classReader = new ClassReader(bytes);
         ClassNode classNode = new ClassNode();
 
         classReader.accept(classNode, 0);
 
         String helperName = "com/lightingoverhaul/mixinmod/helper/TextureHelper";
-
-        for (String root: IGNORED_ROOTS) {
-            if (transformedName.startsWith(root)) return bytes;
-        }
 
         boolean changed = false;
         for (MethodNode methodNode : classNode.methods) {
@@ -43,7 +45,7 @@ public class TextureTransformer implements IClassTransformer {
                         AbstractInsnNode instructionPrev = methodNode.instructions.get(i - 1);
                         if (instructionPrev.getOpcode() == Opcodes.SIPUSH) {
                             IntInsnNode intNode = (IntInsnNode) instructionPrev;
-                            if (intNode.operand != GL11.GL_TEXTURE_2D) {
+                            if (intNode.operand != GL11__GL_TEXTURE_2D) {
                                 continue;
                             }
                         } else {
