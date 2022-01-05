@@ -26,9 +26,6 @@ public class PacketHandler {
             NibbleArray[] redColorArray = ChunkStorageRGB.getRedColorArrays(chunk);
             NibbleArray[] greenColorArray = ChunkStorageRGB.getGreenColorArrays(chunk);
             NibbleArray[] blueColorArray = ChunkStorageRGB.getBlueColorArrays(chunk);
-            NibbleArray[] redColorArray2 = ChunkStorageRGB.getRedColorArrays2(chunk);
-            NibbleArray[] greenColorArray2 = ChunkStorageRGB.getGreenColorArrays2(chunk);
-            NibbleArray[] blueColorArray2 = ChunkStorageRGB.getBlueColorArrays2(chunk);
             NibbleArray[] redColorArraySun = ChunkStorageRGB.getRedColorArraysSun(chunk);
             NibbleArray[] greenColorArraySun = ChunkStorageRGB.getGreenColorArraysSun(chunk);
             NibbleArray[] blueColorArraySun = ChunkStorageRGB.getBlueColorArraysSun(chunk);
@@ -44,9 +41,6 @@ public class PacketHandler {
             packet.RedColorArray = redColorArray;
             packet.GreenColorArray = greenColorArray;
             packet.BlueColorArray = blueColorArray;
-            packet.RedColorArray2 = redColorArray2;
-            packet.GreenColorArray2 = greenColorArray2;
-            packet.BlueColorArray2 = blueColorArray2;
             packet.RedColorArraySun = redColorArraySun;
             packet.GreenColorArraySun = greenColorArraySun;
             packet.BlueColorArraySun = blueColorArraySun;

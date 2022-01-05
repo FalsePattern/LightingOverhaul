@@ -1,6 +1,8 @@
 package lightingoverhaul.api;
 
 import com.google.common.primitives.Ints;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 /**
  * Public API for ColoredLightsCore
@@ -16,22 +18,13 @@ public class LightingApi {
 
     public static final int _bitshift_l = 0;
     public static final int _bitshift_r = 4;
-    public static final int _bitshift_g = 9;
-    public static final int _bitshift_b = 14;
-    public static final int _bitshift_sun_r = 19;
-    public static final int _bitshift_sun_g = 23;
-    public static final int _bitshift_sun_b = 27;
+    public static final int _bitshift_g = 8;
+    public static final int _bitshift_b = 12;
+    public static final int _bitshift_sun_r = 16;
+    public static final int _bitshift_sun_g = 20;
+    public static final int _bitshift_sun_b = 24;
     
-    public static final int _bitshift_l2 = 4;
-    public static final int _bitshift_r2 = 8;
-    public static final int _bitshift_g2 = 12;
-    public static final int _bitshift_b2 = 16;
-    public static final int _bitshift_sun_r2 = 20;
-    public static final int _bitshift_sun_g2 = 24;
-    public static final int _bitshift_sun_b2 = 0;
-    
-    public static final int _bitmask = 0x1F;
-    public static final int _bitmask_sun = 0xF;
+    public static final int _bitmask = 0xF;
 
     /**
      * Computes a 20-bit lighting word, containing red, green, blue settings, and brightness settings.
@@ -100,19 +93,19 @@ public class LightingApi {
     }
 
     public static int extractL(int light) {
-        return (light >>> LightingApi._bitshift_l) & 0xF;
+        return (light >>> _bitshift_l) & _bitmask;
     }
 
     public static int extractR(int light) {
-        return (light >>> LightingApi._bitshift_r) & LightingApi._bitmask;
+        return (light >>> _bitshift_r) & _bitmask;
     }
 
     public static int extractG(int light) {
-        return (light >>> LightingApi._bitshift_g) & LightingApi._bitmask;
+        return (light >>> _bitshift_g) & _bitmask;
     }
 
     public static int extractB(int light) {
-        return (light >>> LightingApi._bitshift_b) & LightingApi._bitmask;
+        return (light >>> _bitshift_b) & _bitmask;
     }
 
     public static int getMaxChannel(int light) {
@@ -120,15 +113,15 @@ public class LightingApi {
     }
 
     public static int extractSunR(int light) {
-        return (light >>> LightingApi._bitshift_sun_r) & LightingApi._bitmask_sun;
+        return (light >>> _bitshift_sun_r) & _bitmask;
     }
 
     public static int extractSunG(int light) {
-        return (light >>> LightingApi._bitshift_sun_g) & LightingApi._bitmask_sun;
+        return (light >>> _bitshift_sun_g) & _bitmask;
     }
 
     public static int extractSunB(int light) {
-        return (light >>> LightingApi._bitshift_sun_b) & LightingApi._bitmask_sun;
+        return (light >>> _bitshift_sun_b) & _bitmask;
     }
 
     public static int getMaxChannelSun(int light) {
@@ -136,8 +129,13 @@ public class LightingApi {
     }
 
     public static int toLight(int r, int g, int b, int l, int sr, int sg, int sb) {
-        return (sr << LightingApi._bitshift_sun_r) | (sg << LightingApi._bitshift_sun_g) | (sb << LightingApi._bitshift_sun_b)
-               | (r << LightingApi._bitshift_r) | (g << LightingApi._bitshift_g) | (b << LightingApi._bitshift_b)
-               | (l << LightingApi._bitshift_l);
+        return ((sr & _bitmask) << _bitshift_sun_r) | ((sg & _bitmask) << _bitshift_sun_g) | ((sb & _bitmask) << _bitshift_sun_b)
+               | ((r & _bitmask) << _bitshift_r) | ((g & _bitmask) << _bitshift_g) | ((b & _bitmask) << _bitshift_b)
+               | ((l & _bitmask) << _bitshift_l);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static int toRenderLight(int r, int g, int b, int l, int sr, int sg, int sb) {
+        return (1 << 30) | toLight(r, g, b, l, sr, sg, sb);
     }
 }

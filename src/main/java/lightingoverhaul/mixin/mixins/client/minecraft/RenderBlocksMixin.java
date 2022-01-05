@@ -32,14 +32,14 @@ public abstract class RenderBlocksMixin {
     )
     public void getAoBrightness(int a, int b, int c, int l, CallbackInfoReturnable<Integer> cir) {
         // Must mix all 5 channels now
-        cir.setReturnValue((1 << 30) | mixColorChannel(LightingApi._bitshift_sun_r2, a, b, c, l) | // SSSS
-                           mixColorChannel(LightingApi._bitshift_sun_g2, a, b, c, l) | // SSSS
-                           mixColorChannel(LightingApi._bitshift_sun_b2, a, b, c, l) | // SSSS
-                           mixColorChannel(LightingApi._bitshift_b2, a, b, c, l) | // BBBB
-                           mixColorChannel(LightingApi._bitshift_g2, a, b, c, l) | // GGGG this is the problem child
-                           mixColorChannel(LightingApi._bitshift_r2, a, b, c, l) | // RRRR
-                           mixColorChannel(LightingApi._bitshift_l2, a, b, c, l) // LLLL
-        );
+        cir.setReturnValue(LightingApi.toRenderLight(
+                mixColorChannel(LightingApi._bitshift_r, a, b, c, l),
+                mixColorChannel(LightingApi._bitshift_g, a, b, c, l),
+                mixColorChannel(LightingApi._bitshift_b, a, b, c, l),
+                mixColorChannel(LightingApi._bitshift_l, a, b, c, l),
+                mixColorChannel(LightingApi._bitshift_sun_r, a, b, c, l),
+                mixColorChannel(LightingApi._bitshift_sun_g, a, b, c, l),
+                mixColorChannel(LightingApi._bitshift_sun_b, a, b, c, l)));
     }
 
     @Inject(method = "mixAoBrightness",
@@ -48,23 +48,23 @@ public abstract class RenderBlocksMixin {
             require = 1)
     private void mixAoBrightness(int a, int b, int c, int d, double fA, double fB, double fC, double fD, CallbackInfoReturnable<Integer> cir) {
         // Must mix all 5 channels now
-        cir.setReturnValue((1 << 30) | mixColorChannel(LightingApi._bitshift_sun_r2, a, b, c, d, fA, fB, fC, fD) | // SSSS
-                           mixColorChannel(LightingApi._bitshift_sun_g2, a, b, c, d, fA, fB, fC, fD) | // SSSS
-                           mixColorChannel(LightingApi._bitshift_sun_b2, a, b, c, d, fA, fB, fC, fD) | // SSSS
-                           mixColorChannel(LightingApi._bitshift_b2, a, b, c, d, fA, fB, fC, fD) | // BBBB
-                           mixColorChannel(LightingApi._bitshift_g2, a, b, c, d, fA, fB, fC, fD) | // GGGG this is the problem child
-                           mixColorChannel(LightingApi._bitshift_r2, a, b, c, d, fA, fB, fC, fD) | // RRRR
-                           mixColorChannel(LightingApi._bitshift_l2, a, b, c, d, fA, fB, fC, fD) // LLLL
-                          );
+        cir.setReturnValue(LightingApi.toRenderLight(
+                mixColorChannel(LightingApi._bitshift_r, a, b, c, d, fA, fB, fC, fD),
+                mixColorChannel(LightingApi._bitshift_g, a, b, c, d, fA, fB, fC, fD),
+                mixColorChannel(LightingApi._bitshift_b, a, b, c, d, fA, fB, fC, fD),
+                mixColorChannel(LightingApi._bitshift_l, a, b, c, d, fA, fB, fC, fD),
+                mixColorChannel(LightingApi._bitshift_sun_r, a, b, c, d, fA, fB, fC, fD),
+                mixColorChannel(LightingApi._bitshift_sun_g, a, b, c, d, fA, fB, fC, fD),
+                mixColorChannel(LightingApi._bitshift_sun_b, a, b, c, d, fA, fB, fC, fD)));
     }
 
     private int mixColorChannel(int startBit, int p1, int p2, int p3, int p4, double d1, double d2, double d3, double d4) {
         double sum;
 
-        double q1 = (p1 >>> startBit) & 0xf;
-        double q2 = (p2 >>> startBit) & 0xf;
-        double q3 = (p3 >>> startBit) & 0xf;
-        double q4 = (p4 >>> startBit) & 0xf;
+        double q1 = (p1 >>> startBit) & LightingApi._bitmask;
+        double q2 = (p2 >>> startBit) & LightingApi._bitmask;
+        double q3 = (p3 >>> startBit) & LightingApi._bitmask;
+        double q4 = (p4 >>> startBit) & LightingApi._bitmask;
 
         q1 *= d1;
         q2 *= d2;
@@ -73,16 +73,16 @@ public abstract class RenderBlocksMixin {
 
         sum = Math.max(Math.min(15.0, q1 + q2 + q3 + q4), 0.0);
 
-        return ((int)sum & 0xF) << startBit;
+        return ((int)sum & LightingApi._bitmask);
     }
 
     private int mixColorChannel(int startBit, int p1, int p2, int p3, int p4) {
         int avg;
 
-        int q1 = (p1 >>> startBit) & 0xf;
-        int q2 = (p2 >>> startBit) & 0xf;
-        int q3 = (p3 >>> startBit) & 0xf;
-        int q4 = (p4 >>> startBit) & 0xf;
+        int q1 = (p1 >>> startBit) & LightingApi._bitmask;
+        int q2 = (p2 >>> startBit) & LightingApi._bitmask;
+        int q3 = (p3 >>> startBit) & LightingApi._bitmask;
+        int q4 = (p4 >>> startBit) & LightingApi._bitmask;
 
         if (q1 == 0) q1 = q4;
         if (q2 == 0) q2 = q4;
@@ -90,6 +90,6 @@ public abstract class RenderBlocksMixin {
 
         avg = (q1 + q2 + q3 + q4) / 4;
 
-        return avg << startBit;
+        return avg;
     }
 }

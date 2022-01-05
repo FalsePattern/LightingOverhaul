@@ -1,9 +1,12 @@
 package lightingoverhaul.helper;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSlab;
 import net.minecraft.world.IBlockAccess;
 
+@SideOnly(Side.CLIENT)
 public class BlockHelper {
     public static int getMixedBrightnessForBlockWithColor(IBlockAccess blockAccess, int x, int y, int z) {
         int l;

@@ -11,6 +11,7 @@ import static lightingoverhaul.mixin.plugin.TargetedMod.*;
 
 public enum Mixin {
 
+    // Vanilla
     BlockMixin(builder(Side.COMMON).unit(CompatibilityTier.Regular, "minecraft.BlockMixin")),
     ChunkMixin(builder(Side.COMMON).unit(CompatibilityTier.InjectCancel, "minecraft.ChunkMixin")),
     EntityMobMixin(builder(Side.COMMON).unit(CompatibilityTier.Regular, "minecraft.EntityMobMixin")),
@@ -25,7 +26,11 @@ public enum Mixin {
     ClientRenderBlocksMixin(builder(Side.CLIENT).unit(CompatibilityTier.InjectCancel, "minecraft.RenderBlocksMixin")),
     ClientRenderingRegistryMixin(builder(Side.CLIENT).unit(CompatibilityTier.Regular, "minecraft.RenderingRegistryMixin")),
     ClientTessellatorMixin(builder(Side.CLIENT).unit(CompatibilityTier.InjectCancel, "minecraft.TessellatorMixin")),
-    ClientWorldMixin(builder(Side.CLIENT).unit(CompatibilityTier.InjectCancel, "minecraft.WorldMixin"));
+    ClientWorldMixin(builder(Side.CLIENT).unit(CompatibilityTier.InjectCancel, "minecraft.WorldMixin")),
+
+    // CTMLib
+    ClientRenderBlocksCTMMixin(builder(Side.CLIENT).target(CTMLIB).unit(CompatibilityTier.InjectCancel, "ctmlib.RenderBlocksCTMMixin")),
+    ClientRenderBlocksCTMMixin_GTMEGA(builder(Side.CLIENT).target(CTMLIB_GTMEGA).unit(CompatibilityTier.InjectCancel, "ctmlib.RenderBlocksCTMMixin_GTMEGA"));
 
     public final MixinUnit[] units;
     public final Set<TargetedMod> targetedMods;

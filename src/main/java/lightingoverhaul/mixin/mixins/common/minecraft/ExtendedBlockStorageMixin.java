@@ -17,15 +17,12 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
     public NibbleArray rColorArray;
     public NibbleArray gColorArray;
     public NibbleArray bColorArray;
-    public NibbleArray rColorArray2;
-    public NibbleArray gColorArray2;
-    public NibbleArray bColorArray2;
     public NibbleArray rColorArraySun;
     public NibbleArray gColorArraySun;
     public NibbleArray bColorArraySun;
 
     @Shadow
-    public byte[] blockLSBArray;
+    private byte[] blockLSBArray;
 
     public void setRedColorArray(NibbleArray array) {
         this.rColorArray = array;
@@ -37,18 +34,6 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
 
     public void setBlueColorArray(NibbleArray array) {
         this.bColorArray = array;
-    }
-
-    public void setRedColorArray2(NibbleArray array) {
-        this.rColorArray2 = array;
-    }
-
-    public void setGreenColorArray2(NibbleArray array) {
-        this.gColorArray2 = array;
-    }
-
-    public void setBlueColorArray2(NibbleArray array) {
-        this.bColorArray2 = array;
     }
 
     public void setRedColorArraySun(NibbleArray array) {
@@ -75,18 +60,6 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
         return bColorArray;
     }
 
-    public NibbleArray getRedColorArray2() {
-        return this.rColorArray2;
-    }
-
-    public NibbleArray getGreenColorArray2() {
-        return this.gColorArray2;
-    }
-
-    public NibbleArray getBlueColorArray2() {
-        return bColorArray2;
-    }
-
     public NibbleArray getRedColorArraySun() {
         return this.rColorArraySun;
     }
@@ -105,9 +78,6 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
         this.rColorArray = new NibbleArray(this.blockLSBArray.length, 4);
         this.gColorArray = new NibbleArray(this.blockLSBArray.length, 4);
         this.bColorArray = new NibbleArray(this.blockLSBArray.length, 4);
-        this.rColorArray2 = new NibbleArray(this.blockLSBArray.length, 4);
-        this.gColorArray2 = new NibbleArray(this.blockLSBArray.length, 4);
-        this.bColorArray2 = new NibbleArray(this.blockLSBArray.length, 4);
         this.rColorArraySun = new NibbleArray(this.blockLSBArray.length, 4);
         this.gColorArraySun = new NibbleArray(this.blockLSBArray.length, 4);
         this.bColorArraySun = new NibbleArray(this.blockLSBArray.length, 4);
@@ -122,16 +92,11 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
         int g = (value >> LightingApi._bitshift_g) & LightingApi._bitmask;
         int b = (value >> LightingApi._bitshift_b) & LightingApi._bitmask;
         int normal = Math.max(Math.max(r, g), b);
-        normal = Math.min(15, normal);
 
         instance.set(x, y, z, normal);
-        this.rColorArray.set(x, y, z, r & 0xF);
-        this.gColorArray.set(x, y, z, g & 0xF);
-        this.bColorArray.set(x, y, z, b & 0xF);
-
-        this.rColorArray2.set(x, y, z, r >> 4);
-        this.gColorArray2.set(x, y, z, g >> 4);
-        this.bColorArray2.set(x, y, z, b >> 4);
+        this.rColorArray.set(x, y, z, r & LightingApi._bitmask);
+        this.gColorArray.set(x, y, z, g & LightingApi._bitmask);
+        this.bColorArray.set(x, y, z, b & LightingApi._bitmask);
     }
 
     @Redirect(method = "getExtBlocklightValue",
@@ -143,9 +108,6 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
         int r = this.rColorArray.get(x, y, z);
         int g = this.gColorArray.get(x, y, z);
         int b = this.bColorArray.get(x, y, z);
-        r |= this.rColorArray2.get(x, y, z) << 4;
-        g |= this.gColorArray2.get(x, y, z) << 4;
-        b |= this.bColorArray2.get(x, y, z) << 4;
 
         if (r == 0 && g == 0 && b == 0) {
             r = g = b = normal;
@@ -166,9 +128,9 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
                        target = "Lnet/minecraft/world/chunk/NibbleArray;set(IIII)V"),
               require = 1)
     public void setExtSkylightValue(NibbleArray instance, int x, int y, int z, int value) {
-        int r = (value >> LightingApi._bitshift_sun_r) & LightingApi._bitmask_sun;
-        int g = (value >> LightingApi._bitshift_sun_g) & LightingApi._bitmask_sun;
-        int b = (value >> LightingApi._bitshift_sun_b) & LightingApi._bitmask_sun;
+        int r = (value >> LightingApi._bitshift_sun_r) & LightingApi._bitmask;
+        int g = (value >> LightingApi._bitshift_sun_g) & LightingApi._bitmask;
+        int b = (value >> LightingApi._bitshift_sun_b) & LightingApi._bitmask;
         int normal = Math.max(Math.max(r, g), b);
 
         instance.set(x, y, z, normal);

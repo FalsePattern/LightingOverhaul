@@ -1,7 +1,10 @@
 package lightingoverhaul.helper;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import lightingoverhaul.api.LightingApi;
 
+@SideOnly(Side.CLIENT)
 public class RGBHelper {
 
     public static int computeLightBrightnessForSkyBlocks(int skyBrightness, int blockBrightness, int lightValue) {
@@ -28,23 +31,6 @@ public class RGBHelper {
         block_g = Math.min(15, block_g);
         block_b = Math.min(15, block_b);
 
-        int detectAsRGB = 1 << 30; // Dummy value so tesselator doesn't treat pure blue as vanilla light... This
-        // will be ignored, except for in Tesselator.setBrightness
-
-        return detectAsRGB | (sun_r << LightingApi._bitshift_sun_r2) | (sun_g << LightingApi._bitshift_sun_g2) | (sun_b << LightingApi._bitshift_sun_b2) | block_l << LightingApi._bitshift_l2 | block_r << LightingApi._bitshift_r2
-                | block_g << LightingApi._bitshift_g2 | block_b << LightingApi._bitshift_b2;
-
-    }
-
-    public static float average(int packedChannel) {
-        int sunR = (packedChannel) >>> LightingApi._bitshift_sun_r2;
-        int sunG = (packedChannel) >>> LightingApi._bitshift_sun_g2;
-        int sunB = (packedChannel) >>> LightingApi._bitshift_sun_b2;
-        int blockR = (packedChannel) >>> LightingApi._bitshift_r2;
-        int blockG = (packedChannel) >>> LightingApi._bitshift_g2;
-        int blockB = (packedChannel) >>> LightingApi._bitshift_b2;
-        int blockL = (packedChannel) >>> LightingApi._bitshift_l2;
-
-        return (sunR + sunG + sunB + blockR + blockG + blockB + blockL) / 7f;
+        return LightingApi.toRenderLight(block_r, block_g, block_b, block_l, sun_r, sun_g, sun_b);
     }
 }

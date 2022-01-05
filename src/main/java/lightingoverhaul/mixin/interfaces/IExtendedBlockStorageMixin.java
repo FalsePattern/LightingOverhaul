@@ -9,12 +9,6 @@ public interface IExtendedBlockStorageMixin {
 
     void setBlueColorArray(NibbleArray array);
 
-    void setRedColorArray2(NibbleArray array);
-
-    void setGreenColorArray2(NibbleArray array);
-
-    void setBlueColorArray2(NibbleArray array);
-
     void setRedColorArraySun(NibbleArray array);
 
     void setGreenColorArraySun(NibbleArray array);
@@ -26,12 +20,6 @@ public interface IExtendedBlockStorageMixin {
     NibbleArray getGreenColorArray();
 
     NibbleArray getBlueColorArray();
-
-    NibbleArray getRedColorArray2();
-
-    NibbleArray getGreenColorArray2();
-
-    NibbleArray getBlueColorArray2();
 
     NibbleArray getRedColorArraySun();
 

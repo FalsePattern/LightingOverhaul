@@ -1,6 +1,17 @@
 // Add your dependencies here
 
 dependencies {
-    compileOnly("org.projectlombok:lombok:1.18.22")
+    compileOnly("org.projectlombok:lombok:1.18.22") {
+        transitive = false
+    }
+
+    compileOnly("curse.maven:ctmlib-232154:2273525") {
+        transitive = false
+    }
+
+    compileOnly("com.github.GTMEGA:Chisel:master-SNAPSHOT:dev") {
+        transitive = false
+    }
+
     annotationProcessor("org.projectlombok:lombok:1.18.22")
 }

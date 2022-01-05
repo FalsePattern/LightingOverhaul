@@ -24,9 +24,9 @@ void main() {
 			int(LightCoord.w)
 		);
 		vec4 color_block = vec4(
-			float(color_mixed.x & 0xf),
 			float(color_mixed.x >> 4),
 			float(color_mixed.y & 0xf),
+			float(color_mixed.y >> 4),
 			0
 		);
 		vec4 color_sun = vec4(

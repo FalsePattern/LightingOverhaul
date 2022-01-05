@@ -185,7 +185,7 @@ public abstract class WorldMixin {
             if (current_r > 15 || current_g > 15 || current_b > 15)
                 current_l = 15;
 
-            currentLight |= current_l << LightingApi._bitshift_l;
+            currentLight |= (current_l & LightingApi._bitmask) << LightingApi._bitshift_l;
 
             int opacity = (block == null ? 0 : block.getLightOpacity((World) (Object) this, x, y, z));
 

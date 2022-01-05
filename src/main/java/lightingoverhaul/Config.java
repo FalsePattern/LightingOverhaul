@@ -1,5 +1,6 @@
 package lightingoverhaul;
 
+import lightingoverhaul.api.LightingApi;
 import lightingoverhaul.helper.ResourceHelper;
 import gnu.trove.impl.unmodifiable.TUnmodifiableIntObjectMap;
 import gnu.trove.map.TIntObjectMap;
@@ -89,11 +90,11 @@ public class Config {
                             value + " is an invalid color value!";
             CoreLoadingPlugin.CLLog.error(result);
         }
-        outputBuffer[0] = REMAP_R[currentL & 0xf];
-        outputBuffer[1] = REMAP_G[currentL & 0xf];
-        outputBuffer[2] = REMAP_B[currentL & 0xf];
+        outputBuffer[0] = REMAP_R[currentL & LightingApi._bitmask];
+        outputBuffer[1] = REMAP_G[currentL & LightingApi._bitmask];
+        outputBuffer[2] = REMAP_B[currentL & LightingApi._bitmask];
         if (emitDiscoveredMissingMappingsToConfig) {
-            lightValues.computeIfAbsent(blockID, (ignored) -> new TIntObjectHashMap<>()).put(metadata, "@__vanilla__:" + (currentL & 0xf));
+            lightValues.computeIfAbsent(blockID, (ignored) -> new TIntObjectHashMap<>()).put(metadata, "@__vanilla__:" + (currentL & LightingApi._bitmask));
         }
         return OptionalInt.of(-1);
     }

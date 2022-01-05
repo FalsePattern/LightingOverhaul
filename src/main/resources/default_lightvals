@@ -16,6 +16,41 @@ __vanilla__:13 = dda
 __vanilla__:14 = edb
 __vanilla__:15 = fec
 
+__vanilla__:color/0 = 000
+__vanilla__:color/1 = f00
+__vanilla__:color/2 = 0f0
+__vanilla__:color/3 = 830
+__vanilla__:color/4 = 00f
+__vanilla__:color/5 = a0f
+__vanilla__:color/6 = 0ff
+__vanilla__:color/7 = aaa
+__vanilla__:color/8 = 555
+__vanilla__:color/9 = fad
+__vanilla__:color/10 = 8f0
+__vanilla__:color/11 = ff0
+__vanilla__:color/12 = 08f
+__vanilla__:color/13 = f0f
+__vanilla__:color/14 = fcf
+__vanilla__:color/15 = fff
+
+
+__vanilla__:color_weak/0 = 000
+__vanilla__:color_weak/1 = 800
+__vanilla__:color_weak/2 = 080
+__vanilla__:color_weak/3 = 420
+__vanilla__:color_weak/4 = 008
+__vanilla__:color_weak/5 = 508
+__vanilla__:color_weak/6 = 088
+__vanilla__:color_weak/7 = 555
+__vanilla__:color_weak/8 = 333
+__vanilla__:color_weak/9 = 856
+__vanilla__:color_weak/10 = 480
+__vanilla__:color_weak/11 = 880
+__vanilla__:color_weak/12 = 048
+__vanilla__:color_weak/13 = 808
+__vanilla__:color_weak/14 = 868
+__vanilla__:color_weak/15 = 888
+
 # Vanilla
 
 minecraft:fire = fd0
@@ -41,22 +76,22 @@ minecraft:powered_comparator = @minecraft:powered_repeater
 
 # Chisel vanilla-compatible blocks
 
-chisel:futuraCircuit/0 = 000
-chisel:futuraCircuit/1 = f00
-chisel:futuraCircuit/2 = 0f0
-chisel:futuraCircuit/3 = 830
-chisel:futuraCircuit/4 = 00f
-chisel:futuraCircuit/5 = a0f
-chisel:futuraCircuit/6 = 0ff
-chisel:futuraCircuit/7 = aaa
-chisel:futuraCircuit/8 = 555
-chisel:futuraCircuit/9 = fad
-chisel:futuraCircuit/10 = 8f0
-chisel:futuraCircuit/11 = ff0
-chisel:futuraCircuit/12 = 08f
-chisel:futuraCircuit/13 = f0f
-chisel:futuraCircuit/14 = fcf
-chisel:futuraCircuit/15 = fff
+chisel:futuraCircuit/0 = @__vanilla__:color_weak/0
+chisel:futuraCircuit/1 = @__vanilla__:color_weak/1
+chisel:futuraCircuit/2 = @__vanilla__:color_weak/2
+chisel:futuraCircuit/3 = @__vanilla__:color_weak/3
+chisel:futuraCircuit/4 = @__vanilla__:color_weak/4
+chisel:futuraCircuit/5 = @__vanilla__:color_weak/5
+chisel:futuraCircuit/6 = @__vanilla__:color_weak/6
+chisel:futuraCircuit/7 = @__vanilla__:color_weak/7
+chisel:futuraCircuit/8 = @__vanilla__:color_weak/8
+chisel:futuraCircuit/9 = @__vanilla__:color_weak/9
+chisel:futuraCircuit/10 = @__vanilla__:color_weak/10
+chisel:futuraCircuit/11 = @__vanilla__:color_weak/11
+chisel:futuraCircuit/12 = @__vanilla__:color_weak/12
+chisel:futuraCircuit/13 = @__vanilla__:color_weak/13
+chisel:futuraCircuit/14 = @__vanilla__:color_weak/14
+chisel:futuraCircuit/15 = @__vanilla__:color_weak/15
 chisel:hexPlating = 777
 chisel:hexLargePlating = 777
 chisel:holystone = 333
@@ -88,3 +123,42 @@ chisel:torch7 = @minecraft:torch
 chisel:torch8 = @minecraft:torch
 chisel:torch9 = @minecraft:torch
 chisel:torch10 = @minecraft:torch
+
+# Extra Utilities 2
+ExtraUtilities:color_lightgem/0 = @__vanilla__:color/0
+ExtraUtilities:color_lightgem/1 = @__vanilla__:color/1
+ExtraUtilities:color_lightgem/2 = @__vanilla__:color/2
+ExtraUtilities:color_lightgem/3 = @__vanilla__:color/3
+ExtraUtilities:color_lightgem/4 = @__vanilla__:color/4
+ExtraUtilities:color_lightgem/5 = @__vanilla__:color/5
+ExtraUtilities:color_lightgem/6 = @__vanilla__:color/6
+ExtraUtilities:color_lightgem/7 = @__vanilla__:color/7
+ExtraUtilities:color_lightgem/8 = @__vanilla__:color/8
+ExtraUtilities:color_lightgem/9 = @__vanilla__:color/9
+ExtraUtilities:color_lightgem/10 = @__vanilla__:color/10
+ExtraUtilities:color_lightgem/11 = @__vanilla__:color/11
+ExtraUtilities:color_lightgem/12 = @__vanilla__:color/12
+ExtraUtilities:color_lightgem/13 = @__vanilla__:color/13
+ExtraUtilities:color_lightgem/14 = @__vanilla__:color/14
+ExtraUtilities:color_lightgem/15 = @__vanilla__:color/15
+ExtraUtilities:color_redstoneLight/0 = @__vanilla__:color/0
+ExtraUtilities:color_redstoneLight/1 = @__vanilla__:color/1
+ExtraUtilities:color_redstoneLight/2 = @__vanilla__:color/2
+ExtraUtilities:color_redstoneLight/3 = @__vanilla__:color/3
+ExtraUtilities:color_redstoneLight/4 = @__vanilla__:color/4
+ExtraUtilities:color_redstoneLight/5 = @__vanilla__:color/5
+ExtraUtilities:color_redstoneLight/6 = @__vanilla__:color/6
+ExtraUtilities:color_redstoneLight/7 = @__vanilla__:color/7
+ExtraUtilities:color_redstoneLight/8 = @__vanilla__:color/8
+ExtraUtilities:color_redstoneLight/9 = @__vanilla__:color/9
+ExtraUtilities:color_redstoneLight/10 = @__vanilla__:color/10
+ExtraUtilities:color_redstoneLight/11 = @__vanilla__:color/11
+ExtraUtilities:color_redstoneLight/12 = @__vanilla__:color/12
+ExtraUtilities:color_redstoneLight/13 = @__vanilla__:color/13
+ExtraUtilities:color_redstoneLight/14 = @__vanilla__:color/14
+ExtraUtilities:color_redstoneLight/15 = @__vanilla__:color/15
+
+# Natura
+Natura:greenGlowshroom = 070
+Natura:purpleGlowshroom = 407
+Natura:blueGlowshroom = 059

@@ -33,10 +33,10 @@ public abstract class OpenGLHelperMixin {
              * brightness is of the form 0000 0000 SSSS BBBB GGGG RRRR LLLL 0000 and needs
              * to be decomposed.
              */
-            int block_b = (brightness >> LightingApi._bitshift_b2) & 0xF;
-            int block_g = (brightness >> LightingApi._bitshift_g2) & 0xF;
-            int block_r = (brightness >> LightingApi._bitshift_r2) & 0xF;
-            int l = (brightness >> LightingApi._bitshift_l2) & 0xF;
+            int block_r = LightingApi.extractR(brightness);
+            int block_g = LightingApi.extractG(brightness);
+            int block_b = LightingApi.extractB(brightness);
+            int l = LightingApi.extractL(brightness);
             if (LightingOverhaul.emissivesEnabled) {
                 block_r = Math.max(block_r, l);
                 block_g = Math.max(block_g, l);
@@ -47,9 +47,9 @@ public abstract class OpenGLHelperMixin {
                 }
             }
 
-            int sun_r = (brightness >> LightingApi._bitshift_sun_r2) & LightingApi._bitmask_sun;
-            int sun_g = (brightness >> LightingApi._bitshift_sun_g2) & LightingApi._bitmask_sun;
-            int sun_b = (brightness >> LightingApi._bitshift_sun_b2) & LightingApi._bitmask_sun;
+            int sun_r = LightingApi.extractSunR(brightness);
+            int sun_g = LightingApi.extractSunG(brightness);
+            int sun_b = LightingApi.extractSunB(brightness);
 
             tessellatorMixin.getShader().lightCoordUniform.set(block_r, block_g, block_b, 0);
             tessellatorMixin.getShader().lightCoordSunUniform.set(sun_r, sun_g, sun_b, 0);

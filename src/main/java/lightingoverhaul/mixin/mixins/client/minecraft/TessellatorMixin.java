@@ -105,8 +105,7 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
         //Turn the packed vanilla lightmap coords into raw values
         int block = Math.min(15, (lightLevel & 0xFF) / 16);
         int sun = Math.min(15, ((lightLevel >>> 16) & 0xFF) / 16);
-        return (1 << 30) | (sun << LightingApi._bitshift_sun_r2) | (sun << LightingApi._bitshift_sun_g2) | (sun << LightingApi._bitshift_sun_b2)
-               | block << LightingApi._bitshift_l2 | block << LightingApi._bitshift_r2 | block << LightingApi._bitshift_g2 | block << LightingApi._bitshift_b2;
+        return LightingApi.toRenderLight(block, block, block, block, sun, sun, sun);
     }
 
     public boolean isProgramInUse() {
@@ -162,24 +161,6 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
             at = @At("RETURN"))
     private void init(CallbackInfo callback) {
         setupShaders();
-    }
-
-    @Redirect(method = "addVertex",
-              at = @At(value = "FIELD",
-                       target = "Lnet/minecraft/client/renderer/Tessellator;brightness:I",
-                       ordinal = 0),
-              require = 1)
-    private int hackVertexBrightness(Tessellator instance) {
-        val brightness = this.brightness;
-
-        int block_r = (brightness >>> LightingApi._bitshift_r2) & 0xF;
-        int block_g = (brightness >>> LightingApi._bitshift_g2) & 0xF;
-        int block_b = (brightness >>> LightingApi._bitshift_b2) & 0xF;
-        int sun_r = (brightness >>> LightingApi._bitshift_sun_r2) & LightingApi._bitmask_sun;
-        int sun_g = (brightness >>> LightingApi._bitshift_sun_g2) & LightingApi._bitmask_sun;
-        int sun_b = (brightness >>> LightingApi._bitshift_sun_b2) & LightingApi._bitmask_sun;
-
-        return (1 << 30) | block_r | (block_g << 4) | (block_b << 8) | (sun_r << 16) | (sun_g << 20) | (sun_b << 24);
     }
 
     @Redirect(method = "draw",

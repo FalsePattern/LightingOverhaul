@@ -28,7 +28,7 @@ public abstract class ChunkMixin implements IChunkMixin  {
     public World worldObj;
 
     @Shadow
-    public ExtendedBlockStorage[] storageArrays;
+    private ExtendedBlockStorage[] storageArrays;
 
     @Final
     @Shadow
@@ -56,7 +56,7 @@ public abstract class ChunkMixin implements IChunkMixin  {
     public int[] precipitationHeightMap;
 
     @Shadow
-    public abstract void updateSkylightNeighborHeight(int paramInt1, int paramInt2, int paramInt3, int paramInt4);
+    protected abstract void updateSkylightNeighborHeight(int paramInt1, int paramInt2, int paramInt3, int paramInt4);
 
     @Shadow
     public abstract Block getBlock(int paramInt1, int paramInt2, int paramInt3);
@@ -123,7 +123,7 @@ public abstract class ChunkMixin implements IChunkMixin  {
                        target = "Lnet/minecraft/world/EnumSkyBlock;defaultLightValue:I"),
               require = 2)
     private int getBlockLightValue_0(EnumSkyBlock instance) {
-        return instance.defaultLightValue & 0xF;
+        return instance.defaultLightValue & LightingApi._bitmask;
     }
 
     @Redirect(method = "getBlockLightValue",
@@ -131,7 +131,7 @@ public abstract class ChunkMixin implements IChunkMixin  {
                        target = "Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;getExtSkylightValue(III)I"),
               require = 1)
     private int getBlockLightValue_1(ExtendedBlockStorage instance, int p_76670_1_, int p_76670_2_, int p_76670_3_) {
-        return instance.getExtSkylightValue(p_76670_1_, p_76670_2_ & 15, p_76670_3_) & 0xF;
+        return instance.getExtSkylightValue(p_76670_1_, p_76670_2_ & 15, p_76670_3_) & LightingApi._bitmask;
     }
 
     @Redirect(method = "getBlockLightValue",
@@ -139,7 +139,7 @@ public abstract class ChunkMixin implements IChunkMixin  {
                        target = "Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;getExtBlocklightValue(III)I"),
               require = 1)
     private int getBlockLightValue_2(ExtendedBlockStorage instance, int p_76670_1_, int p_76670_2_, int p_76670_3_) {
-        return instance.getExtBlocklightValue(p_76670_1_, p_76670_2_ & 15, p_76670_3_) & 0xF;
+        return instance.getExtBlocklightValue(p_76670_1_, p_76670_2_ & 15, p_76670_3_) & LightingApi._bitmask;
     }
 
     @Inject(method = "generateSkylightMap",
@@ -320,9 +320,9 @@ public abstract class ChunkMixin implements IChunkMixin  {
     private void processLightDown(int x, int z, int y_min, int y_max) {
         if (!this.worldObj.provider.hasNoSky) {
             int i3 = EnumSkyBlock.Sky.defaultLightValue;
-            int sun_r = (i3 >> LightingApi._bitshift_sun_r) & LightingApi._bitmask_sun;
-            int sun_g = (i3 >> LightingApi._bitshift_sun_g) & LightingApi._bitmask_sun;
-            int sun_b = (i3 >> LightingApi._bitshift_sun_b) & LightingApi._bitmask_sun;
+            int sun_r = (i3 >> LightingApi._bitshift_sun_r) & LightingApi._bitmask;
+            int sun_g = (i3 >> LightingApi._bitshift_sun_g) & LightingApi._bitmask;
+            int sun_b = (i3 >> LightingApi._bitshift_sun_b) & LightingApi._bitmask;
             int min_opacity = 0;
             int pos = y_max;
 
@@ -361,9 +361,9 @@ public abstract class ChunkMixin implements IChunkMixin  {
                 if (extendedBlockStorage != null) {
 
                     int oldLight = extendedBlockStorage.getExtSkylightValue(x, pos & 0xF, z);
-                    int old_r = (oldLight >> LightingApi._bitshift_sun_r) & LightingApi._bitmask_sun;
-                    int old_g = (oldLight >> LightingApi._bitshift_sun_g) & LightingApi._bitmask_sun;
-                    int old_b = (oldLight >> LightingApi._bitshift_sun_b) & LightingApi._bitmask_sun;
+                    int old_r = (oldLight >> LightingApi._bitshift_sun_r) & LightingApi._bitmask;
+                    int old_g = (oldLight >> LightingApi._bitshift_sun_g) & LightingApi._bitmask;
+                    int old_b = (oldLight >> LightingApi._bitshift_sun_b) & LightingApi._bitmask;
                     int mixed_r = Math.max(old_r, sun_r);
                     int mixed_g = Math.max(old_g, sun_g);
                     int mixed_b = Math.max(old_b, sun_b);
