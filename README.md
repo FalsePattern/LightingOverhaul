@@ -3,9 +3,6 @@ Lighting Overhaul is an open source Forge Core-Mod that aims to replace Minecraf
 
 Exclusive to Minecraft Forge 1.7.10, don't ask for any other versions, or you will be ignored!
 
-## NOTICE
-Turn off smooth lighting for now to avoid broken rendering!
-
 ![splash](http://i.imgur.com/JszmQ0h.png "Minecraft Forge 1.7.10")
 
 ## Features
@@ -21,7 +18,6 @@ Turn off smooth lighting for now to avoid broken rendering!
 
 ## Known issues/incompatibilities
 - Instantly crashes with OptiFine
-- Smooth lighting broken at the moment, will be fixed later
 - GregTech/other mods which have custom block renderer have broken lighting when smooth lighting is turned on
 
 ## Special Thanks
