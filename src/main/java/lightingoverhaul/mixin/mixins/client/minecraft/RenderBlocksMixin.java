@@ -33,7 +33,7 @@ public abstract class RenderBlocksMixin {
     public void getAoBrightness(int a, int b, int c, int l, CallbackInfoReturnable<Integer> cir) {
 
         // Must mix all 5 channels now
-        cir.setReturnValue(mixColorChannel(LightingApi._bitshift_sun_r2, a, b, c, l) | // SSSS
+        cir.setReturnValue((1 << 30) | mixColorChannel(LightingApi._bitshift_sun_r2, a, b, c, l) | // SSSS
                            mixColorChannel(LightingApi._bitshift_sun_g2, a, b, c, l) | // SSSS
                            mixColorChannel(LightingApi._bitshift_sun_b2, a, b, c, l) | // SSSS
                            mixColorChannel(LightingApi._bitshift_b2, a, b, c, l) | // BBBB
