@@ -1,8 +1,8 @@
 {
   "required": true,
   "minVersion": "0.7.11",
-  "package": "com.lightingoverhaul.mixinmod.mixins",
-  "plugin": "com.lightingoverhaul.mixinmod.mixinplugin.MixinPlugin",
+  "package": "lightingoverhaul.mixinmod.mixins",
+  "plugin": "lightingoverhaul.mixinmod.mixinplugin.MixinPlugin",
   "refmap": "mixins.lightingoverhaul.refmap.json",
   "target": "@env(DEFAULT)",
   "compatibilityLevel": "JAVA_8"
