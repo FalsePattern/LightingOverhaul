@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Random;
 
 import lightingoverhaul.Tags;
-import lightingoverhaul.coremod.api.LightingApi;
 import lightingoverhaul.forgemod.lib.BlockInfo;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -15,7 +14,6 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class CLLamp extends Block {
@@ -32,7 +30,7 @@ public class CLLamp extends Block {
         setStepSound(soundTypeGlass);
 
         if (isPowered)
-            setLightLevel(LightingApi.makeRGBLightValue(1f, 1f, 1f)); //Placeholder value, doesn't do anything
+            setLightLevel(1f); //Placeholder value, doesn't do anything. Real light value applied from configs.
         else
             setCreativeTab(CreativeTabs.tabDecorations);
     }
@@ -134,16 +132,6 @@ public class CLLamp extends Block {
     public void getSubBlocks(Item par1, CreativeTabs par2CreativeTabs, List par3List) {
         for (int i = 0; i < 16; i++) {
             par3List.add(new ItemStack(par1, 1, i));
-        }
-    }
-
-    @Override
-    public int getLightValue(IBlockAccess world, int x, int y, int z) {
-        int meta = world.getBlockMetadata(x, y, z);
-        if (powered) {
-            return LightingApi.makeRGBLightValue(LightingApi.r[meta], LightingApi.g[meta], LightingApi.b[meta]);
-        } else {
-            return 0;
         }
     }
 }

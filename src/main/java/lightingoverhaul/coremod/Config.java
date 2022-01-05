@@ -1,7 +1,7 @@
 package lightingoverhaul.coremod;
 
 import lightingoverhaul.coremod.asm.CoreLoadingPlugin;
-import lightingoverhaul.mixinmod.helper.ResourceHelper;
+import lightingoverhaul.coremod.helper.ResourceHelper;
 import gnu.trove.impl.unmodifiable.TUnmodifiableIntObjectMap;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntObjectHashMap;

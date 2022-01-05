@@ -2,7 +2,7 @@ package lightingoverhaul.coremod.server;
 
 import static lightingoverhaul.coremod.asm.CoreLoadingPlugin.CLLog;
 
-import lightingoverhaul.mixinmod.interfaces.IExtendedBlockStorageMixin;
+import lightingoverhaul.coremod.mixin.interfaces.IExtendedBlockStorageMixin;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.nbt.NBTTagCompound;

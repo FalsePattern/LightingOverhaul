@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Random;
 
 import lightingoverhaul.Tags;
-import lightingoverhaul.coremod.api.LightingApi;
 import lightingoverhaul.forgemod.CLMaterialsController;
 import lightingoverhaul.forgemod.lib.BlockInfo;
 import cpw.mods.fml.relauncher.Side;
@@ -17,7 +16,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
-import net.minecraft.world.IBlockAccess;
 
 public class CLStone extends Block {
     public CLStone() {
@@ -25,6 +23,7 @@ public class CLStone extends Block {
         setHardness(0.3F);
         setStepSound(soundTypeGlass);
         setCreativeTab(CreativeTabs.tabDecorations);
+        setLightLevel(1f); //Placeholder value, doesn't do anything. Real light value applied from configs.
     }
 
     @SideOnly(Side.CLIENT)
@@ -77,11 +76,5 @@ public class CLStone extends Block {
     @Override
     public Item getItemDropped(int par1, Random par2Random, int par3) {
         return CLMaterialsController.CLDust;
-    }
-
-    @Override
-    public int getLightValue(IBlockAccess world, int x, int y, int z) {
-        int meta = world.getBlockMetadata(x, y, z);
-        return LightingApi.makeRGBLightValue(LightingApi.r[meta], LightingApi.g[meta], LightingApi.b[meta]);
     }
 }
