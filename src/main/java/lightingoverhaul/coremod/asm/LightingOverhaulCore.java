@@ -7,7 +7,7 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
 import lightingoverhaul.Tags;
-import lightingoverhaul.coremod.Config;
+import lightingoverhaul.Config;
 import lightingoverhaul.coremod.fmlevents.ChunkDataEventHandler;
 import lightingoverhaul.coremod.network.PacketHandler;
 import com.google.common.eventbus.EventBus;

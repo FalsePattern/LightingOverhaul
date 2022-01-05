@@ -1,4 +1,4 @@
-package lightingoverhaul.coremod;
+package lightingoverhaul;
 
 import lightingoverhaul.coremod.asm.CoreLoadingPlugin;
 import lightingoverhaul.coremod.helper.ResourceHelper;

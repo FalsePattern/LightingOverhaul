@@ -1,6 +1,6 @@
 package lightingoverhaul.forgemod.proxy;
 
-import lightingoverhaul.coremod.Config;
+import lightingoverhaul.Config;
 import lightingoverhaul.forgemod.CLMaterialsController;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;

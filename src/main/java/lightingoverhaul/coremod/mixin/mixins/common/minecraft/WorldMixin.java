@@ -1,7 +1,7 @@
 package lightingoverhaul.coremod.mixin.mixins.common.minecraft;
 
 import com.google.common.primitives.Ints;
-import lightingoverhaul.coremod.Config;
+import lightingoverhaul.Config;
 import lightingoverhaul.api.LightingApi;
 import lightingoverhaul.coremod.asm.LightingOverhaulCore;
 import lightingoverhaul.coremod.asm.CoreLoadingPlugin;
