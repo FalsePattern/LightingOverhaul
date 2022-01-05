@@ -19,6 +19,7 @@ public enum TargetedMod {
         this.loadInDevelopment = loadInDevelopment;
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     public boolean isMatchingJar(Path path) {
         final String pathString = path.toString();
         final String nameLowerCase = Files.getNameWithoutExtension(pathString).toLowerCase();

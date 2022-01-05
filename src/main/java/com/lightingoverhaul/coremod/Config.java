@@ -9,9 +9,7 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.val;
 import lombok.var;
-import net.minecraft.util.IntHashMap;
 import net.minecraftforge.common.config.Configuration;
-import scala.collection.immutable.IntMap;
 
 import java.io.File;
 import java.util.*;

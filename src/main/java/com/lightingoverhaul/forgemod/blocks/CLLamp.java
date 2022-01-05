@@ -6,7 +6,6 @@ import java.util.Random;
 import com.lightingoverhaul.Tags;
 import com.lightingoverhaul.coremod.api.LightingApi;
 import com.lightingoverhaul.forgemod.lib.BlockInfo;
-import com.lightingoverhaul.mixinmod.interfaces.IBlockMixin;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;

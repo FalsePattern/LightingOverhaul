@@ -57,8 +57,7 @@ public class ChunkColorDataPacket implements IMessage, IMessageHandler<ChunkColo
         if (targetChunk != null) {
             ChunkStorageRGB.loadColorData(targetChunk, packet.arraySize, packet.yLocation, packet.RedColorArray, packet.GreenColorArray, packet.BlueColorArray, packet.RedColorArray2,
                     packet.GreenColorArray2, packet.BlueColorArray2, packet.RedColorArraySun, packet.GreenColorArraySun, packet.BlueColorArraySun);
-            // CLLog.info("ProcessColorDataPacket() loaded RGB for ({},{})",
-            // ccdPacket.chunkXPosition, ccdPacket.chunkZPosition);
+
         } else
             CLLog.warn("ProcessColorDataPacket()  Chunk located at ({}, {}) could not be found in the local world!", packet.chunkXPosition, packet.chunkZPosition);
     }

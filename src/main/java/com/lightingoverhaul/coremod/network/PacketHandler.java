@@ -58,8 +58,6 @@ public class PacketHandler {
             // Think this is right
             INSTANCE.sendTo(packet, player);
 
-            // CLLog.info("SendChunkColorData() Sent for {}, {}", chunk.xPosition,
-            // chunk.zPosition);
         } catch (Exception e) {
             CLLog.warn("SendChunkColorData()  ", e);
         }

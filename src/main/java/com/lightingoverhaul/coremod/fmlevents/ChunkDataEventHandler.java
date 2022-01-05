@@ -37,8 +37,7 @@ public class ChunkDataEventHandler {
 
     @SubscribeEvent
     public void UnloadChunk(ChunkWatchEvent.UnWatch event) {
-        // CLLog.info("UnloadChunk at ({},{}) for {}", event.chunk.chunkXPos,
-        // event.chunk.chunkZPos, event.player.getDisplayName());
+
     }
 
 }

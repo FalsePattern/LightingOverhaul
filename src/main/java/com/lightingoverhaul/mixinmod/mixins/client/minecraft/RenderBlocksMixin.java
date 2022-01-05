@@ -24,14 +24,6 @@ public abstract class RenderBlocksMixin {
     public int renderBlockLiquid_inject(Block block, IBlockAccess blockAccess, int x, int y, int z) {
         return BlockHelper.getMixedBrightnessForBlockWithColor(blockAccess, x, y + 1, z);
     }
-//
-//    @Redirect(method = "renderStandardBlockWithColorMultiplier",
-//              at = @At(value = "INVOKE",
-//                       target = "Lnet/minecraft/block/Block;getMixedBrightnessForBlock(Lnet/minecraft/world/IBlockAccess;III)I"),
-//              require = 7)
-//    private int rsbwcm_colorFix(Block ignored1, IBlockAccess blockAccess, int x, int y, int z) {
-//        return BlockHelper.getMixedBrightnessForBlockWithColor(blockAccess, x, y, z);
-//    }
 
     @Inject(method = "getAoBrightness",
             at = @At(value = "HEAD"),

@@ -1,8 +1,6 @@
 package com.lightingoverhaul.mixinmod.helper;
 
 import com.lightingoverhaul.coremod.api.LightingApi;
-import net.minecraft.world.ChunkCache;
-import net.minecraft.world.EnumSkyBlock;
 
 public class RGBHelper {
 

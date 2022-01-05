@@ -28,7 +28,7 @@ public abstract class ChunkMixin implements IChunkMixin  {
     public World worldObj;
 
     @Shadow
-    private ExtendedBlockStorage[] storageArrays;
+    public ExtendedBlockStorage[] storageArrays;
 
     @Final
     @Shadow
@@ -56,7 +56,7 @@ public abstract class ChunkMixin implements IChunkMixin  {
     public int[] precipitationHeightMap;
 
     @Shadow
-    protected abstract void updateSkylightNeighborHeight(int paramInt1, int paramInt2, int paramInt3, int paramInt4);
+    public abstract void updateSkylightNeighborHeight(int paramInt1, int paramInt2, int paramInt3, int paramInt4);
 
     @Shadow
     public abstract Block getBlock(int paramInt1, int paramInt2, int paramInt3);

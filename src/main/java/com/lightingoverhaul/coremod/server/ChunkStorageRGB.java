@@ -90,8 +90,6 @@ public class ChunkStorageRGB {
 
                     foundColorData = true;
 
-                    // CLLog.info("Loaded nibble array for {} {} {}", chunk.xPosition,
-                    // chunk.zPosition, k);
                 }
                 else
                 CLLog.warn("NO NIBBLE ARRAY EXISTS FOR {} {} {}", chunk.xPosition,
@@ -153,12 +151,7 @@ public class ChunkStorageRGB {
 
                 foundColorData = true;
 
-                // CLLog.info("Loaded nibble array for {} {} {}", chunk.xPosition,
-                // chunk.zPosition, k);
             }
-            // else
-            // CLLog.warning("NO NIBBLE ARRAY EXISTS FOR {} {} {}", chunk.xPosition,
-            // chunk.zPosition, k);
         }
 
         return foundColorData;
@@ -401,7 +394,7 @@ public class ChunkStorageRGB {
 
     public static int[] getYLocationArray(Chunk chunk) {
         ExtendedBlockStorage[] ebs = chunk.getBlockStorageArray();
-        int y[] = new int[ebs.length];
+        int[] y = new int[ebs.length];
 
         for (int i = 0; i < ebs.length; i++) {
             if (ebs[i] == null)

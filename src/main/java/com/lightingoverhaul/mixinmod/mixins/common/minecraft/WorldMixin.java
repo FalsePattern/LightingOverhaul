@@ -101,10 +101,6 @@ public abstract class WorldMixin {
 
 
     private int calculateOpacity(int lightIn, int opacityIn, Block block, int x, int y, int z) {
-        //@Cleanup Light light = LightBuffer.getLight();
-        //@Cleanup RGB opacity = LightBuffer.getRGB();
-        //RGB color = light.color;
-        //RGB sun = light.sun;
 
         int r = LightingApi.extractR(lightIn);
         int g = LightingApi.extractG(lightIn);
@@ -164,8 +160,6 @@ public abstract class WorldMixin {
                 }
             }
 
-            //@Cleanup Light current = LightBuffer.getLight();
-            //current.fromLight(currentLight);
             int current_l = LightingApi.extractL(currentLight);
             int current_r = LightingApi.extractR(currentLight);
             int current_g = LightingApi.extractG(currentLight);
@@ -176,8 +170,6 @@ public abstract class WorldMixin {
 
             if (par1Enu == EnumSkyBlock.Sky && chunkMixin.canReallySeeTheSky(x & 0xF, y, z & 0xF)) {
                 int sun_precomputed = chunkMixin.getRealSunColor(x & 0xF, y, z & 0xF);
-                //@Cleanup RGB sun2 = LightBuffer.getRGB();
-                //sun2.apply(LightingApi.bitshift_sun, (shift) -> (sun_precomputed >> shift) & LightingApi._bitmask_sun);
 
                 int sun2_r = LightingApi.extractSunR(sun_precomputed);
                 int sun2_g = LightingApi.extractSunG(sun_precomputed);
@@ -190,12 +182,8 @@ public abstract class WorldMixin {
                 current_sb = Math.max(current_sb, sun2_b);
             }
 
-            //if (current.color.r > 15 || current.color.g > 15 || current.color.b > 15)
-            //    current.l = 15;
             if (current_r > 15 || current_g > 15 || current_b > 15)
                 current_l = 15;
-
-            //currentLight |= (current.l << LightingApi._bitshift_l);
 
             currentLight |= current_l << LightingApi._bitshift_l;
 
@@ -229,8 +217,6 @@ public abstract class WorldMixin {
 
                     int light = calculateOpacity(neighborLight, opacity, block, x, y, z);
 
-                    //@Cleanup Light neighbor = LightBuffer.getLight();
-                    //neighbor.fromLight(light);
                     int neighbor_l = LightingApi.extractL(light);
                     int neighbor_r = LightingApi.extractR(light);
                     int neighbor_g = LightingApi.extractG(light);

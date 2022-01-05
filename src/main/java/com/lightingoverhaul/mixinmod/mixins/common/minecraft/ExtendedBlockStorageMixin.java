@@ -25,7 +25,7 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
     public NibbleArray bColorArraySun;
 
     @Shadow
-    private byte[] blockLSBArray;
+    public byte[] blockLSBArray;
 
     public void setRedColorArray(NibbleArray array) {
         this.rColorArray = array;

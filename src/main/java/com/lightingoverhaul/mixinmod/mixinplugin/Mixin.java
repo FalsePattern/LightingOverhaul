@@ -58,9 +58,9 @@ public enum Mixin {
     }
 
     private static class Builder {
-        public ArrayList<MixinUnit> units = new ArrayList<>();
-        public Side side;
-        public Set<TargetedMod> targetedMods = new HashSet<>();
+        public final ArrayList<MixinUnit> units = new ArrayList<>();
+        public final Side side;
+        public final Set<TargetedMod> targetedMods = new HashSet<>();
 
         public Builder(Side side) {
             this.side = side;
