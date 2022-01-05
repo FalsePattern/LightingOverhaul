@@ -13,6 +13,7 @@ import net.minecraft.launchwrapper.IClassTransformer;
 
 public class TextureTransformer implements IClassTransformer {
     private static final int GL11__GL_TEXTURE_2D = 0xDE1;
+    private static final int GL11__GL_LIGHTING = 0xB50;
     private static final String[] IGNORED_ROOTS = new String[] {
             "com.lightingoverhaul", "journeymap.client"
     };
@@ -20,7 +21,7 @@ public class TextureTransformer implements IClassTransformer {
     public byte[] transform(String name, String transformedName, byte[] bytes) {
         if (bytes == null) return null; //Need this so that classes that aren't loaded don't cause an exception that hides the true reason.
 
-        //Do not transform whitelisted classes
+        //Do not transform whiteandlisted classes
         for (String root: IGNORED_ROOTS) {
             if (transformedName.startsWith(root)) return bytes;
         }
@@ -43,18 +44,22 @@ public class TextureTransformer implements IClassTransformer {
                     boolean isDisable = call.name.equals("glDisable");
                     if (isEnable || isDisable) {
                         AbstractInsnNode instructionPrev = methodNode.instructions.get(i - 1);
-                        if (instructionPrev.getOpcode() == Opcodes.SIPUSH) {
-                            IntInsnNode intNode = (IntInsnNode) instructionPrev;
-                            if (intNode.operand != GL11__GL_TEXTURE_2D) {
-                                continue;
-                            }
+                        if (instructionPrev.getOpcode() != Opcodes.SIPUSH) {
+                            continue;
+                        }
+                        IntInsnNode intNode = (IntInsnNode) instructionPrev;
+                        AbstractInsnNode hook;
+                        if (intNode.operand == GL11__GL_TEXTURE_2D) {
+                            hook = new MethodInsnNode(Opcodes.INVOKESTATIC, helperName, isEnable ? "enableTexture" : "disableTexture", "()V", false);
+                            CoreLoadingPlugin.CLLog.debug("Applied ASM transformation in method " + classNode.name + "." + methodNode.name + " for " + (isEnable ? "glEnable" : "glDisable") + "(GL_TEXTURE_2D);");
+                        } else if (intNode.operand == GL11__GL_LIGHTING){
+                            hook = new MethodInsnNode(Opcodes.INVOKESTATIC, helperName, isEnable ? "disableEmissives" : "enableEmissives", "()V", false);
+                            CoreLoadingPlugin.CLLog.debug("Applied ASM transformation in method " + classNode.name + "." + methodNode.name + " for " + (isEnable ? "glEnable" : "glDisable") + "(GL_LIGHTING);");
                         } else {
                             continue;
                         }
-                        AbstractInsnNode hook = new MethodInsnNode(Opcodes.INVOKESTATIC, helperName, isEnable ? "enableTexture" : "disableTexture", "()V", false);
                         methodNode.instructions.insert(instruction, hook);
                         changed = true;
-                        CoreLoadingPlugin.CLLog.debug("Applied ASM transformation in method " + classNode.name + "." + methodNode.name + " for " + (isEnable ? "glEnable" : "glDisable") + "(GL_TEXTURE_2D);");
                     }
 
                     boolean isTexCoord = call.name.equals("glTexCoord2f");

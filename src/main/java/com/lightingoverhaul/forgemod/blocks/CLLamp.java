@@ -6,6 +6,7 @@ import java.util.Random;
 import com.lightingoverhaul.Tags;
 import com.lightingoverhaul.coremod.api.LightingApi;
 import com.lightingoverhaul.forgemod.lib.BlockInfo;
+import com.lightingoverhaul.mixinmod.interfaces.IBlockMixin;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
@@ -32,7 +33,7 @@ public class CLLamp extends Block {
         setStepSound(soundTypeGlass);
 
         if (isPowered)
-            setLightLevel(1.0F);
+            setLightLevel(LightingApi.makeRGBLightValue(1f, 1f, 1f)); //Placeholder value, doesn't do anything
         else
             setCreativeTab(CreativeTabs.tabDecorations);
     }

@@ -1,18 +1,29 @@
 package com.lightingoverhaul.mixinmod.mixins.common.minecraft;
 
+import com.lightingoverhaul.coremod.asm.CoreDummyContainer;
+import com.lightingoverhaul.coremod.asm.CoreLoadingPlugin;
 import com.lightingoverhaul.mixinmod.interfaces.IBlockMixin;
+import gnu.trove.map.TIntIntMap;
+import gnu.trove.map.hash.TIntIntHashMap;
+import lombok.val;
+import net.minecraft.world.IBlockAccess;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import com.lightingoverhaul.coremod.api.LightingApi;
 import net.minecraft.block.Block;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Block.class)
 public abstract class BlockMixin implements IBlockMixin {
-    @Shadow protected int lightValue;
+    @Shadow
+    public int lightValue;
+
+    private TIntIntMap metaLight = null;
     private float par1;
     @ModifyVariable(method = "setLightLevel",
                     at = @At(value = "HEAD"),
@@ -33,13 +44,27 @@ public abstract class BlockMixin implements IBlockMixin {
             par1 = 0.0F;
         }
 
-        if (par1 <= 1.0F) {
+        if (CoreDummyContainer.postInitRun && par1 <= 1.0F) {
+            CoreLoadingPlugin.CLLog.warn("setLightLevel called after LightingOverhaul already transformed light values! Converting to grayscale.");
             // If the incoming light value is a plain white call, then "color" the light
             // value white
-            this.lightValue = LightingApi.makeRGBLightValue(par1, par1, par1);
+            setLightValue(LightingApi.makeRGBLightValue(par1, par1, par1));
         } else {
             // Otherwise, let whatever it is through
-            this.lightValue = value;
+            setLightValue(value);
+        }
+    }
+
+    @Inject(method = "getLightValue(Lnet/minecraft/world/IBlockAccess;III)I",
+            at = @At(value = "HEAD"),
+            cancellable = true,
+            remap = false,
+            require = 1)
+    private void metaLightValueBypass(IBlockAccess world, int x, int y, int z, CallbackInfoReturnable<Integer> cir) {
+        if (metaLight == null) return;
+        val meta = world.getBlockMetadata(x, y, z);
+        if (metaLight.containsKey(meta)) {
+            cir.setReturnValue(metaLight.get(meta));
         }
     }
 
@@ -49,7 +74,15 @@ public abstract class BlockMixin implements IBlockMixin {
     }
 
     @Override
-    public int getLightValue() {
+    public int getLightValue_INTERNAL() {
         return lightValue;
     }
+
+    @Override
+    public void setMetadataLightValue(int metadata, int lightValue) {
+        if (metaLight == null) metaLight = new TIntIntHashMap();
+        metaLight.put(metadata, lightValue);
+    }
+
+
 }

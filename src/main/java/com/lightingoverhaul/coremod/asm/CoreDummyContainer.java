@@ -1,11 +1,13 @@
 package com.lightingoverhaul.coremod.asm;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
 import com.lightingoverhaul.Tags;
+import com.lightingoverhaul.coremod.Config;
 import com.lightingoverhaul.coremod.fmlevents.ChunkDataEventHandler;
 import com.lightingoverhaul.coremod.network.PacketHandler;
 import com.google.common.eventbus.EventBus;
@@ -19,8 +21,8 @@ import cpw.mods.fml.common.ModMetadata;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameData;
+import lombok.val;
 import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.MinecraftForge;
@@ -28,6 +30,8 @@ import net.minecraftforge.common.MinecraftForge;
 @SuppressWarnings("UnstableApiUsage")
 public class CoreDummyContainer extends DummyModContainer {
     public ChunkDataEventHandler chunkDataEventHandler;
+
+    public static boolean emissivesEnabled = false;
 
     // This is picked up and replaced by the build.gradle
     public static final String version = Tags.VERSION;
@@ -80,6 +84,8 @@ public class CoreDummyContainer extends DummyModContainer {
     @Subscribe
     public void preInit(FMLPreInitializationEvent evt) {
 
+        Config.loadConfig(new File(evt.getModConfigurationDirectory(), Tags.MODID + ".cfg"));
+
         CoreLoadingPlugin.CLLog = evt.getModLog();
 
         CoreLoadingPlugin.CLLog.info("Starting up ColoredLightsCore");
@@ -93,37 +99,54 @@ public class CoreDummyContainer extends DummyModContainer {
         setSkyColor();
     }
 
-    private static void setLightValue(Block block, int r, int g, int b) {
-        ((IBlockMixin) block).setLightValue(LightingApi.makeRGBLightValue(r, g, b));
+    private static void setLightValue(Block block, int metadata, int r, int g, int b) {
+        IBlockMixin ib = (IBlockMixin) block;
+        int light = LightingApi.makeRGBLightValue(r, g, b);
+        if (metadata == 0)
+            ib.setLightValue(light);
+        else
+            ib.setMetadataLightValue(metadata, light);
     }
 
+    public static boolean postInitRun = false;
     @Subscribe
     public void postInit(FMLPostInitializationEvent evt) {
-        // Inject RGB values into vanilla blocks
-        setLightValue(Blocks.lava, 15, 10, 0);
-        setLightValue(Blocks.flowing_lava, 15, 10, 0);
-        setLightValue(Blocks.torch, 14, 13, 10);
-        setLightValue(Blocks.fire, 15, 13, 0);
-        setLightValue(Blocks.lit_redstone_ore, 9, 0, 0);
-        setLightValue(Blocks.redstone_torch, 7, 0, 0);
-        setLightValue(Blocks.portal, 6, 3, 11);
-        setLightValue(Blocks.lit_furnace, 13, 12, 10);
-        setLightValue(Blocks.powered_repeater, 9, 0, 0);
-        setLightValue(Blocks.glowstone, 15, 15, 12);
 
-        Block thisShouldBeABlock;
+        CoreLoadingPlugin.CLLog.info("Beginning custom light value injection...");
+        int[] valueBuffer = new int[3];
+        int failCount = 0;
         int l;
         for (Block block : GameData.getBlockRegistry().typeSafeIterable()) {
-            thisShouldBeABlock = block;
-            if (thisShouldBeABlock != null) {
-                l = ((IBlockMixin) thisShouldBeABlock).getLightValue();
-                if ((l > 0) && (l <= 0xF)) {
-                    CoreLoadingPlugin.CLLog.info(thisShouldBeABlock.getLocalizedName() + "has light:" + l + ", but no color");
-                    ((IBlockMixin) thisShouldBeABlock).setLightValue((l << 15) | (l << 10) | (l << 5) | l); // copy vanilla brightness into each color component to make it white/grey.
+            if (block == null) continue;
+
+            l = ((IBlockMixin) block).getLightValue_INTERNAL();
+            if ((l <= 0) || (l > 0xF)) continue;
+
+            String name = GameData.getBlockRegistry().getNameForObject(block);
+            String formatStr;
+            int metadata = 0;
+            int nextMetadata = 0;
+            while (metadata != -1) {
+                val result = Config.getLightValueForMetadata(name, metadata, l, valueBuffer);
+                if (!result.isPresent() || (nextMetadata = result.getAsInt()) != -1) {
+                    formatStr = "Found light value for %s/%d in config: (r: %d, g: %d, b: %d)";
+                    if (!result.isPresent()) nextMetadata = -1;
+                } else {
+                    failCount++;
+                    formatStr = "Could not find light value for %s/%d in config. Replacing with auto-computed value: (r: %d, g: %d, b: %d)";
                 }
+                CoreLoadingPlugin.CLLog.info(String.format(formatStr, name, metadata, valueBuffer[0], valueBuffer[1], valueBuffer[2]));
+                setLightValue(block, metadata, valueBuffer[0], valueBuffer[1], valueBuffer[2]);
+                metadata = nextMetadata;
             }
         }
+        if (failCount == 0) {
+            CoreLoadingPlugin.CLLog.info("No missed block lights detected! A winner is you!");
+        } else {
+            CoreLoadingPlugin.CLLog.warn(String.format("%d missed block lights were detected and converted!", failCount));
+        }
 
+        CoreLoadingPlugin.CLLog.info("Checking for DynamicLights...");
         Class<?> DynamicLightsClazz = null;
         try {
             DynamicLightsClazz = Class.forName("atomicstryker.dynamiclights.client.DynamicLights");
@@ -150,5 +173,7 @@ public class CoreDummyContainer extends DummyModContainer {
                 e.printStackTrace();
             }
         }
+        postInitRun = true;
+        Config.syncConfig();
     }
 }

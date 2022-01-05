@@ -1,11 +1,14 @@
 package com.lightingoverhaul.mixinmod.mixins.client.minecraft;
 
 import com.lightingoverhaul.coremod.api.LightingApi;
+import com.lightingoverhaul.coremod.asm.CoreDummyContainer;
 import com.lightingoverhaul.mixinmod.interfaces.ITessellatorMixin;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
+import org.lwjgl.opengl.ARBMultitexture;
+import org.lwjgl.opengl.GL13;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -23,10 +26,10 @@ public abstract class OpenGLHelperMixin {
             cancellable = true,
             require = 1)
     private static void setLightmapTextureCoords(int textureID, float x, float y, CallbackInfo ci) {
-        ci.cancel();
         ITessellatorMixin tessellatorMixin = (ITessellatorMixin) Tessellator.instance;
 
         if (tessellatorMixin.isProgramInUse()) {
+            ci.cancel();
             int brightness = ((int) y << 16) + (int) x;
             /*
              * brightness is of the form 0000 0000 SSSS BBBB GGGG RRRR LLLL 0000 and needs
@@ -36,8 +39,14 @@ public abstract class OpenGLHelperMixin {
             int block_g = (brightness >> LightingApi._bitshift_g2) & 0xF;
             int block_r = (brightness >> LightingApi._bitshift_r2) & 0xF;
             int l = (brightness >> LightingApi._bitshift_l2) & 0xF;
-            if (l > block_r && l > block_g && l > block_b) {
-                block_r = block_g = block_b = l;
+            if (CoreDummyContainer.emissivesEnabled) {
+                block_r = Math.max(block_r, l);
+                block_g = Math.max(block_g, l);
+                block_b = Math.max(block_b, l);
+            } else {
+                if (l > block_r && l > block_g && l > block_b) {
+                    block_r = block_g = block_b = l;
+                }
             }
 
             int sun_r = (brightness >> LightingApi._bitshift_sun_r2) & LightingApi._bitmask_sun;
@@ -46,11 +55,11 @@ public abstract class OpenGLHelperMixin {
 
             tessellatorMixin.getShader().lightCoordUniform.set(block_r, block_g, block_b, 0);
             tessellatorMixin.getShader().lightCoordSunUniform.set(sun_r, sun_g, sun_b, 0);
-        } // else noop; why is this ever called if enableLightmap hasn't been called?
-
-        if (textureID == lightmapTexUnit) {
-            OpenGlHelper.lastBrightnessX = x;
-            OpenGlHelper.lastBrightnessY = y;
+            if (textureID == lightmapTexUnit) {
+                OpenGlHelper.lastBrightnessX = x;
+                OpenGlHelper.lastBrightnessY = y;
+            }
         }
+        // else default behaviour; why is this ever called if enableLightmap hasn't been called? (probably a mod's custom lightmap)
     }
 }

@@ -87,22 +87,22 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
     }
 
     public void setLightCoord(ByteBuffer buffer) {
-        shader.lightCoordUniform.get(cachedLightCoord);
-        shader.lightCoordUniform.set(0, 0, 0, 0);
-        shader.lightCoordSunUniform.get(cachedLightCoordSun);
-        shader.lightCoordSunUniform.set(0, 0, 0, 0);
+        shader.perVertexLightUniform.set(1);
         GL20.glVertexAttribPointer(shader.lightCoordAttrib, 4, true, false, 32, buffer);
         GL20.glEnableVertexAttribArray(shader.lightCoordAttrib);
     }
 
     public void unsetLightCoord() {
         GL20.glDisableVertexAttribArray(shader.lightCoordAttrib);
-        shader.lightCoordUniform.set(cachedLightCoord);
-        shader.lightCoordSunUniform.set(cachedLightCoordSun);
+        shader.perVertexLightUniform.set(0);
     }
 
     public int makeBrightness(int lightLevel) {
-        return lightLevel << LightingApi._bitshift_l2 | lightLevel << LightingApi._bitshift_r2 | lightLevel << LightingApi._bitshift_g2 | lightLevel << LightingApi._bitshift_b2;
+        //Turn the packed vanilla lightmap coords into raw values
+        int block = Math.min(15, (lightLevel & 0xFF) / 16);
+        int sun = Math.min(15, ((lightLevel >>> 16) & 0xFF) / 16);
+        return (1 << 30) | (sun << LightingApi._bitshift_sun_r2) | (sun << LightingApi._bitshift_sun_g2) | (sun << LightingApi._bitshift_sun_b2)
+               | block << LightingApi._bitshift_l2 | block << LightingApi._bitshift_r2 | block << LightingApi._bitshift_g2 | block << LightingApi._bitshift_b2;
     }
 
     public boolean isProgramInUse() {
@@ -130,7 +130,7 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
     private static ByteBuffer byteBuffer;
 
     @Shadow
-    private int brightness;
+    public int brightness;
 
     @Inject(method = "setBrightness",
             at = @At(value = "HEAD"),
@@ -146,7 +146,12 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
                        opcode = Opcodes.PUTFIELD),
               require = 1)
     private void customBrightness(Tessellator instance, int value) {
-        this.brightness = value < 256 ? makeBrightness(value) : value;
+        //Bit detect
+        if (((value >>> 30) & 1) == 1) {
+            this.brightness = value;
+        } else {
+            this.brightness = makeBrightness(value);
+        }
     }
 
     @Inject(method = "<init>*",
@@ -170,7 +175,7 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
         int sun_g = (brightness >>> LightingApi._bitshift_sun_g2) & LightingApi._bitmask_sun;
         int sun_b = (brightness >>> LightingApi._bitshift_sun_b2) & LightingApi._bitmask_sun;
 
-        return block_r | (block_g << 4) | (block_b << 8) | (sun_r << 16) | (sun_g << 20) | (sun_b << 24);
+        return (1 << 30) | block_r | (block_g << 4) | (block_b << 8) | (sun_r << 16) | (sun_g << 20) | (sun_b << 24);
     }
 
     @Redirect(method = "draw",

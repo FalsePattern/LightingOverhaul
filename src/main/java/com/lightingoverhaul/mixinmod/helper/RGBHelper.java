@@ -5,11 +5,6 @@ import net.minecraft.world.ChunkCache;
 import net.minecraft.world.EnumSkyBlock;
 
 public class RGBHelper {
-    public static int getLightBrightnessForSkyBlocks(ChunkCache instance, int x, int y, int z, int lightValue) {
-        int skyBrightness = instance.getSkyBlockTypeBrightness(EnumSkyBlock.Sky, x, y, z);
-        int blockBrightness = instance.getSkyBlockTypeBrightness(EnumSkyBlock.Block, x, y, z);
-        return computeLightBrightnessForSkyBlocks(skyBrightness, blockBrightness, lightValue);
-     }
 
     public static int computeLightBrightnessForSkyBlocks(int skyBrightness, int blockBrightness, int lightValue) {
         int light_l = LightingApi.extractL(lightValue);

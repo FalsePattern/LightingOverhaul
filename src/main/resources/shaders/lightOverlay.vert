@@ -3,6 +3,7 @@
 uniform sampler2D Texture;
 uniform ivec4 u_LightCoord;
 uniform ivec4 u_LightCoordSun;
+uniform int perVertexLight;
 attribute vec2 TexCoord;
 varying vec2 p_TexCoord;
 attribute vec4 LightCoord;
@@ -15,7 +16,7 @@ void main() {
     p_TexCoord = TexCoord;
     p_Color = gl_Color;
 
-    if (u_LightCoord == ivec4(0, 0, 0, 0) && u_LightCoordSun == ivec4(0, 0, 0, 0)) {
+    if (perVertexLight == 1) {
 	    ivec4 color_mixed = ivec4(
 			int(LightCoord.x),
 			int(LightCoord.y),

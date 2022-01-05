@@ -16,6 +16,7 @@ public class RGBShader extends Shader {
     public final Uniform1F sunLevelUniform = getUniform("sunlevel", Uniform1F::new);
     public final Uniform1F nightVisionWeightUniform = getUniform("nightVisionWeight", Uniform1F::new);
     public final Uniform1I enableTextureUniform = getUniform("enableTexture", Uniform1I::new);
+    public final Uniform1I perVertexLightUniform = getUniform("perVertexLight", Uniform1I::new);
     public final Sampler2D textureUniform = getUniform("Texture", Sampler2D::new);
 
     public RGBShader(int program) {

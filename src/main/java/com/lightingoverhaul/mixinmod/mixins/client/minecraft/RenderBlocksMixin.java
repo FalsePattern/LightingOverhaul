@@ -17,13 +17,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @SideOnly(Side.CLIENT)
 public abstract class RenderBlocksMixin {
 
-//    @Redirect(method = { "renderBlockLiquid" },
-//              at = @At(value = "INVOKE",
-//                       target = "net.minecraft.block.Block.getMixedBrightnessForBlock(Lnet/minecraft/world/IBlockAccess;III)I"),
-//              require = 3)
-//    public int renderBlockLiquid_inject(Block block, IBlockAccess blockAccess, int x, int y, int z) {
-//        return BlockHelper.getMixedBrightnessForBlockWithColor(blockAccess, x, y + 1, z);
-//    }
+    @Redirect(method = { "renderBlockLiquid" },
+              at = @At(value = "INVOKE",
+                       target = "net.minecraft.block.Block.getMixedBrightnessForBlock(Lnet/minecraft/world/IBlockAccess;III)I"),
+              require = 3)
+    public int renderBlockLiquid_inject(Block block, IBlockAccess blockAccess, int x, int y, int z) {
+        return BlockHelper.getMixedBrightnessForBlockWithColor(blockAccess, x, y + 1, z);
+    }
 //
 //    @Redirect(method = "renderStandardBlockWithColorMultiplier",
 //              at = @At(value = "INVOKE",
