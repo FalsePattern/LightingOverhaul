@@ -39,7 +39,8 @@ minecraft:ender_chest = 376
 minecraft:beacon = fff
 minecraft:powered_comparator = @minecraft:powered_repeater
 
-# Chisel vanilla
+# Chisel vanilla-compatible blocks
+
 chisel:futuraCircuit/0 = 000
 chisel:futuraCircuit/1 = f00
 chisel:futuraCircuit/2 = 0f0

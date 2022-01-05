@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.Potion;
+import net.minecraft.util.MathHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -29,6 +30,16 @@ public abstract class EntityRendererMixin {
         return 0;
     }
 
+    private static float mapSunR(float sunLightBase) {
+        return 0.1f + 0.9f * sunLightBase;
+    }
+    private static float mapSunG(float sunLightBase) {
+        return 0.1f + 0.9f * sunLightBase;
+    }
+    private static float mapSunB(float sunLightBase) {
+        return 0.3f + 0.9f * sunLightBase;
+    }
+
     @Inject(method = "updateLightmap",
             at = @At(value = "HEAD"),
             cancellable = true,
@@ -44,13 +55,15 @@ public abstract class EntityRendererMixin {
                 nightVisionWeight = this.getNightVisionBrightness(this.mc.thePlayer, partialTickTime);
             }
             float sunlightBase = worldclient.getSunBrightness(partialTickTime);
+            sunlightBase = (sunlightBase * 1.25f) - 0.2f;
+            sunlightBase = Math.max(0, Math.min(1, sunlightBase));
             if (worldclient.lastLightningBolt > 0) {
                 sunlightBase = 1.0f;
             }
             float gamma;
 
             gamma = this.mc.gameSettings.gammaSetting;
-            tessellatorMixin.updateShaders(gamma, sunlightBase, nightVisionWeight);
+            tessellatorMixin.updateShaders(gamma, sunlightBase, sunlightBase, sunlightBase, nightVisionWeight);
         }
     }
 

@@ -15,13 +15,13 @@ public class TextureTransformer implements IClassTransformer {
     private static final int GL11__GL_TEXTURE_2D = 0xDE1;
     private static final int GL11__GL_LIGHTING = 0xB50;
     private static final String[] IGNORED_ROOTS = new String[] {
-            "com.lightingoverhaul", "journeymap.client"
+            "lightingoverhaul", "journeymap.client"
     };
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytes) {
         if (bytes == null) return null; //Need this so that classes that aren't loaded don't cause an exception that hides the true reason.
 
-        //Do not transform whiteandlisted classes
+        //Do not transform whitelisted classes
         for (String root: IGNORED_ROOTS) {
             if (transformedName.startsWith(root)) return bytes;
         }
@@ -31,7 +31,7 @@ public class TextureTransformer implements IClassTransformer {
 
         classReader.accept(classNode, 0);
 
-        String helperName = "lightingoverhaul/mixinmod/helper/TextureHelper";
+        String helperName = "lightingoverhaul/coremod/helper/TextureHelper";
 
         boolean changed = false;
         for (MethodNode methodNode : classNode.methods) {

@@ -36,7 +36,9 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
     private boolean hasFlaggedOpenglError = false;
     private boolean lockedBrightness;
     private float gamma;
-    private float sunlevel;
+    private float sunR;
+    private float sunG;
+    private float sunB;
     private float nightVisionWeight;
 
     private final IntBuffer cachedLightCoord = ByteBuffer.allocateDirect(16).asIntBuffer();
@@ -54,7 +56,7 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
         programInUse = true;
         shader.textureUniform.set(OpenGlHelper.defaultTexUnit - GL13.GL_TEXTURE0);
         shader.gammaUniform.set(gamma);
-        shader.sunLevelUniform.set(sunlevel);
+        shader.sunColorUniform.set(sunR, sunG, sunB);
         shader.nightVisionWeightUniform.set(nightVisionWeight);
         shader.enableTextureUniform.set(1);
     }
@@ -80,9 +82,11 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
         GL20.glDisableVertexAttribArray(shader.texCoordAttrib);
     }
 
-    public void updateShaders(float newGamma, float newSunlevel, float newNightVisionWeight) {
+    public void updateShaders(float newGamma, float newSunR, float newSunG, float newSunB, float newNightVisionWeight) {
         gamma = newGamma;
-        sunlevel = newSunlevel;
+        sunR = newSunR;
+        sunG = newSunG;
+        sunB = newSunB;
         nightVisionWeight = newNightVisionWeight;
     }
 

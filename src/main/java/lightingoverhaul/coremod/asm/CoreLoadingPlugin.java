@@ -11,14 +11,14 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin.Name;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.SortingIndex;
 
 @MCVersion("1.7.10")
-@Name(Tags.MODID + "core")
+@Name(Tags.MODID)
 @SortingIndex(1001)
 public class CoreLoadingPlugin implements IFMLLoadingPlugin {
-    public static org.apache.logging.log4j.Logger CLLog = LogManager.getLogger(Tags.MODID + "core");
+    public static org.apache.logging.log4j.Logger CLLog = LogManager.getLogger(Tags.MODID);
 
     @Override
     public String getModContainerClass() {
-        return LightingOverhaulCore.class.getName();
+        return LightingOverhaul.class.getName();
     }
 
     @Override

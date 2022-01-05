@@ -3,7 +3,7 @@ package lightingoverhaul.coremod.mixin.mixins.common.minecraft;
 import com.google.common.primitives.Ints;
 import lightingoverhaul.Config;
 import lightingoverhaul.api.LightingApi;
-import lightingoverhaul.coremod.asm.LightingOverhaulCore;
+import lightingoverhaul.coremod.asm.LightingOverhaul;
 import lightingoverhaul.coremod.asm.CoreLoadingPlugin;
 import lightingoverhaul.coremod.mixin.interfaces.IChunkMixin;
 import net.minecraft.block.Block;
@@ -638,9 +638,9 @@ public abstract class WorldMixin {
      * Patching in Dynamic Lights Compatibility
      */
     private int getLightValueSomehow(Block block, World world, int par_x, int par_y, int par_z) {
-        if (LightingOverhaulCore.getDynamicLight != null && world.isRemote) {
+        if (LightingOverhaul.getDynamicLight != null && world.isRemote) {
             try {
-                return (int) LightingOverhaulCore.getDynamicLight.invoke(null, world, block, par_x, par_y, par_z);
+                return (int) LightingOverhaul.getDynamicLight.invoke(null, world, block, par_x, par_y, par_z);
             } catch (IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }

@@ -8,7 +8,7 @@ public interface ITessellatorMixin {
 
     RGBShader getShader();
 
-    void updateShaders(float newGamma, float newSunlevel, float newNightVisionWeight);
+    void updateShaders(float newGamma, float newSunR, float newSunG, float newSunB, float newNightVisionWeight);
 
     void disableShader();
 

@@ -1,6 +1,6 @@
 package lightingoverhaul.coremod.mixin.mixins.common.minecraft;
 
-import lightingoverhaul.coremod.asm.LightingOverhaulCore;
+import lightingoverhaul.coremod.asm.LightingOverhaul;
 import lightingoverhaul.coremod.asm.CoreLoadingPlugin;
 import lightingoverhaul.coremod.mixin.interfaces.IBlockMixin;
 import gnu.trove.map.TIntIntMap;
@@ -44,7 +44,7 @@ public abstract class BlockMixin implements IBlockMixin {
             par1 = 0.0F;
         }
 
-        if (LightingOverhaulCore.postInitRun && par1 <= 1.0F) {
+        if (LightingOverhaul.postInitRun && par1 <= 1.0F) {
             CoreLoadingPlugin.CLLog.warn("setLightLevel called after LightingOverhaul already transformed light values! Converting to grayscale.");
             // If the incoming light value is a plain white call, then "color" the light
             // value white

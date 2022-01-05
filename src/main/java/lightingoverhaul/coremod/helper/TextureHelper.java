@@ -1,6 +1,6 @@
 package lightingoverhaul.coremod.helper;
 
-import lightingoverhaul.coremod.asm.LightingOverhaulCore;
+import lightingoverhaul.coremod.asm.LightingOverhaul;
 import lightingoverhaul.coremod.mixin.interfaces.ITessellatorMixin;
 
 import net.minecraft.client.renderer.Tessellator;
@@ -18,11 +18,11 @@ public class TextureHelper {
     }
 
     public static void enableEmissives() {
-        LightingOverhaulCore.emissivesEnabled = true;
+        LightingOverhaul.emissivesEnabled = true;
     }
 
     public static void disableEmissives() {
-        LightingOverhaulCore.emissivesEnabled = false;
+        LightingOverhaul.emissivesEnabled = false;
     }
 
     public static void setTexCoord(float x, float y) {

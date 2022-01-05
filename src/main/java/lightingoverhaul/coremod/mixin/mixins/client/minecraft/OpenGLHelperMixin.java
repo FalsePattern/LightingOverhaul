@@ -1,7 +1,7 @@
 package lightingoverhaul.coremod.mixin.mixins.client.minecraft;
 
 import lightingoverhaul.api.LightingApi;
-import lightingoverhaul.coremod.asm.LightingOverhaulCore;
+import lightingoverhaul.coremod.asm.LightingOverhaul;
 import lightingoverhaul.coremod.mixin.interfaces.ITessellatorMixin;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -37,7 +37,7 @@ public abstract class OpenGLHelperMixin {
             int block_g = (brightness >> LightingApi._bitshift_g2) & 0xF;
             int block_r = (brightness >> LightingApi._bitshift_r2) & 0xF;
             int l = (brightness >> LightingApi._bitshift_l2) & 0xF;
-            if (LightingOverhaulCore.emissivesEnabled) {
+            if (LightingOverhaul.emissivesEnabled) {
                 block_r = Math.max(block_r, l);
                 block_g = Math.max(block_g, l);
                 block_b = Math.max(block_b, l);

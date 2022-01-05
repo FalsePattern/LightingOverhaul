@@ -28,7 +28,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.MinecraftForge;
 
 @SuppressWarnings("UnstableApiUsage")
-public class LightingOverhaulCore extends DummyModContainer {
+public class LightingOverhaul extends DummyModContainer {
     public ChunkDataEventHandler chunkDataEventHandler;
 
     public static boolean emissivesEnabled = false;
@@ -42,17 +42,17 @@ public class LightingOverhaulCore extends DummyModContainer {
     // Reference to atomicstryker.dynamiclights.client.DynamicLights.getLightValue
     public static Method getDynamicLight = null;
 
-    public LightingOverhaulCore() {
+    public LightingOverhaul() {
         super(new ModMetadata());
         ModMetadata meta = getMetadata();
-        meta.modId = Tags.MODID + "core";
-        meta.name = Tags.MODNAME + " Core";
+        meta.modId = Tags.MODID;
+        meta.name = Tags.MODNAME;
         meta.version = version;
-        meta.logoFile = "/mod_" + Tags.MODID + "core.logo.png";
+        meta.logoFile = "/mod_" + Tags.MODID + ".logo.png";
         meta.url = "https://github.com/FalsePattern/LightingOverhaul";
         meta.credits = "";
         meta.authorList = Arrays.asList("heaton84", "Murray65536", "Kovu", "Biggerfisch", "CptSpaceToaster", "DarkShadow44", "FalsePattern");
-        meta.description = "The coremod for Lighting Overhaul";
+        meta.description = "Bringing colored lights to 1.7.10!";
         meta.useDependencyInformation = true;
         chunkDataEventHandler = new ChunkDataEventHandler();
     }
