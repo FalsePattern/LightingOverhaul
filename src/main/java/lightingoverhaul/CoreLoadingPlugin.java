@@ -2,8 +2,6 @@ package lightingoverhaul;
 
 import java.util.Map;
 
-import lightingoverhaul.asm.CoreAccessTransformer;
-import lightingoverhaul.asm.TextureTransformer;
 import org.apache.logging.log4j.LogManager;
 
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
@@ -19,7 +17,7 @@ public class CoreLoadingPlugin implements IFMLLoadingPlugin {
 
     @Override
     public String getModContainerClass() {
-        return LightingOverhaul.class.getName();
+        return ModInfo.GROUPNAME + ".LightingOverhaul";
     }
 
     @Override
@@ -33,11 +31,11 @@ public class CoreLoadingPlugin implements IFMLLoadingPlugin {
 
     @Override
     public String getAccessTransformerClass() {
-        return CoreAccessTransformer.class.getName();
+        return null;
     }
 
     @Override
     public String[] getASMTransformerClass() {
-        return new String[] { TextureTransformer.class.getName() };
+        return new String[] { ModInfo.GROUPNAME + ".asm.TextureTransformer" };
     }
 }
