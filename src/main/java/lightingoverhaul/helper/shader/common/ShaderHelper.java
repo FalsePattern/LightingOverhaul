@@ -1,9 +1,10 @@
 package lightingoverhaul.helper.shader.common;
 
-import lightingoverhaul.CoreLoadingPlugin;
 import lombok.val;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+
+import static lightingoverhaul.LightingOverhaul.LOlog;
 
 public class ShaderHelper {
     public static int createShader(ShaderSource... sources) {
@@ -33,9 +34,9 @@ public class ShaderHelper {
             GL20.glDeleteShader(shader);
             throw new ShaderException("Error while compiling shader: \n" + (infoLog.equals("") ? "No Details Available" : infoLog));
         } else if (!"".equals(infoLog)) {
-            CoreLoadingPlugin.CLLog.warn("Warnings detected while compiling shader:");
+            LOlog.warn("Warnings detected while compiling shader:");
             for (val line: infoLog.split("\\n")) {
-                CoreLoadingPlugin.CLLog.warn(line);
+                LOlog.warn(line);
             }
         }
         return shader;
@@ -65,9 +66,9 @@ public class ShaderHelper {
             GL20.glDeleteProgram(program);
             throw new ShaderException(message + ": \n" + (infoLog.equals("") ? "No Details Available" : infoLog));
         } else if (!"".equals(infoLog)) {
-            CoreLoadingPlugin.CLLog.warn("Warnings detected while linking or verifying shader:");
+            LOlog.warn("Warnings detected while linking or verifying shader:");
             for (val line: infoLog.split("\\n")) {
-                CoreLoadingPlugin.CLLog.warn(line);
+                LOlog.warn(line);
             }
         }
     }

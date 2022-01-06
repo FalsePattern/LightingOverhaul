@@ -24,9 +24,12 @@ import net.minecraft.block.Block;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.MinecraftForge;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @SuppressWarnings("UnstableApiUsage")
 public class LightingOverhaul extends DummyModContainer {
+    public static Logger LOlog = LogManager.getLogger(ModInfo.MODNAME);
     public ChunkDataEventHandler chunkDataEventHandler;
 
     public static boolean emissivesEnabled = false;
@@ -80,9 +83,7 @@ public class LightingOverhaul extends DummyModContainer {
 
         Config.loadConfig(new File(evt.getModConfigurationDirectory(), ModInfo.MODID + ".cfg"));
 
-        CoreLoadingPlugin.CLLog = evt.getModLog();
-
-        CoreLoadingPlugin.CLLog.info("Starting up ColoredLightsCore");
+        LOlog.info("Starting up " + ModInfo.MODNAME);
 
         // Spin up network handler
         PacketHandler.init();
@@ -106,7 +107,7 @@ public class LightingOverhaul extends DummyModContainer {
     @Subscribe
     public void postInit(FMLPostInitializationEvent evt) {
 
-        CoreLoadingPlugin.CLLog.info("Beginning custom light value injection...");
+        LOlog.info("Beginning custom light value injection...");
         int[] valueBuffer = new int[3];
         int failCount = 0;
         int l;
@@ -129,18 +130,18 @@ public class LightingOverhaul extends DummyModContainer {
                     failCount++;
                     formatStr = "Could not find light value for %s/%d in config. Replacing with auto-computed value: (r: %d, g: %d, b: %d)";
                 }
-                CoreLoadingPlugin.CLLog.info(String.format(formatStr, name, metadata, valueBuffer[0], valueBuffer[1], valueBuffer[2]));
+                LOlog.info(String.format(formatStr, name, metadata, valueBuffer[0], valueBuffer[1], valueBuffer[2]));
                 setLightValue(block, metadata, valueBuffer[0], valueBuffer[1], valueBuffer[2]);
                 metadata = nextMetadata;
             }
         }
         if (failCount == 0) {
-            CoreLoadingPlugin.CLLog.info("No missed block lights detected! A winner is you!");
+            LOlog.info("No missed block lights detected! A winner is you!");
         } else {
-            CoreLoadingPlugin.CLLog.warn(String.format("%d missed block lights were detected and converted!", failCount));
+            LOlog.warn(String.format("%d missed block lights were detected and converted!", failCount));
         }
 
-        CoreLoadingPlugin.CLLog.info("Checking for DynamicLights...");
+        LOlog.info("Checking for DynamicLights...");
         Class<?> DynamicLightsClazz = null;
         try {
             DynamicLightsClazz = Class.forName("atomicstryker.dynamiclights.client.DynamicLights");
@@ -148,22 +149,22 @@ public class LightingOverhaul extends DummyModContainer {
             instanceField.setAccessible(true);
             dynamicLights = instanceField.get(null);
         } catch (ClassNotFoundException e) {
-            CoreLoadingPlugin.CLLog.info("Dynamic Lights not found");
+            LOlog.info("Dynamic Lights not found");
         } catch (NoSuchFieldException e) {
-            CoreLoadingPlugin.CLLog.error("Missing field named \"instance\" in DynamicLights. Did versions change?");
+            LOlog.error("Missing field named \"instance\" in DynamicLights. Did versions change?");
             e.printStackTrace();
         } catch (IllegalAccessException e) {
-            CoreLoadingPlugin.CLLog.error("We were denied access to the field \"instance\" in DynamicLights :(  Did versions change?");
+            LOlog.error("We were denied access to the field \"instance\" in DynamicLights :(  Did versions change?");
             e.printStackTrace();
         }
 
         if (DynamicLightsClazz != null && dynamicLights != null) {
-            CoreLoadingPlugin.CLLog.info("Hey DynamicLights... What's the plan?");
+            LOlog.info("Hey DynamicLights... What's the plan?");
 
             try {
                 getDynamicLight = DynamicLightsClazz.getDeclaredMethod("getLightValue", IBlockAccess.class, Block.class, Integer.TYPE, Integer.TYPE, Integer.TYPE);
             } catch (NoSuchMethodException e) {
-                CoreLoadingPlugin.CLLog.error("Missing method named \"getLightValue\" in DynamicLightsClazz. Did versions change?");
+                LOlog.error("Missing method named \"getLightValue\" in DynamicLightsClazz. Did versions change?");
                 e.printStackTrace();
             }
         }

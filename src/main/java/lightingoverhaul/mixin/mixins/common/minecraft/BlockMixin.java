@@ -18,10 +18,12 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import net.minecraft.block.Block;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import static lightingoverhaul.LightingOverhaul.LOlog;
+
 @Mixin(Block.class)
 public abstract class BlockMixin implements IBlockMixin {
     @Shadow
-    public int lightValue;
+    protected int lightValue;
 
     private TIntIntMap metaLight = null;
     private float par1;
@@ -45,7 +47,7 @@ public abstract class BlockMixin implements IBlockMixin {
         }
 
         if (LightingOverhaul.postInitRun && par1 <= 1.0F) {
-            CoreLoadingPlugin.CLLog.warn("setLightLevel called after LightingOverhaul already transformed light values! Converting to grayscale.");
+            LOlog.warn("setLightLevel called after LightingOverhaul already transformed light values! Converting to grayscale.");
             // If the incoming light value is a plain white call, then "color" the light
             // value white
             setLightValue(LightingApi.makeRGBLightValue(par1, par1, par1));

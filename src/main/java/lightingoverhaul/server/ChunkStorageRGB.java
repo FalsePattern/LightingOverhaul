@@ -1,7 +1,5 @@
 package lightingoverhaul.server;
 
-import static lightingoverhaul.CoreLoadingPlugin.CLLog;
-
 import lightingoverhaul.mixin.interfaces.IExtendedBlockStorageMixin;
 
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -10,6 +8,8 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.NibbleArray;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
+
+import static lightingoverhaul.LightingOverhaul.LOlog;
 
 /**
  * Methods for loading/saving RGB data to/from world save
@@ -29,7 +29,7 @@ public class ChunkStorageRGB {
         if (rawdata.length == 0) {
             return new NibbleArray(4096, 4);
         } else if (rawdata.length < 2048) {
-            CLLog.warn("checkedGetNibbleArray: rawdata is too short: {}, expected 2048", rawdata.length);
+            LOlog.warn("checkedGetNibbleArray: rawdata is too short: {}, expected 2048", rawdata.length);
             return new NibbleArray(4096, 4);
         } else
             return new NibbleArray(rawdata, 4);
@@ -83,7 +83,7 @@ public class ChunkStorageRGB {
 
                 }
                 else
-                CLLog.warn("NO NIBBLE ARRAY EXISTS FOR {} {} {}", chunk.xPosition,
+                LOlog.warn("NO NIBBLE ARRAY EXISTS FOR {} {} {}", chunk.xPosition,
                 chunk.zPosition, k);
             }
         }
@@ -111,7 +111,7 @@ public class ChunkStorageRGB {
         for (int k = 0; k < arraySize; ++k) {
             if (chunkStorageArrays[k] != null) {
                 if (chunkStorageArrays[k].getYLocation() != yLocation[k])
-                    CLLog.error("EBS DATA OUT OF SEQUENCE. Expected {}, got {}", chunkStorageArrays[k].getYLocation(), yLocation[k]);
+                    LOlog.error("EBS DATA OUT OF SEQUENCE. Expected {}, got {}", chunkStorageArrays[k].getYLocation(), yLocation[k]);
 
                 rColorArray = redColorData[k];
                 gColorArray = greenColorData[k];

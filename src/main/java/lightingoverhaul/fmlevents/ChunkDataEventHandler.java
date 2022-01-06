@@ -1,13 +1,13 @@
 package lightingoverhaul.fmlevents;
 
-import static lightingoverhaul.CoreLoadingPlugin.CLLog;
-
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkWatchEvent;
 import lightingoverhaul.server.ChunkStorageRGB;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+
+import static lightingoverhaul.LightingOverhaul.LOlog;
 
 public class ChunkDataEventHandler {
 
@@ -20,7 +20,7 @@ public class ChunkDataEventHandler {
         NBTTagCompound data = event.getData();
 
         if (!ChunkStorageRGB.loadColorData(chunk, data)) {
-            CLLog.warn("Failed to load color data for chunk at ({}, {})",
+            LOlog.warn("Failed to load color data for chunk at ({}, {})",
             chunk.xPosition, chunk.zPosition);
         }
     }
@@ -31,7 +31,7 @@ public class ChunkDataEventHandler {
         NBTTagCompound data = event.getData();
 
         if (!ChunkStorageRGB.saveColorData(chunk, data)) {
-            CLLog.warn("Failed to save color data for chunk at ({}, {})", chunk.xPosition, chunk.zPosition);
+            LOlog.warn("Failed to save color data for chunk at ({}, {})", chunk.xPosition, chunk.zPosition);
         }
     }
 

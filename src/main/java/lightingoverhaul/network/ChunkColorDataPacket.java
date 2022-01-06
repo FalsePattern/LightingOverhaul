@@ -1,6 +1,6 @@
 package lightingoverhaul.network;
 
-import static lightingoverhaul.CoreLoadingPlugin.CLLog;
+import static lightingoverhaul.LightingOverhaul.LOlog;
 
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
@@ -55,7 +55,7 @@ public class ChunkColorDataPacket implements IMessage, IMessageHandler<ChunkColo
             ChunkStorageRGB.loadColorData(targetChunk, packet.arraySize, packet.yLocation, packet.RedColorArray, packet.GreenColorArray, packet.BlueColorArray, packet.RedColorArraySun, packet.GreenColorArraySun, packet.BlueColorArraySun);
 
         } else
-            CLLog.warn("ProcessColorDataPacket()  Chunk located at ({}, {}) could not be found in the local world!", packet.chunkXPosition, packet.chunkZPosition);
+            LOlog.warn("ProcessColorDataPacket()  Chunk located at ({}, {}) could not be found in the local world!", packet.chunkXPosition, packet.chunkZPosition);
     }
 
     @Override
@@ -96,7 +96,7 @@ public class ChunkColorDataPacket implements IMessage, IMessageHandler<ChunkColo
                 try {
                     inflater.inflate(rawColorData);
                 } catch (DataFormatException e) {
-                    CLLog.warn("ChunkColorDataPacket()  ", e);
+                    LOlog.warn("ChunkColorDataPacket()  ", e);
                 } finally {
                     inflater.end();
                 }
@@ -150,7 +150,7 @@ public class ChunkColorDataPacket implements IMessage, IMessageHandler<ChunkColo
             }
 
         } catch (Exception e) {
-            CLLog.error("fromBytes ", e);
+            LOlog.error("fromBytes ", e);
         }
     }
 
@@ -226,7 +226,7 @@ public class ChunkColorDataPacket implements IMessage, IMessageHandler<ChunkColo
                 compressedSize = deflate.deflate(compressedColorData);
 
                 if (compressedSize == 0)
-                    CLLog.warn("writePacket compression failed");
+                    LOlog.warn("writePacket compression failed");
 
                 bytes.writeInt(compressedSize);
                 bytes.writeBytes(compressedColorData, 0, compressedSize);
@@ -234,7 +234,7 @@ public class ChunkColorDataPacket implements IMessage, IMessageHandler<ChunkColo
                 // !USE_COMPRESSION
                 bytes.writeBytes(rawColorData, 0, rawColorData.length);
         } catch (Exception e) {
-            CLLog.error("toBytes  ", e);
+            LOlog.error("toBytes  ", e);
         }
     }
 

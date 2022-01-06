@@ -1,7 +1,5 @@
 package lightingoverhaul.network;
 
-import static lightingoverhaul.CoreLoadingPlugin.CLLog;
-
 import lightingoverhaul.ModInfo;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.chunk.Chunk;
@@ -10,6 +8,8 @@ import lightingoverhaul.server.ChunkStorageRGB;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
+
+import static lightingoverhaul.LightingOverhaul.LOlog;
 
 public class PacketHandler {
 
@@ -30,10 +30,6 @@ public class PacketHandler {
             NibbleArray[] greenColorArraySun = ChunkStorageRGB.getGreenColorArraysSun(chunk);
             NibbleArray[] blueColorArraySun = ChunkStorageRGB.getBlueColorArraysSun(chunk);
 
-            if (redColorArray == null || greenColorArray == null || blueColorArray == null) {
-                return;
-            }
-
             packet.chunkXPosition = chunk.xPosition;
             packet.chunkZPosition = chunk.zPosition;
             packet.arraySize = redColorArray.length;
@@ -53,7 +49,7 @@ public class PacketHandler {
             INSTANCE.sendTo(packet, player);
 
         } catch (Exception e) {
-            CLLog.warn("SendChunkColorData()  ", e);
+            LOlog.warn("SendChunkColorData()  ", e);
         }
 
     }

@@ -3,7 +3,6 @@ package lightingoverhaul.mixin.mixins.client.minecraft;
 import java.nio.*;
 
 import lightingoverhaul.api.LightingApi;
-import lightingoverhaul.CoreLoadingPlugin;
 import lightingoverhaul.helper.ResourceHelper;
 import lightingoverhaul.helper.shader.RGBShader;
 import lightingoverhaul.helper.shader.common.Shader;
@@ -25,6 +24,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
+
+import static lightingoverhaul.LightingOverhaul.LOlog;
 
 @Mixin(Tessellator.class)
 @SideOnly(Side.CLIENT)
@@ -70,7 +71,7 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
         int lastGLErrorCode;
         if ((lastGLErrorCode = GL11.glGetError()) != GL11.GL_NO_ERROR) {
             if (!hasFlaggedOpenglError) {
-                CoreLoadingPlugin.CLLog.warn("Render error entering CLTessellatorHelper.setTextureCoord()! Error Code: " + lastGLErrorCode + ". Trying to proceed anyway...");
+                LOlog.warn("Render error entering CLTessellatorHelper.setTextureCoord()! Error Code: " + lastGLErrorCode + ". Trying to proceed anyway...");
                 hasFlaggedOpenglError = true;
             }
         }
@@ -133,7 +134,7 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
     private static ByteBuffer byteBuffer;
 
     @Shadow
-    public int brightness;
+    private int brightness;
 
     @Inject(method = "setBrightness",
             at = @At(value = "HEAD"),

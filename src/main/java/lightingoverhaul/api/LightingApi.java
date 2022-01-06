@@ -5,9 +5,9 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 /**
- * Public API for ColoredLightsCore
+ * Public API for LightingOverhaul
  * 
- * @author CptSpaceToaster
+ * @author CptSpaceToaster, FalsePattern
  *
  */
 public class LightingApi {

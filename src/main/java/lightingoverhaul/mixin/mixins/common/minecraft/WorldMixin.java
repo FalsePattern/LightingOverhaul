@@ -4,7 +4,6 @@ import com.google.common.primitives.Ints;
 import lightingoverhaul.Config;
 import lightingoverhaul.api.LightingApi;
 import lightingoverhaul.LightingOverhaul;
-import lightingoverhaul.CoreLoadingPlugin;
 import lightingoverhaul.mixin.interfaces.IChunkMixin;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockStainedGlass;
@@ -23,6 +22,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.lang.reflect.InvocationTargetException;
+
+import static lightingoverhaul.LightingOverhaul.LOlog;
 
 @SuppressWarnings("ConstantConditions")
 @Mixin(World.class)
@@ -484,7 +485,7 @@ public abstract class WorldMixin {
         }
 
         if (Config.debug() && ((filler > 24389 * 2) || (lightAdditionsCalled != lightAdditionsSatisfied))) {
-            CoreLoadingPlugin.CLLog.warn("Error in Light Addition:" + filler + (par1Enu == EnumSkyBlock.Block ? " (isBlock)" : " (isSky)") + " Saved:" + Integer.toBinaryString((int) savedLightValue) + " Comp:"
+            LOlog.warn("Error in Light Addition:" + filler + (par1Enu == EnumSkyBlock.Block ? " (isBlock)" : " (isSky)") + " Saved:" + Integer.toBinaryString((int) savedLightValue) + " Comp:"
                                          + Integer.toBinaryString((int) compLightValue) + " isBackfill:" + " updateFlag:" + this.updateFlag + " Called:" + lightAdditionsCalled + " Satisfied:"
                                          + lightAdditionsSatisfied);
         }
@@ -607,7 +608,7 @@ public abstract class WorldMixin {
                 }
 
                 if (Config.debug() && filler > 4097 * 2) {
-                    CoreLoadingPlugin.CLLog.warn("Light Subtraction Overfilled:" + filler + (par1Enu == EnumSkyBlock.Block ? " (isBlock)" : " (isSky)") + " Saved:" + Integer.toBinaryString((int) savedLightValue)
+                    LOlog.warn("Light Subtraction Overfilled:" + filler + (par1Enu == EnumSkyBlock.Block ? " (isBlock)" : " (isSky)") + " Saved:" + Integer.toBinaryString((int) savedLightValue)
                                                  + " Comp:" + Integer.toBinaryString((int) compLightValue) + " isBackfill:" + " updateFlag:" + this.updateFlag + " Called:" + lightAdditionsCalled + " Satisfied:"
                                                  + lightAdditionsSatisfied);
                 }

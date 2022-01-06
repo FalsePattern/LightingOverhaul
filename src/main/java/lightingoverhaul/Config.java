@@ -14,6 +14,8 @@ import net.minecraftforge.common.config.Configuration;
 import java.io.File;
 import java.util.*;
 
+import static lightingoverhaul.LightingOverhaul.LOlog;
+
 public class Config {
     private static Configuration config;
     private static final Map<String, TIntObjectMap<String>> builtins = new HashMap<>();
@@ -36,7 +38,7 @@ public class Config {
                 return Integer.parseInt(name.substring(slash + 1));
             }
         } catch (NumberFormatException e) {
-            CoreLoadingPlugin.CLLog.warn(e);
+            LOlog.warn(e);
         }
         return 0;
     }
@@ -74,7 +76,7 @@ public class Config {
             while ((value = map.get(subMeta)).startsWith("@")) {
                 recursion++;
                 if (recursion >= refRecursionLimit) {
-                    CoreLoadingPlugin.CLLog.warn("Recursion limit hit while trying to evaluate value for " + blockID + "! Returning default value for now, but CHECK THE CONFIG!!!");
+                    LOlog.warn("Recursion limit hit while trying to evaluate value for " + blockID + "! Returning default value for now, but CHECK THE CONFIG!!!");
                     throw new NullPointerException(); //jump to the default behaviour
                 }
                 value = value.substring(1);
@@ -88,7 +90,7 @@ public class Config {
         catch (NumberFormatException e) {
             String result = "Invalid light value for " + blockID + ": " +
                             value + " is an invalid color value!";
-            CoreLoadingPlugin.CLLog.error(result);
+            LOlog.error(result);
         }
         outputBuffer[0] = REMAP_R[currentL & LightingApi._bitmask];
         outputBuffer[1] = REMAP_G[currentL & LightingApi._bitmask];

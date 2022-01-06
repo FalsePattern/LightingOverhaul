@@ -1,6 +1,8 @@
 package lightingoverhaul.asm;
 
-import lightingoverhaul.CoreLoadingPlugin;
+import lightingoverhaul.ModInfo;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -13,6 +15,8 @@ import org.objectweb.asm.tree.MethodNode;
 import net.minecraft.launchwrapper.IClassTransformer;
 
 public class Transformer implements IClassTransformer {
+    private static final Logger LOG = LogManager.getLogger(ModInfo.MODNAME + " ASM");
+
     private static final int GL11__GL_TEXTURE_2D = 0xDE1;
     private static final int GL11__GL_LIGHTING = 0xB50;
     private static final String[] IGNORED_ROOTS = new String[] {
@@ -52,10 +56,10 @@ public class Transformer implements IClassTransformer {
                         AbstractInsnNode hook;
                         if (intNode.operand == GL11__GL_TEXTURE_2D) {
                             hook = new MethodInsnNode(Opcodes.INVOKESTATIC, helperName, isEnable ? "enableTexture" : "disableTexture", "()V", false);
-                            CoreLoadingPlugin.CLLog.debug("Applied ASM transformation in method " + classNode.name + "." + methodNode.name + " for " + (isEnable ? "glEnable" : "glDisable") + "(GL_TEXTURE_2D);");
+                            LOG.debug("Applied ASM transformation in method " + classNode.name + "." + methodNode.name + " for " + (isEnable ? "glEnable" : "glDisable") + "(GL_TEXTURE_2D);");
                         } else if (intNode.operand == GL11__GL_LIGHTING){
                             hook = new MethodInsnNode(Opcodes.INVOKESTATIC, helperName, isEnable ? "disableEmissives" : "enableEmissives", "()V", false);
-                            CoreLoadingPlugin.CLLog.debug("Applied ASM transformation in method " + classNode.name + "." + methodNode.name + " for " + (isEnable ? "glEnable" : "glDisable") + "(GL_LIGHTING);");
+                            LOG.debug("Applied ASM transformation in method " + classNode.name + "." + methodNode.name + " for " + (isEnable ? "glEnable" : "glDisable") + "(GL_LIGHTING);");
                         } else {
                             continue;
                         }
@@ -69,7 +73,7 @@ public class Transformer implements IClassTransformer {
                         methodNode.instructions.insert(instruction, hook);
                         methodNode.instructions.remove(instruction);
                         changed = true;
-                        CoreLoadingPlugin.CLLog.debug("Applied ASM transformation in method " + classNode.name + "." + methodNode.name + " for glTexCoord2f();");
+                        LOG.debug("Applied ASM transformation in method " + classNode.name + "." + methodNode.name + " for glTexCoord2f();");
                     }
                 }
             }

@@ -11,7 +11,6 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin.SortingIndex;
 @Name(ModInfo.MODID)
 @SortingIndex(1001)
 public class CoreLoadingPlugin implements IFMLLoadingPlugin {
-    public static org.apache.logging.log4j.Logger CLLog = org.apache.logging.log4j.LogManager.getLogger(ModInfo.MODNAME);
 
     @Override
     public String getModContainerClass() {
