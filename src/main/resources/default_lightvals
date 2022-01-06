@@ -209,7 +209,7 @@ Railcraft:firestone.recharge = @minecraft:lava
 
 # Twilight Forest
 TwilightForest:tile.TFFirefly = 8e0
-TwilightForest:tile.TFportal = @minecraft:portal
+TwilightForest:tile.TFPortal = @minecraft:portal
 TwilightForest:tile.TFFireflyJar = @TwilightForest:tile.TFFirefly
 TwilightForest:tile.HugeGloomBlock = 420
 TwilightForest:tile.TrollBer = fec
@@ -235,6 +235,7 @@ HardcoreEnderExpansion:obsidian_special_glow = 82f
 HardcoreEnderExpansion:transport_beacon = f0f
 HardcoreEnderExpansion:enhanced_brewing_stand_block = @minecraft:brewing_stand
 HardcoreEnderExpansion:laser_beam = f8f
+HardcoreEnderExpansion:temple_end_portal = @minecraft:end_portal
 
 # Forestry
 Forestry:beehives = ccc
@@ -254,30 +255,30 @@ GalacticraftCore:tile.brightBreathableAir = @GalacticraftCore:tile.brightAir
 GalacticraftCore:tile.glowstoneTorch = cca
 GalacticraftCore:tile.arclamp = fff
 GalacticraftCore:tile.unlitTorch_Stone = @GalacticraftCore:tile.unlitTorch
-GalacticraftCore:tile.unlitTorchList_Stone = @GalacticraftCore:tile.unlitTorchLit
-GalacticraftCore:tile.sludge = 5f5
-GalacticraftCore:tile.cavernVines = 8df
+GalacticraftCore:tile.unlitTorchLit_Stone = @GalacticraftCore:tile.unlitTorchLit
+GalacticraftMars:tile.sludge = 5f5
+GalacticraftMars:tile.cavernVines = 8df
 
 # EnderIO
 EnderIO:blockPaintedGlowstone = @minecraft:glowstone
 
 # Pam's Harvestcraft
-harvestcraft:pamcandleDeco1 = @minecraft:candle
-harvestcraft:pamcandleDeco2 = @minecraft:candle
-harvestcraft:pamcandleDeco3 = @minecraft:candle
-harvestcraft:pamcandleDeco4 = @minecraft:candle
-harvestcraft:pamcandleDeco5 = @minecraft:candle
-harvestcraft:pamcandleDeco6 = @minecraft:candle
-harvestcraft:pamcandleDeco7 = @minecraft:candle
-harvestcraft:pamcandleDeco8 = @minecraft:candle
-harvestcraft:pamcandleDeco9 = @minecraft:candle
-harvestcraft:pamcandleDeco10 = @minecraft:candle
-harvestcraft:pamcandleDeco11 = @minecraft:candle
-harvestcraft:pamcandleDeco12 = @minecraft:candle
-harvestcraft:pamcandleDeco13 = @minecraft:candle
-harvestcraft:pamcandleDeco14 = @minecraft:candle
-harvestcraft:pamcandleDeco15 = @minecraft:candle
-harvestcraft:pamcandleDeco16 = @minecraft:candle
+harvestcraft:pamcandleDeco1 = @minecraft:torch
+harvestcraft:pamcandleDeco2 = @minecraft:torch
+harvestcraft:pamcandleDeco3 = @minecraft:torch
+harvestcraft:pamcandleDeco4 = @minecraft:torch
+harvestcraft:pamcandleDeco5 = @minecraft:torch
+harvestcraft:pamcandleDeco6 = @minecraft:torch
+harvestcraft:pamcandleDeco7 = @minecraft:torch
+harvestcraft:pamcandleDeco8 = @minecraft:torch
+harvestcraft:pamcandleDeco9 = @minecraft:torch
+harvestcraft:pamcandleDeco10 = @minecraft:torch
+harvestcraft:pamcandleDeco11 = @minecraft:torch
+harvestcraft:pamcandleDeco12 = @minecraft:torch
+harvestcraft:pamcandleDeco13 = @minecraft:torch
+harvestcraft:pamcandleDeco14 = @minecraft:torch
+harvestcraft:pamcandleDeco15 = @minecraft:torch
+harvestcraft:pamcandleDeco16 = @minecraft:torch
 
 # Thaumic Bases
 thaumicbases:crystalBlock/0 = @Thaumcraft:blockCrystal/0
@@ -289,7 +290,7 @@ thaumicbases:crystalBlock/5 = @Thaumcraft:blockCrystal/5
 thaumicbases:crystalBlock/6 = @Thaumcraft:blockCrystal/6
 thaumicbases:crystalBlock/7 = 707
 thaumicbases:pyrofluid = ff7
-thaumicbases:campfile = @minecraft:torch
+thaumicbases:campfire = @minecraft:torch
 thaumicbases:brazier = 777
 thaumicbases:crystalSlab/0 = @thaumicbases:crystalBlock/0
 thaumicbases:crystalSlab/1 = @thaumicbases:crystalBlock/1
@@ -397,7 +398,7 @@ GraviSuite:BlockRelocatorPortal = fff
 ThaumicExploration:trashJar = @Thaumcraft:blockJar
 ThaumicExploration:boundJar = @Thaumcraft:blockJar
 ThaumicExploration:thinkTankJar = @Thaumcraft:blockJar
-ThaumicExploration:floatCandle = @minecraft:candle
+ThaumicExploration:floatCandle = @minecraft:torch
 
 # kekztech
 kekztech:kekztech_thaumiumreinforcedjar_block = @Thaumcraft:blockJar
@@ -410,7 +411,7 @@ OpenBlocks:target = 444
 
 # Harvest The Nether
 harvestthenether:glowFlower = @minecraft:glowstone
-harvestthenether:glowFlowerCrop = @harvestthenether:glowFlower
+harvestthenether:glowflowerCrop = @harvestthenether:glowFlower
 
 # Random Things
 RandomThings:spectreBlock = fff

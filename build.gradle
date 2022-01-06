@@ -488,6 +488,23 @@ artifacts {
 }
 
 // publishing
+def getMavenSettingsCredentials = {
+    String userHome = System.getProperty( "user.home" );
+    File mavenSettings = new File(userHome, ".m2/settings.xml")
+    def xmlSlurper = new XmlSlurper()
+    def output = xmlSlurper.parse(mavenSettings)
+    return output."servers"."server"
+}
+
+def getCredentials = {
+    def entries = getMavenSettingsCredentials()
+    for (entry in entries) {
+        if ( entry."id".text() == "mavenpattern" ) {
+            return [username: entry.username.text(), password: entry.password.text()]
+        }
+    }
+}
+
 publishing {
     publications {
         maven(MavenPublication) {
@@ -498,22 +515,20 @@ publishing {
                 artifact source: apiJar, classifier: "api"
             }
 
-            groupId = System.getenv("ARTIFACT_GROUP_ID") ?: group
-            artifactId = System.getenv("ARTIFACT_ID") ?: project.name
-            version = System.getenv("ARTIFACT_VERSION") ?: project.version
+            groupId = group
+            artifactId = modId
+            version = project.version
         }
     }
     
     repositories {
         maven {
-            String owner = System.getenv("REPOSITORY_OWNER") ?: "Unknown"
-            String repositoryName = System.getenv("REPOSITORY_NAME") ?: "Unknown"
-            String githubRepositoryUrl = "https://maven.pkg.github.com/$owner/$repositoryName"
-            name = "GitHubPackages"
-            url = githubRepositoryUrl
+            name = "mavenpattern"
+            url = "https://maven.falsepattern.com/"
+            def creds = getCredentials()
             credentials {
-                username = System.getenv("GITHUB_ACTOR") ?: "NONE"
-                password = System.getenv("GITHUB_TOKEN") ?: "NONE"
+                username = creds == null ? "none" : creds.username
+                password = creds == null ? "none" : creds.password
             }
         }
     }
