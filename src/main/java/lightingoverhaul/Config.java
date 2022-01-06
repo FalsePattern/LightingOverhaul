@@ -101,10 +101,6 @@ public class Config {
 
     @Getter
     @Accessors(fluent = true)
-    private static boolean enableInGameContent;
-
-    @Getter
-    @Accessors(fluent = true)
     private static boolean emitDiscoveredMissingMappingsToConfig;
 
     @Getter
@@ -149,7 +145,6 @@ public class Config {
             lightValues.computeIfAbsent(id, (ignored) -> new TIntObjectHashMap<>()).put(meta, data);
         });
 
-        enableInGameContent = config.getBoolean("enableInGameContent", "configuration", true, "Whether the mod should also add colored glowstone and colored lamps. When disabled, the mod does not add ingame content, and only behaves as a coremod/api.");
         emitDiscoveredMissingMappingsToConfig = config.getBoolean("emitDiscoveredMissingMappingsToConfig", "configuration", false, "Whether to put any detected, but missing block light values into the config file. Recommended for modpack makers. Set it back to false after using to avoid unnecessarily lengthening load times. Bypasses the useSmartLightMapping option.");
         refRecursionLimit = config.getInt("referenceRecursionLimit", "configuration", 256, 0, 1024, "The maximum depth a color value reference chain can be inside the lightvalues category before the parser stops evaluating and returns the default value.");
         debug = config.getBoolean("debug", "configuration", false, "Debug mode. Displays low-level, low-importance messages in the log.");
