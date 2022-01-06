@@ -34,6 +34,6 @@ public class CoreLoadingPlugin implements IFMLLoadingPlugin {
 
     @Override
     public String[] getASMTransformerClass() {
-        return new String[] { ModInfo.GROUPNAME + ".asm.TextureTransformer" };
+        return new String[] { ModInfo.GROUPNAME + ".asm.Transformer" };
     }
 }

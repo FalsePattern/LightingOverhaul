@@ -12,7 +12,7 @@ import org.objectweb.asm.tree.MethodNode;
 
 import net.minecraft.launchwrapper.IClassTransformer;
 
-public class TextureTransformer implements IClassTransformer {
+public class Transformer implements IClassTransformer {
     private static final int GL11__GL_TEXTURE_2D = 0xDE1;
     private static final int GL11__GL_LIGHTING = 0xB50;
     private static final String[] IGNORED_ROOTS = new String[] {
@@ -32,7 +32,7 @@ public class TextureTransformer implements IClassTransformer {
 
         classReader.accept(classNode, 0);
 
-        String helperName = "lightingoverhaul/helper/TextureHelper";
+        String helperName = "lightingoverhaul/asm/Helper";
 
         boolean changed = false;
         for (MethodNode methodNode : classNode.methods) {
