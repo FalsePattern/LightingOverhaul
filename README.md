@@ -8,6 +8,7 @@ Exclusive to Minecraft Forge 1.7.10, don't ask for any other versions, or you wi
 ## Features
 - Light gets colored when it passes through stained glass (even sunlight!)
 - Smooth mixing of colored light
+- Custom colored light values for any light-emitting modded block
 
 ## Fork changes
 - Migrated to a way better build script.
@@ -17,8 +18,7 @@ Exclusive to Minecraft Forge 1.7.10, don't ask for any other versions, or you wi
 - Removed colored glowstone -- This is now purely a coremod and API for other mods to hook into.
 
 ## Known issues/incompatibilities
-- Instantly crashes with OptiFine
-- GregTech/other mods which have custom block renderer have broken lighting when smooth lighting is turned on
+- Does not work with any OptiFine versions
 
 ## Special Thanks
 [basdxz](https://github.com/basdxz)
