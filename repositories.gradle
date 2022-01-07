@@ -2,6 +2,18 @@
 
 repositories {
     maven {
-        url = "https://mavenproxy.falsepattern.com/"
+        url = "https://repo.spongepowered.org/repository/maven-public"
+    }
+    maven {
+        url = "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+    maven {
+        url = "https://jitpack.io"
+        content {
+            includeGroup "com.github"
+        }
     }
 }
