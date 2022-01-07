@@ -2,6 +2,7 @@ package lightingoverhaul;
 
 import java.util.Map;
 
+import coloredlightscore.src.asm.ColoredLightsCoreLoadingPlugin;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.MCVersion;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.Name;
@@ -11,6 +12,10 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin.SortingIndex;
 @Name(ModInfo.MODID)
 @SortingIndex(1001)
 public class CoreLoadingPlugin implements IFMLLoadingPlugin {
+
+    static {
+        ColoredLightsCoreLoadingPlugin.touch(); // Trigger class loading for fastcraft compatibility
+    }
 
     @Override
     public String getModContainerClass() {
