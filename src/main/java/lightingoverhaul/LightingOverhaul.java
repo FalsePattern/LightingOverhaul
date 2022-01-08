@@ -32,8 +32,6 @@ public class LightingOverhaul extends DummyModContainer {
     public static Logger LOlog = LogManager.getLogger(ModInfo.MODNAME);
     public ChunkDataEventHandler chunkDataEventHandler;
 
-    public static boolean emissivesEnabled = false;
-
     // Reference to atomicstryker.dynamiclights.client.DynamicLights
     public static Object dynamicLights;
 

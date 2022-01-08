@@ -2,12 +2,14 @@ package lightingoverhaul.server;
 
 import lightingoverhaul.mixin.interfaces.IExtendedBlockStorageMixin;
 
-import cpw.mods.fml.common.FMLCommonHandler;
+import lombok.val;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.NibbleArray;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
+
+import java.util.Arrays;
 
 import static lightingoverhaul.LightingOverhaul.LOlog;
 
@@ -34,7 +36,6 @@ public class ChunkStorageRGB {
         } else
             return new NibbleArray(rawdata, 4);
     }
-
     /**
      * Loads RGB color data from a world store, if present.
      * 
@@ -44,12 +45,6 @@ public class ChunkStorageRGB {
      *         encountered
      */
     public static boolean loadColorData(Chunk chunk, NBTTagCompound data) {
-        NibbleArray rColorArray;
-        NibbleArray gColorArray;
-        NibbleArray bColorArray;
-        NibbleArray rColorArraySun;
-        NibbleArray gColorArraySun;
-        NibbleArray bColorArraySun;
         ExtendedBlockStorage[] chunkStorageArrays = chunk.getBlockStorageArray();
         NBTTagCompound level = data.getCompoundTag("Level");
         NBTTagList nbttaglist = level.getTagList("Sections", 10);
@@ -57,48 +52,104 @@ public class ChunkStorageRGB {
 
         for (int k = 0; k < nbttaglist.tagCount(); ++k) {
             NBTTagCompound nbtYCompound = nbttaglist.getCompoundTagAt(k);
-
-            if (chunkStorageArrays[k] != null) {
-                if (nbtYCompound.hasKey("RedColorArray")) // , 7))
-                {
-                    rColorArray =    checkedGetNibbleArray(nbtYCompound.getByteArray("RedColorArray"));
-                    gColorArray =    checkedGetNibbleArray(nbtYCompound.getByteArray("GreenColorArray"));
-                    bColorArray =    checkedGetNibbleArray(nbtYCompound.getByteArray("BlueColorArray"));
-                    rColorArraySun = checkedGetNibbleArray(nbtYCompound.getByteArray("RedColorArraySun"));
-                    gColorArraySun = checkedGetNibbleArray(nbtYCompound.getByteArray("GreenColorArraySun"));
-                    bColorArraySun = checkedGetNibbleArray(nbtYCompound.getByteArray("BlueColorArraySun"));
-
-                    // Set color arrays on chunk.storageArrays
-
-                    IExtendedBlockStorageMixin blockStorageMixin = (IExtendedBlockStorageMixin) chunkStorageArrays[k];
-
-                    blockStorageMixin.setRedColorArray(rColorArray);
-                    blockStorageMixin.setGreenColorArray(gColorArray);
-                    blockStorageMixin.setBlueColorArray(bColorArray);
-                    blockStorageMixin.setRedColorArraySun(rColorArraySun);
-                    blockStorageMixin.setGreenColorArraySun(gColorArraySun);
-                    blockStorageMixin.setBlueColorArraySun(bColorArraySun);
-
+            if (chunkStorageArrays[k] == null) continue;
+            if (!nbtYCompound.hasKey("RGBChunkFormat")) {
+                loadVanillaOrUnVersionedSave(chunkStorageArrays[k], nbtYCompound);
+            } else {
+                int ver = nbtYCompound.getByte("RGBChunkFormat");
+                if (nbtYCompound.getByte("RGBChunkFormat") == 0) {
+                    loadVersion0Save(chunkStorageArrays[k], nbtYCompound);
                     foundColorData = true;
-
+                } else {
+                    LOlog.warn("Unsupported RGB chunk format version: " + ver);
                 }
-                else
-                LOlog.warn("NO NIBBLE ARRAY EXISTS FOR {} {} {}", chunk.xPosition,
-                chunk.zPosition, k);
             }
         }
 
         return foundColorData;
     }
 
+    private static void max(NibbleArray a, NibbleArray b, int x, int y, int z) {
+        a.set(x, y, z, Math.max(a.get(x, y, z), b.get(x, y, z)));
+    }
+
+    private static NibbleArray checkedGet(NBTTagCompound nbt, String name) {
+        return checkedGetNibbleArray(nbt.getByteArray(name));
+    }
+
+    private static NibbleArray copy(byte[] data) {
+        return checkedGetNibbleArray(Arrays.copyOf(data, data.length));
+    }
+
+    private static void loadVanillaOrUnVersionedSave(ExtendedBlockStorage ebs, NBTTagCompound nbt) {
+        NibbleArray rColorArray;
+        NibbleArray gColorArray;
+        NibbleArray bColorArray;
+        NibbleArray rColorArraySun;
+        NibbleArray gColorArraySun;
+        NibbleArray bColorArraySun;
+        if (nbt.hasKey("RedColorArray")) {
+            rColorArray = checkedGet(nbt, "RedColorArray");
+            gColorArray = checkedGet(nbt, "GreenColorArray");
+            bColorArray = checkedGet(nbt, "BlueColorArray");
+            rColorArraySun = checkedGet(nbt, "RedColorArraySun");
+            gColorArraySun = checkedGet(nbt, "GreenColorArraySun");
+            bColorArraySun = checkedGet(nbt, "BlueColorArraySun");
+            //Also apply vanilla values using MAX
+            val block = ebs.getBlocklightArray();
+            val sun = ebs.getSkylightArray();
+            for (int z = 0; z < 16; z++) {
+                for (int y = 0; y < 16; y++) {
+                    for (int x = 0; x < 16; x++) {
+                        max(rColorArray, block, x, y, z);
+                        max(gColorArray, block, x, y, z);
+                        max(bColorArray, block, x, y, z);
+                        max(rColorArraySun, sun, x, y, z);
+                        max(gColorArraySun, sun, x, y, z);
+                        max(bColorArraySun, sun, x, y, z);
+                    }
+                }
+            }
+            Arrays.fill(block.data, (byte)0);
+            Arrays.fill(sun.data, (byte)0);
+        } else {
+            byte[] block = ebs.getBlocklightArray().data;
+            byte[] sun = ebs.getSkylightArray().data;
+            rColorArray = copy(block);
+            gColorArray = copy(block);
+            bColorArray = copy(block);
+            rColorArraySun = copy(sun);
+            gColorArraySun = copy(sun);
+            bColorArraySun = copy(sun);
+            Arrays.fill(block, (byte)0);
+            Arrays.fill(sun, (byte)0);
+        }
+        val ebm = (IExtendedBlockStorageMixin) ebs;
+
+        ebm.setRedColorArray(rColorArray);
+        ebm.setGreenColorArray(gColorArray);
+        ebm.setBlueColorArray(bColorArray);
+        ebm.setRedColorArraySun(rColorArraySun);
+        ebm.setGreenColorArraySun(gColorArraySun);
+        ebm.setBlueColorArraySun(bColorArraySun);
+    }
+
+    private static void loadVersion0Save(ExtendedBlockStorage ebs, NBTTagCompound nbt) {
+        val ebm = (IExtendedBlockStorageMixin) ebs;
+        ebm.setRedColorArray(checkedGet(nbt, "RedColorArray"));
+        ebm.setGreenColorArray(checkedGet(nbt, "GreenColorArray"));
+        ebm.setBlueColorArray(checkedGet(nbt, "BlueColorArray"));
+        ebm.setRedColorArraySun(checkedGet(nbt, "RedColorArraySun"));
+        ebm.setGreenColorArraySun(checkedGet(nbt, "GreenColorArraySun"));
+        ebm.setBlueColorArraySun(checkedGet(nbt, "BlueColorArraySun"));
+    }
+
     /**
      * Loads RGB color data from a world store, if present.
      * 
      * @param chunk The chunk to populate with data
-     * @return true if color data was loaded, false if not present or an error was
-     *         encountered
      */
-    public static boolean loadColorData(Chunk chunk, int arraySize, int[] yLocation, NibbleArray[] redColorData, NibbleArray[] greenColorData, NibbleArray[] blueColorData, NibbleArray[] redColorDataSun, NibbleArray[] greenColorDataSun, NibbleArray[] blueColorDataSun) {
+    public static void loadColorData(Chunk chunk, int arraySize, int[] yLocation, NibbleArray[] redColorData, NibbleArray[] greenColorData, NibbleArray[] blueColorData, NibbleArray[] redColorDataSun, NibbleArray[] greenColorDataSun, NibbleArray[] blueColorDataSun) {
         NibbleArray rColorArray;
         NibbleArray gColorArray;
         NibbleArray bColorArray;
@@ -106,7 +157,6 @@ public class ChunkStorageRGB {
         NibbleArray gColorArraySun;
         NibbleArray bColorArraySun;
         ExtendedBlockStorage[] chunkStorageArrays = chunk.getBlockStorageArray();
-        boolean foundColorData = false;
 
         for (int k = 0; k < arraySize; ++k) {
             if (chunkStorageArrays[k] != null) {
@@ -129,13 +179,8 @@ public class ChunkStorageRGB {
                 blockStorageMixin.setRedColorArraySun(rColorArraySun);
                 blockStorageMixin.setGreenColorArraySun(gColorArraySun);
                 blockStorageMixin.setBlueColorArraySun(bColorArraySun);
-
-                foundColorData = true;
-
             }
         }
-
-        return foundColorData;
     }
 
     /**
@@ -170,30 +215,13 @@ public class ChunkStorageRGB {
                 gColorArraySun = blockStorageMixin.getGreenColorArraySun();
                 bColorArraySun = blockStorageMixin.getBlueColorArraySun();
 
-                // Cauldron adds .getValueArray() instead of .data
-                if (FMLCommonHandler.instance().getModName().contains("cauldron")) {
-                    /*
-                     * nbtYCompound.setByteArray("RedColorArray", rColorArray.getValueArray());
-                     * nbtYCompound.setByteArray("GreenColorArray", gColorArray.getValueArray());
-                     * nbtYCompound.setByteArray("BlueColorArray", bColorArray.getValueArray());
-                     * nbtYCompound.setByteArray("RedColorArray2", rColorArray2.getValueArray());
-                     * nbtYCompound.setByteArray("GreenColorArray2", gColorArray2.getValueArray());
-                     * nbtYCompound.setByteArray("BlueColorArray2", bColorArray2.getValueArray());
-                     * nbtYCompound.setByteArray("RedColorArraySun",
-                     * rColorArraySun.getValueArray());
-                     * nbtYCompound.setByteArray("GreenColorArraySun",
-                     * gColorArraySun.getValueArray());
-                     * nbtYCompound.setByteArray("BlueColorArraySun",
-                     * bColorArraySun.getValueArray());
-                     */
-                } else {
-                    nbtYCompound.setByteArray("RedColorArray", rColorArray.data);
-                    nbtYCompound.setByteArray("GreenColorArray", gColorArray.data);
-                    nbtYCompound.setByteArray("BlueColorArray", bColorArray.data);
-                    nbtYCompound.setByteArray("RedColorArraySun", rColorArraySun.data);
-                    nbtYCompound.setByteArray("GreenColorArraySun", gColorArraySun.data);
-                    nbtYCompound.setByteArray("BlueColorArraySun", bColorArraySun.data);
-                }
+                nbtYCompound.setByteArray("RedColorArray", rColorArray.data);
+                nbtYCompound.setByteArray("GreenColorArray", gColorArray.data);
+                nbtYCompound.setByteArray("BlueColorArray", bColorArray.data);
+                nbtYCompound.setByteArray("RedColorArraySun", rColorArraySun.data);
+                nbtYCompound.setByteArray("GreenColorArraySun", gColorArraySun.data);
+                nbtYCompound.setByteArray("BlueColorArraySun", bColorArraySun.data);
+                nbtYCompound.setByte("RGBChunkFormat", (byte)0);
             }
         }
 
@@ -203,7 +231,7 @@ public class ChunkStorageRGB {
     /**
      * Extracts all the red color arrays from a chunk's extended block storage
      * 
-     * @param chunk
+     * @param chunk The chunk to get the data from
      * @return An array of NibbleArrays containing red color data for the chunk
      */
     public static NibbleArray[] getRedColorArrays(Chunk chunk) {
@@ -241,7 +269,7 @@ public class ChunkStorageRGB {
     /**
      * Extracts all the green color arrays from a chunk's extended block storage
      * 
-     * @param chunk
+     * @param chunk The chunk to get the data from
      * @return An array of NibbleArrays containing green color data for the chunk
      */
 
@@ -280,7 +308,7 @@ public class ChunkStorageRGB {
     /**
      * Extracts all the blue color arrays from a chunk's extended block storage
      * 
-     * @param chunk
+     * @param chunk The chunk to get the data from
      * @return An array of NibbleArrays containing blue color data for the chunk
      */
 

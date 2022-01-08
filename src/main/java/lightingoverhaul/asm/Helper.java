@@ -20,14 +20,6 @@ public class Helper {
         tessellatorMixin.disableTexture();
     }
 
-    public static void enableEmissives() {
-        LightingOverhaul.emissivesEnabled = true;
-    }
-
-    public static void disableEmissives() {
-        LightingOverhaul.emissivesEnabled = false;
-    }
-
     public static void setTexCoord(float x, float y) {
         ITessellatorMixin tessellatorMixin = (ITessellatorMixin) Tessellator.instance;
         tessellatorMixin.setTextureCoords(x, y);

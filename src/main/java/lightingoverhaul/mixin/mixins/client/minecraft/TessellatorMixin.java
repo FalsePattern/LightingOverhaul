@@ -42,9 +42,6 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
     private float sunB;
     private float nightVisionWeight;
 
-    private final IntBuffer cachedLightCoord = ByteBuffer.allocateDirect(16).asIntBuffer();
-    private final IntBuffer cachedLightCoordSun = ByteBuffer.allocateDirect(16).asIntBuffer();
-
     public void setupShaders() {
         String vertSource = ResourceHelper.readResourceAsString("/shaders/lightOverlay.vert");
         String fragSource = ResourceHelper.readResourceAsString("/shaders/lightOverlay.frag");
@@ -106,7 +103,7 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
         //Turn the packed vanilla lightmap coords into raw values
         int block = Math.min(15, (lightLevel & 0xFF) / 16);
         int sun = Math.min(15, ((lightLevel >>> 16) & 0xFF) / 16);
-        return LightingApi.toRenderLight(block, block, block, block, sun, sun, sun);
+        return LightingApi.toRenderLight(block, block, block, sun, sun, sun);
     }
 
     public boolean isProgramInUse() {

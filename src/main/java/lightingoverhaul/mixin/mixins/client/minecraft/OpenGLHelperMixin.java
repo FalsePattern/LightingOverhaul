@@ -30,22 +30,12 @@ public abstract class OpenGLHelperMixin {
             ci.cancel();
             int brightness = ((int) y << 16) + (int) x;
             /*
-             * brightness is of the form 0000 0000 SSSS BBBB GGGG RRRR LLLL 0000 and needs
+             * brightness is of the form 0100 0000 bbbb gggg rrrr BBBB GGGG RRRR and needs
              * to be decomposed.
              */
             int block_r = LightingApi.extractR(brightness);
             int block_g = LightingApi.extractG(brightness);
             int block_b = LightingApi.extractB(brightness);
-            int l = LightingApi.extractL(brightness);
-            if (LightingOverhaul.emissivesEnabled) {
-                block_r = Math.max(block_r, l);
-                block_g = Math.max(block_g, l);
-                block_b = Math.max(block_b, l);
-            } else {
-                if (l > block_r && l > block_g && l > block_b) {
-                    block_r = block_g = block_b = l;
-                }
-            }
 
             int sun_r = LightingApi.extractSunR(brightness);
             int sun_g = LightingApi.extractSunG(brightness);

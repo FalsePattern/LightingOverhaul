@@ -20,7 +20,8 @@ public class ChunkDataEventHandler {
         NBTTagCompound data = event.getData();
 
         if (!ChunkStorageRGB.loadColorData(chunk, data)) {
-            LOlog.warn("Failed to load color data for chunk at ({}, {})",
+            chunk.setChunkModified();
+            LOlog.info("Updated chunk at ({}, {}) from vanilla to RGB",
             chunk.xPosition, chunk.zPosition);
         }
     }

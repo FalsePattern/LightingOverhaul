@@ -16,13 +16,12 @@ public class LightingApi {
     public static final int[] g = new int[] {     0,  0,   15,    3,   0,     0,  15,       10,   5,  10,  15,    15,        8,      0,    12,   15 };
     public static final int[] b = new int[] {     0,  0,    0,    0,  15,    15,  15,       10,   5,  13,   0,     0,       15,     15,    10,   15 };
 
-    public static final int _bitshift_l = 0;
-    public static final int _bitshift_r = 4;
-    public static final int _bitshift_g = 8;
-    public static final int _bitshift_b = 12;
-    public static final int _bitshift_sun_r = 16;
-    public static final int _bitshift_sun_g = 20;
-    public static final int _bitshift_sun_b = 24;
+    public static final int _bitshift_r = 0;
+    public static final int _bitshift_g = 4;
+    public static final int _bitshift_b = 8;
+    public static final int _bitshift_sun_r = 12;
+    public static final int _bitshift_sun_g = 16;
+    public static final int _bitshift_sun_b = 20;
     
     public static final int _bitmask = 0xF;
 
@@ -31,7 +30,7 @@ public class LightingApi {
      * Automatically computes the Minecraft brightness value using the brightest of the r, g and b channels.
      * This value can be used directly for Block.lightValue 
      * 
-     * Word format: 0BBBB 0GGGG 0RRRR 0LLLL
+     * Word format: 0000 0000 0000 0000 0000 BBBB GGGG RRRR
      * 
      * @param r Red intensity, 0.0f to 1.0f. Resolution is 4 bits.
      * @param g Green intensity, 0.0f to 1.0f. Resolution is 4 bits.
@@ -39,24 +38,7 @@ public class LightingApi {
      * @return Integer describing RGB color for a block
      */
     public static int makeRGBLightValue(float r, float g, float b) {
-        // Clamp color channels
-        if (r < 0.0f)
-            r = 0.0f;
-        else if (r > 1.0f)
-            r = 1.0f;
-
-        if (g < 0.0f)
-            g = 0.0f;
-        else if (g > 1.0f)
-            g = 1.0f;
-
-        if (b < 0.0f)
-            b = 0.0f;
-        else if (b > 1.0f)
-            b = 1.0f;
-
-        int brightness = (int) (15.0f * Math.max(Math.max(r, g), b));
-        return brightness | ((((int) (15.0F * b)) << _bitshift_b) + (((int) (15.0F * g)) << _bitshift_g) + (((int) (15.0F * r)) << _bitshift_r));
+        return makeRGBLightValue((int)(r * 15.0F), (int)(g * 15.0F), (int)(b * 15.0F));
     }
 
     /**
@@ -64,7 +46,7 @@ public class LightingApi {
      * Automatically computes the Minecraft brightness value using the brightest of the r, g and b channels.
      * This value can be used directly for Block.lightValue 
      * 
-     * Word format: 0RRRR 0GGGG 0BBBB 0LLLL
+     * Word format: 0000 0000 0000 0000 0000 BBBB GGGG RRRR
      * 
      * @param r Red intensity, 0 to 15. Resolution is 4 bits.
      * @param g Green intensity, 0 to 15. Resolution is 4 bits.
@@ -88,12 +70,7 @@ public class LightingApi {
         else if (b > _bitmask)
             b = _bitmask;
 
-        int brightness = Math.max(Math.max(r, g), b);
-        return brightness | ((b << _bitshift_b) + (g << _bitshift_g) + (r << _bitshift_r));
-    }
-
-    public static int extractL(int light) {
-        return (light >>> _bitshift_l) & _bitmask;
+        return toLightBlock(r, g, b);
     }
 
     public static int extractR(int light) {
@@ -108,10 +85,6 @@ public class LightingApi {
         return (light >>> _bitshift_b) & _bitmask;
     }
 
-    public static int getMaxChannel(int light) {
-        return Ints.max(extractR(light), extractG(light), extractB(light), extractL(light));
-    }
-
     public static int extractSunR(int light) {
         return (light >>> _bitshift_sun_r) & _bitmask;
     }
@@ -124,18 +97,20 @@ public class LightingApi {
         return (light >>> _bitshift_sun_b) & _bitmask;
     }
 
-    public static int getMaxChannelSun(int light) {
-        return Ints.max(extractSunR(light), extractSunG(light), extractSunB(light));
+    public static int toLightBlock(int r, int g, int b) {
+        return ((r & _bitmask) << _bitshift_r) | ((g & _bitmask) << _bitshift_g) | ((b & _bitmask) << _bitshift_b);
     }
 
-    public static int toLight(int r, int g, int b, int l, int sr, int sg, int sb) {
-        return ((sr & _bitmask) << _bitshift_sun_r) | ((sg & _bitmask) << _bitshift_sun_g) | ((sb & _bitmask) << _bitshift_sun_b)
-               | ((r & _bitmask) << _bitshift_r) | ((g & _bitmask) << _bitshift_g) | ((b & _bitmask) << _bitshift_b)
-               | ((l & _bitmask) << _bitshift_l);
+    public static int toLightSun(int sr, int sg, int sb) {
+        return ((sr & _bitmask) << _bitshift_sun_r) | ((sg & _bitmask) << _bitshift_sun_g) | ((sb & _bitmask) << _bitshift_sun_b);
+    }
+
+    public static int toLight(int r, int g, int b, int sr, int sg, int sb) {
+        return toLightBlock(r, g, b) | toLightSun(sr, sg, sb);
     }
 
     @SideOnly(Side.CLIENT)
-    public static int toRenderLight(int r, int g, int b, int l, int sr, int sg, int sb) {
-        return (1 << 30) | toLight(r, g, b, l, sr, sg, sb);
+    public static int toRenderLight(int r, int g, int b, int sr, int sg, int sb) {
+        return (1 << 30) | toLight(r, g, b, sr, sg, sb);
     }
 }

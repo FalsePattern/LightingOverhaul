@@ -11,6 +11,12 @@ varying vec4 p_LightCoord;
 varying vec4 p_LightCoordSun;
 varying vec4 p_Color;
 
+#define BLOCK_R x & 0xf
+#define BLOCK_G x >> 4
+#define BLOCK_B y & 0xf
+#define SUN_R y >> 4
+#define SUN_G z & 0xf
+#define SUN_B z >> 4
 void main() {
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
     p_TexCoord = TexCoord;
@@ -24,15 +30,15 @@ void main() {
 			int(LightCoord.w)
 		);
 		vec4 color_block = vec4(
-			float(color_mixed.x >> 4),
-			float(color_mixed.y & 0xf),
-			float(color_mixed.y >> 4),
+			float(color_mixed.BLOCK_R),
+			float(color_mixed.BLOCK_G),
+			float(color_mixed.BLOCK_B),
 			0
 		);
 		vec4 color_sun = vec4(
-			float(color_mixed.z & 0xf),
-			float(color_mixed.z >> 4),
-			float(color_mixed.w & 0xf),
+			float(color_mixed.SUN_R),
+			float(color_mixed.SUN_G),
+			float(color_mixed.SUN_B),
 			0
 		);
         p_LightCoord = color_block;

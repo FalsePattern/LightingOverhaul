@@ -17,6 +17,6 @@ public abstract class EntityMobMixin {
               require = 1)
     private int sunlightValueCheckFix(World worldObj, EnumSkyBlock p_72972_1_, int p_72972_2_, int p_72972_3_, int p_72972_4_) {
         int val = worldObj.getSavedLightValue(p_72972_1_, p_72972_2_, p_72972_3_, p_72972_4_);
-        return LightingApi.getMaxChannelSun(val);
+        return Math.max(LightingApi.extractSunR(val), Math.max(LightingApi.extractSunG(val), LightingApi.extractSunB(val)));
     }
 }

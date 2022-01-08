@@ -36,7 +36,6 @@ public abstract class RenderBlocksMixin {
                 mixColorChannel(LightingApi._bitshift_r, a, b, c, l),
                 mixColorChannel(LightingApi._bitshift_g, a, b, c, l),
                 mixColorChannel(LightingApi._bitshift_b, a, b, c, l),
-                mixColorChannel(LightingApi._bitshift_l, a, b, c, l),
                 mixColorChannel(LightingApi._bitshift_sun_r, a, b, c, l),
                 mixColorChannel(LightingApi._bitshift_sun_g, a, b, c, l),
                 mixColorChannel(LightingApi._bitshift_sun_b, a, b, c, l)));
@@ -52,7 +51,6 @@ public abstract class RenderBlocksMixin {
                 mixColorChannel(LightingApi._bitshift_r, a, b, c, d, fA, fB, fC, fD),
                 mixColorChannel(LightingApi._bitshift_g, a, b, c, d, fA, fB, fC, fD),
                 mixColorChannel(LightingApi._bitshift_b, a, b, c, d, fA, fB, fC, fD),
-                mixColorChannel(LightingApi._bitshift_l, a, b, c, d, fA, fB, fC, fD),
                 mixColorChannel(LightingApi._bitshift_sun_r, a, b, c, d, fA, fB, fC, fD),
                 mixColorChannel(LightingApi._bitshift_sun_g, a, b, c, d, fA, fB, fC, fD),
                 mixColorChannel(LightingApi._bitshift_sun_b, a, b, c, d, fA, fB, fC, fD)));

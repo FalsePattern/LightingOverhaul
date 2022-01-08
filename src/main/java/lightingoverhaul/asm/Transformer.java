@@ -57,9 +57,6 @@ public class Transformer implements IClassTransformer {
                         if (intNode.operand == GL11__GL_TEXTURE_2D) {
                             hook = new MethodInsnNode(Opcodes.INVOKESTATIC, helperName, isEnable ? "enableTexture" : "disableTexture", "()V", false);
                             LOG.debug("Applied ASM transformation in method " + classNode.name + "." + methodNode.name + " for " + (isEnable ? "glEnable" : "glDisable") + "(GL_TEXTURE_2D);");
-                        } else if (intNode.operand == GL11__GL_LIGHTING){
-                            hook = new MethodInsnNode(Opcodes.INVOKESTATIC, helperName, isEnable ? "disableEmissives" : "enableEmissives", "()V", false);
-                            LOG.debug("Applied ASM transformation in method " + classNode.name + "." + methodNode.name + " for " + (isEnable ? "glEnable" : "glDisable") + "(GL_LIGHTING);");
                         } else {
                             continue;
                         }

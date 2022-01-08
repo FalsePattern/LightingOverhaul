@@ -1,4 +1,4 @@
-#version 120
+#version 130
 
 uniform sampler2D Texture;
 varying vec2 p_TexCoord;
@@ -39,17 +39,6 @@ vec3 doRGB(vec3 block, vec3 sun) {
 }
 
 void main() {
-/*    float block_r = p_LightCoord.x;
-    float block_g = p_LightCoord.y;
-    float block_b = p_LightCoord.z;
-    float sun_r = p_LightCoordSun.x;
-    float sun_g = p_LightCoordSun.y;
-    float sun_b = p_LightCoordSun.z;
-
-    float mixed_r = doColor(block_r, sun_r);
-    float mixed_g = doColor(block_g, sun_g);
-    float mixed_b = doColor(block_b, sun_b);*/
-
     vec4 color = vec4(doRGB(p_LightCoord.xyz, p_LightCoordSun.xyz), 1);
     if (enableTexture == 1)
     {
