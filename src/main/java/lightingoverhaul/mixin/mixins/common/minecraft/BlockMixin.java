@@ -39,8 +39,7 @@ public abstract class BlockMixin implements IBlockMixin {
     @Redirect(method = "setLightLevel",
               at = @At(value="FIELD",
                        target = "Lnet/minecraft/block/Block;lightValue:I"),
-              require = 1
-    )
+              require = 1)
     public void setLightLevel(Block instance, int value) {
         if (par1 < 0.0F) {
             par1 = 0.0F;

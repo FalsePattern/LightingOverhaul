@@ -75,11 +75,9 @@ public abstract class WorldMixin {
     // blue brown green red black
     int[] stainedglass_api_index;
 
-    /***
-     * @author darkshadow44
-     * @reason TODO
-     */
-    @Inject(at = @At("RETURN"), method = { "<init>*" })
+    @Inject(method = "<init>*",
+            at = @At("RETURN"),
+            require = 2)
     public void init(CallbackInfo callbackInfo) {
         doInit();
     }

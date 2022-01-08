@@ -156,7 +156,8 @@ public abstract class TessellatorMixin implements ITessellatorMixin {
     }
 
     @Inject(method = "<init>*",
-            at = @At("RETURN"))
+            at = @At("RETURN"),
+            require = 1)
     private void init(CallbackInfo callback) {
         setupShaders();
     }

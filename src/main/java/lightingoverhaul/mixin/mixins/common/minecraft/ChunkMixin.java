@@ -79,7 +79,7 @@ public abstract class ChunkMixin implements IChunkMixin  {
     @Shadow
     protected abstract void relightBlock(int x, int y, int z);
 
-    @Shadow
+    @Shadow(remap = false)
     public abstract TileEntity getTileEntityUnsafe(int x, int y, int z);
 
     @Shadow
@@ -421,7 +421,8 @@ public abstract class ChunkMixin implements IChunkMixin  {
     @Redirect(method="func_150809_p",
               at=@At(value  = "FIELD",
                      target="Lnet/minecraft/world/WorldProvider;hasNoSky:Z",
-                     opcode = Opcodes.GETFIELD))
+                     opcode = Opcodes.GETFIELD),
+              require = 1)
     private boolean fixNoSky(WorldProvider instance) {
         return false;
     }

@@ -77,8 +77,9 @@ public abstract class ExtendedBlockStorageMixin implements IExtendedBlockStorage
         return bColorArraySun;
     }
 
-    @Inject(at = @At("RETURN"),
-            method = { "<init>" })
+    @Inject(method = "<init>",
+            at = @At("RETURN"),
+            require = 1)
     public void init(CallbackInfo callbackInfo) {
         rColorArray = new NibbleArray(blockLSBArray.length, 4);
         gColorArray = new NibbleArray(blockLSBArray.length, 4);

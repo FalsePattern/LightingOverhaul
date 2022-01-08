@@ -19,7 +19,8 @@ public abstract class EntityPlayerMPMixin {
                      target = "Lnet/minecraft/network/NetHandlerPlayServer;sendPacket(Lnet/minecraft/network/Packet;)V",
                      shift = At.Shift.AFTER,
                      ordinal = 1),
-            locals = LocalCapture.CAPTURE_FAILHARD)
+            locals = LocalCapture.CAPTURE_FAILHARD,
+            require = 1)
     public void onUpdate(CallbackInfo ci, ArrayList<Chunk> arraylist) {
         PlayerManagerHelper.entityPlayerMP_onUpdate(arraylist, (EntityPlayerMP) (Object) this);
     }
