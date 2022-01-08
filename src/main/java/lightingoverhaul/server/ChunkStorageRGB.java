@@ -111,8 +111,10 @@ public class ChunkStorageRGB {
                     }
                 }
             }
-            Arrays.fill(block.data, (byte)0);
-            Arrays.fill(sun.data, (byte)0);
+            if (block != null)
+                Arrays.fill(block.data, (byte)0);
+            if (sun != null)
+                Arrays.fill(sun.data, (byte)0);
         } else {
             byte[] block = ebs.getBlocklightArray().data;
             byte[] sun = ebs.getSkylightArray().data;
