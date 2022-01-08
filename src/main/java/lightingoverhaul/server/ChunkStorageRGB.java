@@ -70,6 +70,7 @@ public class ChunkStorageRGB {
     }
 
     private static void max(NibbleArray a, NibbleArray b, int x, int y, int z) {
+        if (a == null || b == null) return;
         a.set(x, y, z, Math.max(a.get(x, y, z), b.get(x, y, z)));
     }
 
