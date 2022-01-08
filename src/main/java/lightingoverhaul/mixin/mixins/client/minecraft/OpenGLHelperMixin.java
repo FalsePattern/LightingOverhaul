@@ -29,6 +29,9 @@ public abstract class OpenGLHelperMixin {
         if (tessellatorMixin.isProgramInUse()) {
             ci.cancel();
             int brightness = ((int) y << 16) + (int) x;
+            if ((brightness & (1 << 30)) != (1 << 30)) {
+                brightness = LightingApi.convertLightMapCoordsToPackedLight(x, y);
+            }
             /*
              * brightness is of the form 0100 0000 bbbb gggg rrrr BBBB GGGG RRRR and needs
              * to be decomposed.
@@ -36,6 +39,12 @@ public abstract class OpenGLHelperMixin {
             int block_r = LightingApi.extractR(brightness);
             int block_g = LightingApi.extractG(brightness);
             int block_b = LightingApi.extractB(brightness);
+            int l = Math.max(Math.max(block_r, block_g), block_b);
+            if (LightingOverhaul.emissivesEnabled) {
+                block_r = l;
+                block_g = l;
+                block_b = l;
+            }
 
             int sun_r = LightingApi.extractSunR(brightness);
             int sun_g = LightingApi.extractSunG(brightness);

@@ -125,4 +125,10 @@ public class LightingApi {
     public static int getHighestValueFromPackedSun(int light) {
         return Math.max(Math.max(extractSunR(light), extractSunG(light)), extractSunB(light));
     }
+
+    public static int convertLightMapCoordsToPackedLight(float x, float y) {
+        int block = (int) Math.max(Math.min(x / 16.0F, 15), 0);
+        int sun = (int) Math.max(Math.min(y / 16.0F, 15), 0);
+        return LightingApi.toLight(block, block, block, sun, sun, sun);
+    }
 }
