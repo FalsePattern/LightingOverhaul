@@ -15,7 +15,6 @@ public enum Mixin {
     BlockMixin(builder(Side.COMMON).unit(CompatibilityTier.Regular, "minecraft.BlockMixin")),
     ChunkMixin(builder(Side.COMMON).unit(CompatibilityTier.InjectCancel, "minecraft.ChunkMixin")),
     EntityMobMixin(builder(Side.COMMON).unit(CompatibilityTier.Regular, "minecraft.EntityMobMixin")),
-    EntityPlayerMPMixin(builder(Side.COMMON).unit(CompatibilityTier.Regular, "minecraft.EntityPlayerMPMixin")),
     ExtendedBlockStorageMixin(builder(Side.COMMON).unit(CompatibilityTier.Regular, "minecraft.ExtendedBlockStorageMixin")),
     WorldMixin(builder(Side.COMMON).unit(CompatibilityTier.InjectCancel, "minecraft.WorldMixin")),
 

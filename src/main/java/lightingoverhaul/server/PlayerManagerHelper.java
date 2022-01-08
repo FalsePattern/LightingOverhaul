@@ -20,16 +20,11 @@ public class PlayerManagerHelper {
      * 
      * Happens when a server is sending chunk data to a player
      * 
-     * @param player
-     * @param chunkLocation
+     * @param player The player that the chunk data will be sent to
+     * @param chunkLocation The chunk's position
      */
     public static void sendToPlayerWatchingChunk(EntityPlayerMP player, ChunkCoordIntPair chunkLocation) {
-        // LOlog.info("Server just sent chunk ({}, {}) to player {}",
-        // chunkLocation.chunkXPos, chunkLocation.chunkZPos, player.getDisplayName());
-
-        // TODO: Load chunk from server
-        // sendChunkRGBDataToPlayer(player, chunkLocation.chunkXPos,
-        // chunkLocation.chunkZPos, null);
+         sendChunkRGBDataToPlayer(player, chunkLocation.chunkXPos, chunkLocation.chunkZPos, null);
     }
 
     public static void entityPlayerMP_onUpdate(List<Chunk> chunks, EntityPlayerMP player) {

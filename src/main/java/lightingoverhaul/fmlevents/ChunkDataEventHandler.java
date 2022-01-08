@@ -1,5 +1,6 @@
 package lightingoverhaul.fmlevents;
 
+import lightingoverhaul.server.PlayerManagerHelper;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.event.world.ChunkDataEvent;
@@ -37,8 +38,8 @@ public class ChunkDataEventHandler {
     }
 
     @SubscribeEvent
-    public void UnloadChunk(ChunkWatchEvent.UnWatch event) {
-
+    public void LoadChunk(ChunkWatchEvent.Watch event) {
+        PlayerManagerHelper.sendToPlayerWatchingChunk(event.player, event.chunk);
     }
 
 }
