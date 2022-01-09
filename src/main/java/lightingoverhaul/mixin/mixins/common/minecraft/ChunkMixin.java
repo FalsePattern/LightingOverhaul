@@ -123,23 +123,23 @@ public abstract class ChunkMixin implements IChunkMixin  {
                        target = "Lnet/minecraft/world/EnumSkyBlock;defaultLightValue:I"),
               require = 2)
     private int getBlockLightValue_0(EnumSkyBlock instance) {
-        return instance.defaultLightValue & LightingApi._bitmask;
+        return instance == EnumSkyBlock.Sky ? LightingApi.getHighestValueFromPackedSun(instance.defaultLightValue) : LightingApi.getHighestValueFromPackedBlock(instance.defaultLightValue);
     }
 
     @Redirect(method = "getBlockLightValue",
               at = @At(value = "INVOKE",
                        target = "Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;getExtSkylightValue(III)I"),
               require = 1)
-    private int getBlockLightValue_1(ExtendedBlockStorage instance, int p_76670_1_, int p_76670_2_, int p_76670_3_) {
-        return instance.getExtSkylightValue(p_76670_1_, p_76670_2_ & 15, p_76670_3_) & LightingApi._bitmask;
+    private int getBlockLightValue_1(ExtendedBlockStorage instance, int x, int y, int z) {
+        return LightingApi.getHighestValueFromPackedSun(instance.getExtSkylightValue(x, y, z));
     }
 
     @Redirect(method = "getBlockLightValue",
               at = @At(value = "INVOKE",
                        target = "Lnet/minecraft/world/chunk/storage/ExtendedBlockStorage;getExtBlocklightValue(III)I"),
               require = 1)
-    private int getBlockLightValue_2(ExtendedBlockStorage instance, int p_76670_1_, int p_76670_2_, int p_76670_3_) {
-        return instance.getExtBlocklightValue(p_76670_1_, p_76670_2_ & 15, p_76670_3_) & LightingApi._bitmask;
+    private int getBlockLightValue_2(ExtendedBlockStorage instance, int x, int y, int z) {
+        return LightingApi.getHighestValueFromPackedBlock(instance.getExtBlocklightValue(x, y, z));
     }
 
     @Inject(method = "generateSkylightMap",

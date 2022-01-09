@@ -15,8 +15,8 @@ public abstract class EntityMobMixin {
               at= @At(value="INVOKE",
                       target="Lnet/minecraft/world/World;getSavedLightValue(Lnet/minecraft/world/EnumSkyBlock;III)I"),
               require = 1)
-    private int sunlightValueCheckFix(World worldObj, EnumSkyBlock p_72972_1_, int p_72972_2_, int p_72972_3_, int p_72972_4_) {
-        int val = worldObj.getSavedLightValue(p_72972_1_, p_72972_2_, p_72972_3_, p_72972_4_);
-        return Math.max(LightingApi.extractSunR(val), Math.max(LightingApi.extractSunG(val), LightingApi.extractSunB(val)));
+    private int sunlightValueCheckFix(World worldObj, EnumSkyBlock sky, int x, int y, int z) {
+        int val = worldObj.getSavedLightValue(sky, x, y, z);
+        return LightingApi.getHighestValueFromPackedSun(val);
     }
 }

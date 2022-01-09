@@ -59,23 +59,6 @@ public class LightingOverhaul extends DummyModContainer {
         return true;
     }
 
-    static void setSkyColor() {
-        try {
-            Field field = EnumSkyBlock.class.getDeclaredFields()[2];
-            field.setAccessible(true);
-
-            Field modifiersField = Field.class.getDeclaredField("modifiers");
-            modifiersField.setAccessible(true);
-
-            modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-
-            int color = (15 << LightingApi._bitshift_sun_r) | (15 << LightingApi._bitshift_sun_g) | (15 << LightingApi._bitshift_sun_b) | 15;
-            field.set(EnumSkyBlock.Sky, color);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     @Subscribe
     public void preInit(FMLPreInitializationEvent evt) {
 
@@ -88,8 +71,6 @@ public class LightingOverhaul extends DummyModContainer {
 
         // Hook into chunk events
         MinecraftForge.EVENT_BUS.register(chunkDataEventHandler);
-
-        setSkyColor();
     }
 
     private static void setLightValue(Block block, int metadata, int r, int g, int b) {

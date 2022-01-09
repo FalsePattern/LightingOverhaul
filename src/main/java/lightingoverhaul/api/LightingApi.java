@@ -113,4 +113,16 @@ public class LightingApi {
     public static int toRenderLight(int r, int g, int b, int sr, int sg, int sb) {
         return (1 << 30) | toLight(r, g, b, sr, sg, sb);
     }
+
+    public static int getHighestValueFromPacked(int light) {
+        return Math.max(Math.max(Math.max(Math.max(Math.max(extractR(light), extractG(light)), extractB(light)), extractSunR(light)), extractSunG(light)), extractSunB(light));
+    }
+
+    public static int getHighestValueFromPackedBlock(int light) {
+        return Math.max(Math.max(extractR(light), extractG(light)), extractB(light));
+    }
+
+    public static int getHighestValueFromPackedSun(int light) {
+        return Math.max(Math.max(extractSunR(light), extractSunG(light)), extractSunB(light));
+    }
 }
