@@ -62,14 +62,23 @@ public abstract class WorldMixin {
     protected abstract int computeLightValue(int p_98179_1_, int p_98179_2_, int p_98179_3_, EnumSkyBlock p_98179_4_);
 
     public long[] lightAdditionBlockList;
-    public int[][][] lightAdditionNeeded;
-    public int[][][] lightAdditionNeededOpacity;
+    public int[] lightAdditionNeeded;
+    public int[] lightAdditionNeededOpacity;
     public int[] lightBackfillIndexes;
-    public int[][] lightBackfillBlockList;
-    public int[][][] lightBackfillNeeded;
+    public int[] lightBackfillBlockList;
+    public int[] lightBackfillNeeded;
     public int updateFlag;
     public EnumSkyBlock flagEntry;
     private boolean inited;
+
+    private static final int LIGHT_LEVEL_BITS = 4;
+    private static final int LIGHT_LEVELS = (1 << LIGHT_LEVEL_BITS);
+    private static final int COORD_BITS = 5; // Number of bits for one axis
+    private static final int SIZE = (1 << COORD_BITS);
+    private static final int BASE_OFFSET = SIZE >> 1; // Number of blocks in one direction
+    private static final int ORIGIN_OFFSET = BASE_OFFSET - 1; // Offset for the start block
+    private static final int COORD_MASK = SIZE - 1; // Mask for getting one axis
+    private static final long START_COORD = (BASE_OFFSET) | (BASE_OFFSET << COORD_BITS) | (BASE_OFFSET << (COORD_BITS * 2));
 
     // white orange magenta lightblue yellow lime pink gray lightgray cyan purple
     // blue brown green red black
@@ -85,16 +94,24 @@ public abstract class WorldMixin {
     private void doInit() {
         if (!inited) {
             lightAdditionBlockList = new long[32768 * 8];
-            lightAdditionNeeded = new int[64][64][64];
-            lightAdditionNeededOpacity = new int[64][64][64];
-            lightBackfillIndexes = new int[32];
-            lightBackfillBlockList = new int[32][5000 * 8];
-            lightBackfillNeeded = new int[64][64][64];
+            lightAdditionNeeded = new int[SIZE * SIZE * SIZE];
+            lightAdditionNeededOpacity = new int[SIZE * SIZE * SIZE];
+            lightBackfillIndexes = new int[LIGHT_LEVELS];
+            lightBackfillBlockList = new int[LIGHT_LEVELS * 5000 * 8];
+            lightBackfillNeeded = new int[SIZE * SIZE * SIZE];
             updateFlag = 1;
             flagEntry = EnumSkyBlock.Block;
             stainedglass_api_index = new int[] { 15, 14, 13, 12, 11, 10, 9, 7, 8, 6, 5, 4, 3, 2, 1, 0 };
             inited = true;
         }
+    }
+
+    private static int to3DIndex(int x, int y, int z) {
+        return (x << (COORD_BITS * 2)) | (y << COORD_BITS) | z;
+    }
+
+    private static int to2DIndex(int x, int y) {
+        return (y << LIGHT_LEVEL_BITS) | x;
     }
 
 
@@ -106,8 +123,6 @@ public abstract class WorldMixin {
         int sr = LightingApi.extractSunR(lightIn);
         int sg = LightingApi.extractSunG(lightIn);
         int sb = LightingApi.extractSunB(lightIn);
-
-        boolean hasColor = r > 0 || g > 0 || b > 0;
 
         int opacity_r = opacityIn;
         int opacity_g = opacityIn;
@@ -334,12 +349,6 @@ public abstract class WorldMixin {
         }
 
 
-        final int offset = 15; // Offset for the start block
-        final int size = 32; // Number or blocks in one directon
-        final int coord_size = 6; // Number of bits for one axis
-        final int coord_mask = (1 << coord_size) - 1; // Mask for getting one axis
-        final int startCoordOne = (1 << coord_size) / 2;
-        final long startCoord = (startCoordOne) | (startCoordOne << coord_size) | (startCoordOne << (coord_size * 2));
 
         // Format of lightAdditionBlockList word:
         // ......................bbbbggggrrrrBBBBGGGGRRRRzzzzzzyyyyyyxxxxxx
@@ -348,23 +357,23 @@ public abstract class WorldMixin {
             // compLightValue has components that are larger than savedLightValue, the block at the current position is brighter than the saved value at the current positon... it must have been made brighter somehow
             // Light Splat/Spread
 
-            this.lightAdditionNeeded[offset][offset][offset] = this.updateFlag; // Light needs processing processed
+            this.lightAdditionNeeded[to3DIndex(ORIGIN_OFFSET, ORIGIN_OFFSET, ORIGIN_OFFSET)] = this.updateFlag; // Light needs processing processed
             lightAdditionsCalled++;
 
-            this.lightAdditionBlockList[getter++] = startCoord | ((long) compLightValue << (coord_size * 3));
+            this.lightAdditionBlockList[getter++] = START_COORD | ((long) compLightValue << (COORD_BITS * 3));
 
             while (filler < getter) {
                 queueEntry = this.lightAdditionBlockList[filler++]; // Get Entry at l, which starts at 0
-                queue_x = ((int) (queueEntry & coord_mask) - size + par_x); // Get Entry X coord
-                queue_y = ((int) ((queueEntry >> coord_size) & coord_mask) - size + par_y); // Get Entry Y coord
-                queue_z = ((int) ((queueEntry >> (coord_size * 2)) & coord_mask) - size + par_z); // Get Entry Z
+                queue_x = ((int) (queueEntry & COORD_MASK) - BASE_OFFSET + par_x); // Get Entry X coord
+                queue_y = ((int) ((queueEntry >> COORD_BITS) & COORD_MASK) - BASE_OFFSET + par_y); // Get Entry Y coord
+                queue_z = ((int) ((queueEntry >> (COORD_BITS * 2)) & COORD_MASK) - BASE_OFFSET + par_z); // Get Entry Z
                 // coord
 
-                if (this.lightAdditionNeeded[queue_x - par_x + offset][queue_y - par_y + offset][queue_z - par_z + offset] != this.updateFlag)
+                if (this.lightAdditionNeeded[to3DIndex(queue_x - par_x + ORIGIN_OFFSET, queue_y - par_y + ORIGIN_OFFSET, queue_z - par_z + ORIGIN_OFFSET)] != this.updateFlag)
                     continue; // Light has been marked for a later update
 
-                queueLightEntry = (int) (queueEntry >>> (coord_size * 3)); // Get Entry's saved Light
-                int oldOpacity = this.lightAdditionNeededOpacity[queue_x - par_x + offset][queue_y - par_y + offset][queue_z - par_z + offset];
+                queueLightEntry = (int) (queueEntry >>> (COORD_BITS * 3)); // Get Entry's saved Light
+                int oldOpacity = this.lightAdditionNeededOpacity[to3DIndex(queue_x - par_x + ORIGIN_OFFSET, queue_y - par_y + ORIGIN_OFFSET, queue_z - par_z + ORIGIN_OFFSET)];
                 if (oldOpacity > 1) {
                     queueLightEntry = this.computeLightValue(queue_x, queue_y, queue_z, par1Enu);
                 }
@@ -373,11 +382,11 @@ public abstract class WorldMixin {
                 // been updated already... Consider storing values in a temp 3D array as they
                 // are gathered and applying changes all at once
 
-                if (Math.abs(queue_x - rel_x) < offset && Math.abs(queue_y - rel_y) < offset && Math.abs(queue_z - rel_z) < offset) {
-                    this.lightBackfillNeeded[queue_x - rel_x + offset][queue_y - rel_y + offset][queue_z - rel_z + offset] = this.updateFlag + 1; // Light has been visited and
+                if (Math.abs(queue_x - rel_x) < ORIGIN_OFFSET && Math.abs(queue_y - rel_y) < ORIGIN_OFFSET && Math.abs(queue_z - rel_z) < ORIGIN_OFFSET) {
+                    this.lightBackfillNeeded[to3DIndex(queue_x - rel_x + ORIGIN_OFFSET, queue_y - rel_y + ORIGIN_OFFSET, queue_z - rel_z + ORIGIN_OFFSET)] = this.updateFlag + 1; // Light has been visited and
                     // processed
                 }
-                this.lightAdditionNeeded[queue_x - par_x + offset][queue_y - par_y + offset][queue_z - par_z + offset] = this.updateFlag + 1; // Light has been visited and processed
+                this.lightAdditionNeeded[to3DIndex(queue_x - par_x + ORIGIN_OFFSET, queue_y - par_y + ORIGIN_OFFSET, queue_z - par_z + ORIGIN_OFFSET)] = this.updateFlag + 1; // Light has been visited and processed
 
                 lightAdditionsSatisfied++;
 
@@ -428,7 +437,7 @@ public abstract class WorldMixin {
                         if (neighbor_y < 0 || neighbor_y > 255)
                             continue;
 
-                        lightEntry = this.lightAdditionNeeded[neighbor_x - par_x + offset][neighbor_y - par_y + offset][neighbor_z - par_z + offset];
+                        lightEntry = this.lightAdditionNeeded[to3DIndex(neighbor_x - par_x + ORIGIN_OFFSET, neighbor_y - par_y + ORIGIN_OFFSET, neighbor_z - par_z + ORIGIN_OFFSET)];
                         int myOpacity = Math.max(1, this.getBlockNullSafe(queue_x, queue_y, queue_z).getLightOpacity((World) (Object) this, queue_x, queue_y, queue_z));
 
                         // on recursive calls, ignore instances of this.updateFlag being flag + 1
@@ -477,18 +486,18 @@ public abstract class WorldMixin {
 
                         if (((final_r > neighbor_r) || (final_g > neighbor_g) || (final_b > neighbor_b)) && (getter < this.lightAdditionBlockList.length)) {
                             // Mark neighbor to be processed
-                            this.lightAdditionNeeded[neighbor_x - par_x + offset][neighbor_y - par_y + offset][neighbor_z - par_z + offset] = this.updateFlag;
-                            this.lightAdditionNeededOpacity[neighbor_x - par_x + offset][neighbor_y - par_y + offset][neighbor_z - par_z + offset] = myOpacity;
-                            this.lightAdditionBlockList[getter++] = ((long) neighbor_x - (long) par_x + size) | (((long) neighbor_y - (long) par_y + size) << coord_size)
-                                                                    | (((long) neighbor_z - (long) par_z + size) << (coord_size * 2)) | (light_combine << (coord_size * 3));
+                            this.lightAdditionNeeded[to3DIndex(neighbor_x - par_x + ORIGIN_OFFSET, neighbor_y - par_y + ORIGIN_OFFSET, neighbor_z - par_z + ORIGIN_OFFSET)] = this.updateFlag;
+                            this.lightAdditionNeededOpacity[to3DIndex(neighbor_x - par_x + ORIGIN_OFFSET, neighbor_y - par_y + ORIGIN_OFFSET, neighbor_z - par_z + ORIGIN_OFFSET)] = myOpacity;
+                            this.lightAdditionBlockList[getter++] = ((long) neighbor_x - (long) par_x + BASE_OFFSET) | (((long) neighbor_y - (long) par_y + BASE_OFFSET) << COORD_BITS)
+                                                                    | (((long) neighbor_z - (long) par_z + BASE_OFFSET) << (COORD_BITS * 2)) | (light_combine << (COORD_BITS * 3));
                             lightAdditionsCalled++;
                         } else {
                             if (queue_r + opacity >= neighbor_r && queue_g + opacity >= neighbor_g && queue_b + opacity >= neighbor_b)
                                 continue;
-                            if (Math.abs(queue_x - rel_x) >= offset || Math.abs(queue_y - rel_y) >= offset || Math.abs(queue_z - rel_z) >= offset)
+                            if (Math.abs(queue_x - rel_x) >= ORIGIN_OFFSET || Math.abs(queue_y - rel_y) >= ORIGIN_OFFSET || Math.abs(queue_z - rel_z) >= ORIGIN_OFFSET)
                                 continue;
                             // Mark queue location to be re-processed
-                            this.lightBackfillNeeded[queue_x - rel_x + offset][queue_y - rel_y + offset][queue_z - rel_z + offset] = this.updateFlag;
+                            this.lightBackfillNeeded[to3DIndex(queue_x - rel_x + ORIGIN_OFFSET, queue_y - rel_y + ORIGIN_OFFSET, queue_z - rel_z + ORIGIN_OFFSET)] = this.updateFlag;
                         }
                     }
                 }
@@ -515,15 +524,15 @@ public abstract class WorldMixin {
 
                 this.setLightValue(par1Enu, par_x, par_y, par_z, compLightValue); // This kills the light
 
-                this.lightAdditionBlockList[getter++] = (startCoord | ((long) savedLightValue << (coord_size * 3)));
+                this.lightAdditionBlockList[getter++] = (START_COORD | ((long) savedLightValue << (COORD_BITS * 3)));
 
                 while (filler <= getter) {
                     queueEntry = this.lightAdditionBlockList[filler++]; // Get Entry at l, which starts at 0
-                    queue_x = ((int) (queueEntry & coord_mask) - size + par_x); // Get Entry X coord
-                    queue_y = ((int) ((queueEntry >> coord_size) & coord_mask) - size + par_y); // Get Entry Y coord
-                    queue_z = ((int) ((queueEntry >> (coord_size * 2)) & coord_mask) - size + par_z); // Get Entry Z
+                    queue_x = ((int) (queueEntry & COORD_MASK) - BASE_OFFSET + par_x); // Get Entry X coord
+                    queue_y = ((int) ((queueEntry >> COORD_BITS) & COORD_MASK) - BASE_OFFSET + par_y); // Get Entry Y coord
+                    queue_z = ((int) ((queueEntry >> (COORD_BITS * 2)) & COORD_MASK) - BASE_OFFSET + par_z); // Get Entry Z
                     // coord
-                    queueLightEntry = (int) (queueEntry >>> (coord_size * 3)); // Get Entry's saved Light
+                    queueLightEntry = (int) (queueEntry >>> (COORD_BITS * 3)); // Get Entry's saved Light
 
                     man_x = MathHelper.abs_int(queue_x - par_x);
                     man_y = MathHelper.abs_int(queue_y - par_y);
@@ -596,24 +605,24 @@ public abstract class WorldMixin {
                                 light_combine = isSky ? LightingApi.toLightSun(final_r, final_g, final_b) : LightingApi.toLightBlock(final_r, final_g, final_b);
 
                                 // record coordinates for backfill
-                                this.lightBackfillNeeded[queue_x - par_x + offset][queue_y - par_y + offset][queue_z - par_z + offset] = this.updateFlag;
-                                this.lightBackfillBlockList[sortValue - 1][this.lightBackfillIndexes[sortValue - 1]++] = (neighbor_x - par_x + size)
-                                                                                                                         | ((neighbor_y - par_y + size) << coord_size) | ((neighbor_z - par_z + size) << (coord_size * 2));
+                                this.lightBackfillNeeded[to3DIndex(queue_x - par_x + ORIGIN_OFFSET, queue_y - par_y + ORIGIN_OFFSET, queue_z - par_z + ORIGIN_OFFSET)] = this.updateFlag;
+                                this.lightBackfillBlockList[to2DIndex(sortValue - 1, this.lightBackfillIndexes[sortValue - 1]++)] = (neighbor_x - par_x + BASE_OFFSET)
+                                                                                                                         | ((neighbor_y - par_y + BASE_OFFSET) << COORD_BITS) | ((neighbor_z - par_z + BASE_OFFSET) << (COORD_BITS * 2));
                             }
                             this.setLightValue(par1Enu, neighbor_x, neighbor_y, neighbor_z, light_combine); // This kills the light
 
                             // this array keeps the algorithm going, don't touch
-                            this.lightAdditionBlockList[getter++] = ((long) neighbor_x - (long) par_x + size) | (((long) neighbor_y - (long) par_y + size) << coord_size)
-                                                                    | (((long) neighbor_z - (long) par_z + size) << (coord_size * 2)) | ((long) queueLightEntry << (coord_size * 3));
+                            this.lightAdditionBlockList[getter++] = ((long) neighbor_x - (long) par_x + BASE_OFFSET) | (((long) neighbor_y - (long) par_y + BASE_OFFSET) << COORD_BITS)
+                                                                    | (((long) neighbor_z - (long) par_z + BASE_OFFSET) << (COORD_BITS * 2)) | ((long) queueLightEntry << (COORD_BITS * 3));
 
                         } else {
                             if (sortValue == 0)
                                 continue;
 
                             // record coordinates for backfill
-                            this.lightBackfillNeeded[queue_x - par_x + offset][queue_y - par_y + offset][queue_z - par_z + offset] = this.updateFlag;
-                            this.lightBackfillBlockList[sortValue - 1][this.lightBackfillIndexes[sortValue - 1]++] = (queue_x - par_x + size) | ((queue_y - par_y + size) << coord_size)
-                                                                                                                     | ((queue_z - par_z + size) << (coord_size * 2));
+                            this.lightBackfillNeeded[to3DIndex(queue_x - par_x + ORIGIN_OFFSET, queue_y - par_y + ORIGIN_OFFSET, queue_z - par_z + ORIGIN_OFFSET)] = this.updateFlag;
+                            this.lightBackfillBlockList[to2DIndex(sortValue - 1, this.lightBackfillIndexes[sortValue - 1]++)] = (queue_x - par_x + BASE_OFFSET) | ((queue_y - par_y + BASE_OFFSET) << COORD_BITS)
+                                                                                                                     | ((queue_z - par_z + BASE_OFFSET) << (COORD_BITS * 2));
                         }
                     }
                 }
@@ -629,12 +638,12 @@ public abstract class WorldMixin {
                 // Backfill
                 for (filler = this.lightBackfillIndexes.length - 1; filler >= 0; filler--) {
                     while (this.lightBackfillIndexes[filler] > 0) {
-                        getter = this.lightBackfillBlockList[filler][--this.lightBackfillIndexes[filler]];
-                        queue_x = (getter & coord_mask) - size + par_x; // Get Entry X coord
-                        queue_y = (getter >> coord_size & coord_mask) - size + par_y; // Get Entry Y coord
-                        queue_z = (getter >> (coord_size * 2) & coord_mask) - size + par_z; // Get Entry Z coord
+                        getter = this.lightBackfillBlockList[to2DIndex(filler, --this.lightBackfillIndexes[filler])];
+                        queue_x = (getter & COORD_MASK) - BASE_OFFSET + par_x; // Get Entry X coord
+                        queue_y = (getter >> COORD_BITS & COORD_MASK) - BASE_OFFSET + par_y; // Get Entry Y coord
+                        queue_z = (getter >> (COORD_BITS * 2) & COORD_MASK) - BASE_OFFSET + par_z; // Get Entry Z coord
 
-                        if (this.lightBackfillNeeded[queue_x - par_x + offset][queue_y - par_y + offset][queue_z - par_z + offset] == this.updateFlag) {
+                        if (this.lightBackfillNeeded[to3DIndex(queue_x - par_x + ORIGIN_OFFSET, queue_y - par_y + ORIGIN_OFFSET, queue_z - par_z + ORIGIN_OFFSET)] == this.updateFlag) {
                             this.updateLightByType_withIncrement(par1Enu, queue_x, queue_y, queue_z, false, rel_x, rel_y, rel_z); /// oooooOOOOoooo spoooky!
                         }
                     }
