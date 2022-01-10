@@ -3,34 +3,39 @@ package lightingoverhaul;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Arrays;
 
+import com.falsepattern.lib.api.ComplexVersion;
+import com.falsepattern.lib.api.DependencyLoader;
+import com.falsepattern.lib.api.SemanticVersion;
+import cpw.mods.fml.common.Mod;
 import lightingoverhaul.fmlevents.ChunkDataEventHandler;
 import lightingoverhaul.network.PacketHandler;
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 
 import lightingoverhaul.api.LightingApi;
 import lightingoverhaul.mixin.interfaces.IBlockMixin;
-import cpw.mods.fml.common.DummyModContainer;
-import cpw.mods.fml.common.LoadController;
-import cpw.mods.fml.common.ModMetadata;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameData;
+import lombok.SneakyThrows;
 import lombok.val;
 import net.minecraft.block.Block;
-import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.MinecraftForge;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@SuppressWarnings("UnstableApiUsage")
-public class LightingOverhaul extends DummyModContainer {
+@Mod(modid = ModInfo.MODID,
+     version = ModInfo.VERSION,
+     name = ModInfo.MODNAME,
+     dependencies = "required-after:falsepatternlib@[0.2.2,);" +
+                    "required-after:triangulator@[1.1.1,);" +
+                    "required-after:spongemixins@[1.3.3,);")
+public class LightingOverhaul {
     public static Logger LOlog = LogManager.getLogger(ModInfo.MODNAME);
     public ChunkDataEventHandler chunkDataEventHandler;
+
+    @Mod.Instance(ModInfo.MODID)
+    public static LightingOverhaul instance;
 
     public static boolean emissivesEnabled = false;
 
@@ -40,28 +45,23 @@ public class LightingOverhaul extends DummyModContainer {
     // Reference to atomicstryker.dynamiclights.client.DynamicLights.getLightValue
     public static Method getDynamicLight = null;
 
+    @SneakyThrows
     public LightingOverhaul() {
-        super(new ModMetadata());
-        ModMetadata meta = getMetadata();
-        meta.modId = ModInfo.MODID;
-        meta.name = ModInfo.MODNAME;
-        meta.version = ModInfo.VERSION;
-        meta.url = ModInfo.URL;
-        meta.credits = ModInfo.CREDITS;
-        meta.authorList = Arrays.asList(ModInfo.AUTHORS);
-        meta.description = ModInfo.DESCRIPTION;
-        meta.useDependencyInformation = true;
+        DependencyLoader.addMavenRepo("https://maven.falsepattern.com/");
+        DependencyLoader.builder()
+                        .loadingModId(ModInfo.MODID)
+                        .groupId("com.falsepattern")
+                        .artifactId("triangulator")
+                        .minVersion(new ComplexVersion(new SemanticVersion(1, 7, 10), new SemanticVersion(1, 1, 1)))
+                        .maxVersion(new ComplexVersion(new SemanticVersion(1, 7, 10), new SemanticVersion(1, Integer.MAX_VALUE, Integer.MAX_VALUE)))
+                        .preferredVersion(new ComplexVersion(new SemanticVersion(1, 7, 10), new SemanticVersion(1, 1, 1)))
+                        .devSuffix("dev")
+                        .isMod(true)
+                        .build();
         chunkDataEventHandler = new ChunkDataEventHandler();
     }
 
-    @Override
-    public boolean registerBus(EventBus bus, LoadController controller) {
-        bus.register(this);
-
-        return true;
-    }
-
-    @Subscribe
+    @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent evt) {
 
         Config.loadConfig(new File(evt.getModConfigurationDirectory(), ModInfo.MODID + ".cfg"));
@@ -85,7 +85,7 @@ public class LightingOverhaul extends DummyModContainer {
     }
 
     public static boolean postInitRun = false;
-    @Subscribe
+    @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent evt) {
 
         LOlog.info("Beginning custom light value injection...");

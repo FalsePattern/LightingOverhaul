@@ -16,4 +16,7 @@ repositories {
             includeGroup "com.github"
         }
     }
+    maven {
+        url = "https://maven.falsepattern.com/"
+    }
 }

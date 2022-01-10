@@ -9,7 +9,7 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin.Name;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.SortingIndex;
 
 @MCVersion("1.7.10")
-@Name(ModInfo.MODID)
+@Name(ModInfo.MODID + "core")
 @SortingIndex(1001)
 public class CoreLoadingPlugin implements IFMLLoadingPlugin {
 
@@ -19,7 +19,7 @@ public class CoreLoadingPlugin implements IFMLLoadingPlugin {
 
     @Override
     public String getModContainerClass() {
-        return ModInfo.GROUPNAME + ".LightingOverhaul";
+        return null;
     }
 
     @Override

@@ -1,0 +1,15 @@
+[
+{
+  "modid": "${modId}",
+  "name": "${modName}",
+  "description": "Improving minecraft's lights with colors!",
+  "version": "${modVersion}",
+  "mcversion": "${minecraftVersion}",
+  "url": "https://github.com/FalsePattern/LightingOverhaul",
+  "authorList": ["heaton84", "Murray65536", "Kovu", "Biggerfisch", "CptSpaceToaster", "DarkShadow44", "FalsePattern"],
+  "parent": "",
+  "credits": "Special thanks to basdxz for helping me with untangling this mess of a code.",
+  "dependencies": ["falsepatternlib", "triangulator", "spongemixins"],
+  "useDependencyInformation": true
+}
+]
