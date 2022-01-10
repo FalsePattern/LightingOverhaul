@@ -13,9 +13,7 @@ dependencies {
         transitive = false
     }
 
-    compile("com.falsepattern:falsepatternlib:1.7.10-0.2.2:api") {
-        transitive = false
-    }
+    compile("com.falsepattern:triangulator:1.7.10-1.1.1:dev")
 
     annotationProcessor("org.projectlombok:lombok:1.18.22")
 }

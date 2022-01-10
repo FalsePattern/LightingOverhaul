@@ -4,9 +4,6 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import com.falsepattern.lib.api.ComplexVersion;
-import com.falsepattern.lib.api.DependencyLoader;
-import com.falsepattern.lib.api.SemanticVersion;
 import cpw.mods.fml.common.Mod;
 import lightingoverhaul.fmlevents.ChunkDataEventHandler;
 import lightingoverhaul.network.PacketHandler;
@@ -27,8 +24,7 @@ import org.apache.logging.log4j.Logger;
 @Mod(modid = ModInfo.MODID,
      version = ModInfo.VERSION,
      name = ModInfo.MODNAME,
-     dependencies = "required-after:falsepatternlib@[0.2.2,);" +
-                    "required-after:triangulator@[1.1.1,);" +
+     dependencies = "required-after:triangulator@[1.1.1,);" +
                     "required-after:spongemixins@[1.3.3,);")
 public class LightingOverhaul {
     public static Logger LOlog = LogManager.getLogger(ModInfo.MODNAME);
@@ -47,17 +43,6 @@ public class LightingOverhaul {
 
     @SneakyThrows
     public LightingOverhaul() {
-        DependencyLoader.addMavenRepo("https://maven.falsepattern.com/");
-        DependencyLoader.builder()
-                        .loadingModId(ModInfo.MODID)
-                        .groupId("com.falsepattern")
-                        .artifactId("triangulator")
-                        .minVersion(new ComplexVersion(new SemanticVersion(1, 7, 10), new SemanticVersion(1, 1, 1)))
-                        .maxVersion(new ComplexVersion(new SemanticVersion(1, 7, 10), new SemanticVersion(1, Integer.MAX_VALUE, Integer.MAX_VALUE)))
-                        .preferredVersion(new ComplexVersion(new SemanticVersion(1, 7, 10), new SemanticVersion(1, 1, 1)))
-                        .devSuffix("dev")
-                        .isMod(true)
-                        .build();
         chunkDataEventHandler = new ChunkDataEventHandler();
     }
 
