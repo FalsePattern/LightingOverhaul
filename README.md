@@ -3,6 +3,11 @@ Lighting Overhaul is an open source Forge Core-Mod that aims to replace Minecraf
 
 Exclusive to Minecraft Forge 1.7.10, don't ask for any other versions, or you will be ignored!
 
+## Dependencies
+SpongeMixins 1.3.3 (available at the releases)
+Triangulator 1.1.1 or newer (https://github.com/FalsePattern/Triangulator/releases)
+
+
 ![splash](http://i.imgur.com/JszmQ0h.png "Minecraft Forge 1.7.10")
 
 ## Features
