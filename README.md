@@ -5,6 +5,7 @@ Exclusive to Minecraft Forge 1.7.10, don't ask for any other versions, or you wi
 
 ## Dependencies
 SpongeMixins 1.3.3 (available at the releases)
+
 Triangulator 1.1.1 or newer (https://github.com/FalsePattern/Triangulator/releases)
 
 
