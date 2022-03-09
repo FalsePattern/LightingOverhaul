@@ -1,3 +1,6 @@
+# NOTICE
+The current implementation of the lighting engine has weird behaviour, and is extremely laggy (see the active issues for context). A major refactoring/rewrite of the lighting logic is planned, but i'm too busy to pour a large amount of my time into fixing it, so do not expect any improvements before the summer.
+
 ## Lighting Overhaul
 Lighting Overhaul is an open source Forge Core-Mod that aims to replace Minecraft's lighting engine with a system which adds three new channels of light.  A new set of lighting update routines will spread colors around, while a modified rendering engine deals with the new information.  That's not all though!  While colored lights are awesome, the ultimate goal of this project is to extend an API for other mod writers to use!  Expect to see some mods show up that hook into the API we provide!
 
